@@ -24,10 +24,6 @@ import android.widget.FrameLayout;
 
 public class Home extends Activity {
 
-	private static final FrameLayout.LayoutParams ZOOM_PARAMS = new FrameLayout.LayoutParams(
-			ViewGroup.LayoutParams.FILL_PARENT,
-			ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
-
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -112,27 +108,10 @@ public class Home extends Activity {
 			}
 		}
 
-//		String text = "";
-//		for (int i : examQuestions.keySet()) {
-//			text += (examQuestions.get(i).toString() + "<br />");
-//		}
-
-		//TextView tv = new TextView(this);
-		//tv.setText(Html.fromHtml(text));
-		// setContentView(tv);
-
-		// setContentView(R.layout.main);
-
 		/* Using WebView to display the full-screen image */
-		download();
 		
 		setContentView(R.layout.main);
 		WebView full = (WebView)findViewById(R.id.webView);
-//		FrameLayout mContentView = (FrameLayout) getWindow().getDecorView()
-//				.findViewById(android.R.id.content);
-//		final View zoom = full.getZoomControls();
-//		mContentView.addView(zoom, ZOOM_PARAMS);
-//		zoom.setVisibility(View.GONE);
 		full.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
         //if ROM supports Multi-Touch     
 		full.getSettings().setBuiltInZoomControls(true);
@@ -141,9 +120,9 @@ public class Home extends Activity {
 		full.setInitialScale(75);
 
 		/* Create a new Html that contains the full-screen image */
-		String html = ("<html><img src=\"323.jpg\"></html>");
+		String html = ("<html><img src=\"017.jpg\"></html>");
 		/* Finally, display the content using WebView */
-		full.loadDataWithBaseURL("file:///sdcard/", html, "text/html", "utf-8",
+		full.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8",
 				"");
 	}
 
@@ -157,74 +136,5 @@ public class Home extends Activity {
 		long fraction = (long) (range * aRandom.nextDouble());
 		int randomNumber = (int) (fraction + aStart);
 		return randomNumber;
-	}
-
-	private void download() {
-		try {
-			// set the download URL, a url that points to a file on the internet
-			// this is the file to be downloaded
-			URL url = new URL(
-					"http://5h0b154lyna.googlecode.com/files/323.JPG");
-
-			// create the new connection
-			HttpURLConnection urlConnection = (HttpURLConnection) url
-					.openConnection();
-
-			// set up some things on the connection
-			urlConnection.setRequestMethod("GET");
-			urlConnection.setDoOutput(true);
-
-			// and connect!
-			urlConnection.connect();
-		
-			File dataFolder = new File(Environment.getExternalStorageDirectory() + "/data/vn.tonnguyen.sathach/");
-			// have the object build the directory structure, if needed.
-			dataFolder.mkdirs();
-			
-			Log.v("Saving location", dataFolder.getAbsolutePath());
-			// create a File object for the output file
-			File outputFile = new File(dataFolder, "323.jpg");
-			if(outputFile.exists()) {
-				outputFile.delete();
-			}
-			// this will be used to write the downloaded data into the file we
-			// created
-			FileOutputStream fileOutput = new FileOutputStream(outputFile);
-
-			// this will be used in reading the data from the internet
-			InputStream inputStream = urlConnection.getInputStream();
-
-			// this is the total size of the file
-			int totalSize = urlConnection.getContentLength();
-			// variable to store total downloaded bytes
-			int downloadedSize = 0;
-
-			// create a buffer...
-			byte[] buffer = new byte[1024];
-			int bufferLength = 0; // used to store a temporary size of the
-									// buffer
-
-			// now, read through the input buffer and write the contents to the
-			// file
-			while ((bufferLength = inputStream.read(buffer)) > 0) {
-				// add the data in the buffer to the file in the file output
-				// stream (the file on the sd card
-				fileOutput.write(buffer, 0, bufferLength);
-				// add up the size so we know how much is downloaded
-				downloadedSize += bufferLength;
-				// this is where you would do something to report the prgress,
-				// like this maybe
-				// updateProgress(downloadedSize, totalSize);
-
-			}
-			// close the output stream when done
-			fileOutput.close();
-
-			// catch some possible errors...
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
