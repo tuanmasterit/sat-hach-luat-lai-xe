@@ -3,35 +3,49 @@ package vn.tonnguyen.sathach;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Startup extends Activity {
-	// link: http://stackoverflow.com/questions/5028421/android-unzip-a-folder
+	public static final int WHAT_UPDATE_PERCENT = 0;
+	public static final int WHAT_DOWNLOADING_RESOURCE = 1;
+	public static final int WHAT_EXTRACTING_RESOURCE = 2;
+	public static final int WHAT_DOWNLOAD_PROCESS_FAILED = 3;
+	public static final int WHAT_DOWNLOAD_PROCESS_SUCCEED = 4;
+	public static final int WHAT_EXTRACTING_RESOURCE_FAILED = 5;
+	public static final int WHAT_EXTRACTING_RESOURCE_SUCCEED = 6;
+	
+	private ProgressDialog progressDialog;
+	
+	private Context context;
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.startup);
-
-		// MyApplication application = (MyApplication)getApplicationContext();
+		Log.v("Statup", "Displaying startup dialog");
+		context = this;
 		if (!isResourcesAvailable()) {
 			// Get resources from Internet
 			// confirm is user is willing to download first
+			//showingConfirmDialog = true;
 			new AlertDialog.Builder(this)
 					.setIcon(android.R.drawable.ic_dialog_info)
 					.setTitle(R.string.download_Resource_Title)
@@ -39,24 +53,45 @@ public class Startup extends Activity {
 					.setPositiveButton(R.string.download_Resource_Button_Yes,
 							new DialogInterface.OnClickListener() {
 								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									// Start the download process
-									String targetFilePathToSave = MyApplication.APPLICATION_DATA_PATH
-											+ "data.zip";
-									ResourceDownloadThread thread = new ResourceDownloadThread(getApplicationContext(), 
+								public void onClick(DialogInterface dialog, int which) {
+									// Start the download process and showing the process dialog
+									Log.v("Statup", "Displaying download dialog");
+									progressDialog = ProgressDialog.show(context, context.getString(R.string.download_Resource_Message_Downloading), "");
+									String targetFilePathToSave = MyApplication.APPLICATION_DATA_PATH + "data.zip";
+									Handler threadHandler = new Handler() {
+										@Override
+										public void handleMessage(Message msg) {
+											// process incoming messages here
+											switch(msg.what) {
+											case WHAT_UPDATE_PERCENT:
+												progressDialog.setMessage(String.valueOf(msg.obj) + "%");
+												break;
+											case WHAT_DOWNLOADING_RESOURCE:
+											case WHAT_DOWNLOAD_PROCESS_SUCCEED:
+											case WHAT_EXTRACTING_RESOURCE:
+												progressDialog.setTitle((String)msg.obj);
+												break;
+											case WHAT_EXTRACTING_RESOURCE_SUCCEED:
+												progressDialog.cancel(); // close the progress dialog
+												// open Home activity
+												Log.v("Statup", "Displaying home screen");
+												startActivity(new Intent(getApplicationContext(), Home.class));
+												break;
+											default: // error occurred
+												// display confirm dialog to retry, or exit
+												progressDialog.cancel();
+												Toast toast = Toast.makeText(context, context.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
+												toast.show();
+												finish();
+												break;
+											}
+											super.handleMessage(msg);
+										}
+									};
+									ResourceDownloadThread thread = new ResourceDownloadThread(context, threadHandler,
 																	MyApplication.ONLINE_DATA_FILE_URL, targetFilePathToSave, 
 																	MyApplication.APPLICATION_DATA_PATH);
 									thread.start();
-									while(thread.IsRunning()) {
-										// update process
-										int percent = thread.GetProgressPercent();
-										String status = thread.GetProgressStatusMessage();
-									}
-									if(thread.IsSuccess()) {
-										// open Home activity
-										startActivity(new Intent(getApplicationContext(), Home.class));
-									}
 								}
 							})
 					.setNegativeButton(R.string.download_Resource_Button_No,
@@ -68,8 +103,10 @@ public class Startup extends Activity {
 									finish();
 								}
 							}).show();
+			//}
 		} else {
 			// open home activity
+			Log.v("Statup", "Displaying home screen");
 			startActivity(new Intent(this, Home.class));
 		}
 	}
@@ -105,50 +142,28 @@ class ResourceDownloadThread extends Thread {
 	
 	private String targetFileToSave;
 	
-	private int progressPercent;
-	
-	public int GetProgressPercent() {
-		return progressPercent;
+	private Handler threadHandler;
+	public Handler GetThreadHandler() {
+		return threadHandler;
 	}
 	
-	private String progressStatusmessage;
-	
-	public String GetProgressStatusMessage() {
-		return progressStatusmessage;
-	}
-	
-	private boolean isRunning = false;
-	
-	public boolean IsRunning() {
-		return isRunning;
-	}
-	
-	private boolean isSuccess = false;
-	
-	public boolean IsSuccess() {
-		return isSuccess;
-	}
-	
-	public ResourceDownloadThread(Context context, String urlToDownload, String targetFileToSave, String targetFolderPath) {
+	public ResourceDownloadThread(Context context, Handler threadHandler, String urlToDownload, String targetFileToSave, String targetFolderPath) {
 		this.context = context;
+		this.threadHandler = threadHandler;
 		this.urlToDownload = urlToDownload;
 		this.targetFileToSave = targetFileToSave;
 		this.targetFolderPath = targetFolderPath;
 	}
 	
 	public void run() {
-		isRunning = true;
-		isSuccess = false;
 		try {
-			downloadResources(urlToDownload, targetFileToSave);
-			extractZipFile(targetFileToSave, targetFolderPath);
-			isSuccess = true;
+			downloadResources(threadHandler, urlToDownload, targetFileToSave);
+			extractZipFile(threadHandler, targetFileToSave, targetFolderPath);
 		} finally {
 			// delete zip file
 			try {
 				new File(targetFileToSave).delete();
 			} catch (Exception e) {}
-			isRunning = false;
 		}
 	}
 	
@@ -157,10 +172,14 @@ class ResourceDownloadThread extends Thread {
 	 * 
 	 * @return true if the download process has been completed, false otherwise
 	 */
-	private boolean downloadResources(String urlToDownload, String targetFileToSave) {
+	private boolean downloadResources(Handler threadHandler, String urlToDownload, String targetFileToSave) {
 		InputStream inputStream = null;
 		FileOutputStream fileOutput = null;
-		progressStatusmessage = context.getString(R.string.download_Resource_Message_Downloading);
+		// send message to notify that the download process is starting
+		Message msg = new Message();
+		msg.what = Startup.WHAT_DOWNLOADING_RESOURCE;
+		msg.obj = context.getString(R.string.download_Resource_Message_Downloading);
+		threadHandler.sendMessage(msg);
 		try {
 			// set the download URL, a url that points to a file on the internet
 			// this is the file to be downloaded
@@ -216,16 +235,25 @@ class ResourceDownloadThread extends Thread {
 				fileOutput.write(buffer, 0, bufferLength);
 				// add up the size so we know how much is downloaded
 				downloadedSize += bufferLength;
-				// this is where you would do something to report the prgress,
-				// like this maybe
-				progressPercent = 100 * downloadedSize / totalSize;
+				
+				// send message to notify the download percent
+				msg = new Message();
+				msg.what = Startup.WHAT_UPDATE_PERCENT;
+				msg.obj = 100 * downloadedSize / totalSize;
+				threadHandler.sendMessage(msg);
 			}
+			// send message to notify the download process has been completed
+			msg = new Message();
+			msg.what = Startup.WHAT_DOWNLOAD_PROCESS_SUCCEED;
+			threadHandler.sendMessage(msg);
 			return true;
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 			Log.e("Download resource", e.getMessage());
-			return false;
-		} catch (IOException e) {
-			Log.e("Download resource", e.getMessage());
+			// send message to notify the error
+			msg = new Message();
+			msg.what = Startup.WHAT_DOWNLOAD_PROCESS_FAILED;
+			msg.obj = e.getMessage();
+			threadHandler.sendMessage(msg);
 			return false;
 		} finally {
 			try {
@@ -246,17 +274,26 @@ class ResourceDownloadThread extends Thread {
 		}
 	}
 
-	private boolean extractZipFile(String zipFilePath, String targetFolderPath) {
+	private boolean extractZipFile(Handler threadHandler, String zipFilePath, String targetFolderPath) {
 		ZipInputStream zipinputstream = null;
-		progressStatusmessage = context.getString(R.string.download_Resource_Message_Extracting);
+		// send message to notify that the extract process is starting
+		Message msg = new Message();
+		msg.what = Startup.WHAT_EXTRACTING_RESOURCE;
+		msg.obj = context.getString(R.string.download_Resource_Message_Extracting);
+		threadHandler.sendMessage(msg);
 		try {
 			byte[] buf = new byte[1024];
-			ZipEntry zipentry;
-			zipinputstream = new ZipInputStream(new FileInputStream(zipFilePath));
+			
+			FileInputStream inputStream = new FileInputStream(zipFilePath);
+			// total compressed size, to calculate extract process percent
+			int totalSize = inputStream.available();
+			zipinputstream = new ZipInputStream(inputStream);
 
-			zipentry = zipinputstream.getNextEntry();
-			while (zipentry != null) {
-				// for each entry to be extracted
+			ZipEntry zipentry = zipinputstream.getNextEntry();
+			long downloadedSize = 0;
+			while (zipentry != null) { // for each entry to be extracted
+				// get downloaded size, to calculate extract process's percent
+				downloadedSize += zipentry.getCompressedSize();
 				String entryName = zipentry.getName();
 				Log.v("Extracting resources", "entryname " + entryName);
 				int n;
@@ -278,13 +315,25 @@ class ResourceDownloadThread extends Thread {
 
 				fileoutputstream.close();
 				zipinputstream.closeEntry();
+				
+				// send message to notify the download percent
+				msg = new Message();
+				msg.what = Startup.WHAT_UPDATE_PERCENT;
+				msg.obj = 100 * downloadedSize / totalSize;
+				threadHandler.sendMessage(msg);
 				zipentry = zipinputstream.getNextEntry();
-
 			}// while
-
+			// send message to notify that the extract process has been completed
+			msg = new Message();
+			msg.what = Startup.WHAT_EXTRACTING_RESOURCE_SUCCEED;
+			threadHandler.sendMessage(msg);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			// send message to notify the error
+			msg = new Message();
+			msg.what = Startup.WHAT_EXTRACTING_RESOURCE_FAILED;
+			threadHandler.sendMessage(msg);
 			return false;
 		} finally {
 			try {

@@ -1,12 +1,5 @@
 package vn.tonnguyen.sathach;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
@@ -15,12 +8,7 @@ import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Question;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.FrameLayout;
 
 public class Home extends Activity {
 
