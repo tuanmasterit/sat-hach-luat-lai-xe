@@ -14,5 +14,6 @@
             </intent-filter>
         </activity>
 		<activity android:name=".Home" />
+		<activity android:name=".ExamScreen" />
     </application>
 </manifest>

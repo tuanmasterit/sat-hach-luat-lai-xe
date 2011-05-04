@@ -17,6 +17,8 @@ public class MyApplication extends Application {
 	
 	public static final String ONLINE_DATA_FILE_URL = "http://sat-hach-luat-lai-xe.googlecode.com/files/Data.zip";
 	
+	private String[] questionsAndAnswers;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
