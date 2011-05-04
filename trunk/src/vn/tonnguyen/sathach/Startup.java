@@ -13,13 +13,14 @@ import java.util.zip.ZipInputStream;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 public class Startup extends Activity {
-
+	// link: http://stackoverflow.com/questions/5028421/android-unzip-a-folder
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,20 +44,18 @@ public class Startup extends Activity {
 									// Start the download process
 									String targetFilePathToSave = MyApplication.APPLICATION_DATA_PATH
 											+ "data.zip";
-									if (downloadResources(
-											MyApplication.ONLINE_DATA_FILE_URL,
-											targetFilePathToSave)
-											&& extractZipFile(
-													targetFilePathToSave,
-													MyApplication.APPLICATION_DATA_PATH)) {
-										// delete zip file
-										new File(targetFilePathToSave).delete();
+									ResourceDownloadThread thread = new ResourceDownloadThread(getApplicationContext(), 
+																	MyApplication.ONLINE_DATA_FILE_URL, targetFilePathToSave, 
+																	MyApplication.APPLICATION_DATA_PATH);
+									thread.start();
+									while(thread.IsRunning()) {
+										// update process
+										int percent = thread.GetProgressPercent();
+										String status = thread.GetProgressStatusMessage();
+									}
+									if(thread.IsSuccess()) {
 										// open Home activity
-										startActivity(new Intent(
-												getApplicationContext(),
-												Home.class));
-									} else {
-										// Display confirm message to retry
+										startActivity(new Intent(getApplicationContext(), Home.class));
 									}
 								}
 							})
@@ -94,24 +93,81 @@ public class Startup extends Activity {
 	private boolean isFileExist(String filePath) {
 		return new File(filePath).exists();
 	}
+}
 
+class ResourceDownloadThread extends Thread {
+	
+	private Context context;
+	
+	private String urlToDownload;
+	
+	private String targetFolderPath;
+	
+	private String targetFileToSave;
+	
+	private int progressPercent;
+	
+	public int GetProgressPercent() {
+		return progressPercent;
+	}
+	
+	private String progressStatusmessage;
+	
+	public String GetProgressStatusMessage() {
+		return progressStatusmessage;
+	}
+	
+	private boolean isRunning = false;
+	
+	public boolean IsRunning() {
+		return isRunning;
+	}
+	
+	private boolean isSuccess = false;
+	
+	public boolean IsSuccess() {
+		return isSuccess;
+	}
+	
+	public ResourceDownloadThread(Context context, String urlToDownload, String targetFileToSave, String targetFolderPath) {
+		this.context = context;
+		this.urlToDownload = urlToDownload;
+		this.targetFileToSave = targetFileToSave;
+		this.targetFolderPath = targetFolderPath;
+	}
+	
+	public void run() {
+		isRunning = true;
+		isSuccess = false;
+		try {
+			downloadResources(urlToDownload, targetFileToSave);
+			extractZipFile(targetFileToSave, targetFolderPath);
+			isSuccess = true;
+		} finally {
+			// delete zip file
+			try {
+				new File(targetFileToSave).delete();
+			} catch (Exception e) {}
+			isRunning = false;
+		}
+	}
+	
 	/***
 	 * Get resources from Internet
 	 * 
 	 * @return true if the download process has been completed, false otherwise
 	 */
-	private boolean downloadResources(String urlToDownload,
-			String targetFileToSave) {
+	private boolean downloadResources(String urlToDownload, String targetFileToSave) {
 		InputStream inputStream = null;
 		FileOutputStream fileOutput = null;
+		progressStatusmessage = context.getString(R.string.download_Resource_Message_Downloading);
 		try {
 			// set the download URL, a url that points to a file on the internet
 			// this is the file to be downloaded
 			URL url = new URL(urlToDownload);
 
 			// create the new connection
-			HttpURLConnection urlConnection = (HttpURLConnection) url
-					.openConnection();
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
 			// set up some things on the connection
 			urlConnection.setRequestMethod("GET");
@@ -151,11 +207,9 @@ public class Startup extends Activity {
 
 			// create a buffer...
 			byte[] buffer = new byte[1024];
-			int bufferLength = 0; // used to store a temporary size of the
-									// buffer
+			int bufferLength = 0; // used to store a temporary size of the buffer
 
-			// now, read through the input buffer and write the contents to the
-			// file
+			// now, read through the input buffer and write the contents to the file
 			while ((bufferLength = inputStream.read(buffer)) > 0) {
 				// add the data in the buffer to the file in the file output
 				// stream (the file on the sd card
@@ -164,7 +218,7 @@ public class Startup extends Activity {
 				downloadedSize += bufferLength;
 				// this is where you would do something to report the prgress,
 				// like this maybe
-				updateProgress(downloadedSize, totalSize);
+				progressPercent = 100 * downloadedSize / totalSize;
 			}
 			return true;
 		} catch (MalformedURLException e) {
@@ -194,32 +248,33 @@ public class Startup extends Activity {
 
 	private boolean extractZipFile(String zipFilePath, String targetFolderPath) {
 		ZipInputStream zipinputstream = null;
+		progressStatusmessage = context.getString(R.string.download_Resource_Message_Extracting);
 		try {
 			byte[] buf = new byte[1024];
 			ZipEntry zipentry;
-			zipinputstream = new ZipInputStream(
-					new FileInputStream(zipFilePath));
+			zipinputstream = new ZipInputStream(new FileInputStream(zipFilePath));
 
 			zipentry = zipinputstream.getNextEntry();
 			while (zipentry != null) {
 				// for each entry to be extracted
 				String entryName = zipentry.getName();
-				System.out.println("entryname " + entryName);
+				Log.v("Extracting resources", "entryname " + entryName);
 				int n;
 				FileOutputStream fileoutputstream;
 				File newFile = new File(entryName);
 				String directory = newFile.getParent();
 
 				if (directory == null) {
-					if (newFile.isDirectory())
+					if (newFile.isDirectory()) {
 						break;
+					}
 				}
 
-				fileoutputstream = new FileOutputStream(targetFolderPath
-						+ entryName);
+				fileoutputstream = new FileOutputStream(targetFolderPath + entryName);
 
-				while ((n = zipinputstream.read(buf, 0, 1024)) > -1)
+				while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
 					fileoutputstream.write(buf, 0, n);
+				}
 
 				fileoutputstream.close();
 				zipinputstream.closeEntry();
@@ -240,10 +295,5 @@ public class Startup extends Activity {
 			} catch (Exception ex) {
 			}
 		}
-	}
-
-	private void updateProgress(int downloadedSize, int totalSize) {
-		int percent = 100 * downloadedSize / totalSize;
-		Log.v("Download percent", String.valueOf(percent) + "%");
 	}
 }
