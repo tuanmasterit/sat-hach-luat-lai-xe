@@ -45,7 +45,6 @@ public class Startup extends Activity {
 		if (!isResourcesAvailable()) {
 			// Get resources from Internet
 			// confirm is user is willing to download first
-			//showingConfirmDialog = true;
 			new AlertDialog.Builder(this)
 					.setIcon(android.R.drawable.ic_dialog_info)
 					.setTitle(R.string.download_Resource_Title)
@@ -74,8 +73,8 @@ public class Startup extends Activity {
 											case WHAT_EXTRACTING_RESOURCE_SUCCEED:
 												progressDialog.cancel(); // close the progress dialog
 												// open Home activity
-												Log.v("Statup", "Displaying home screen");
-												startActivity(new Intent(getApplicationContext(), Home.class));
+												loadResources();
+												showHomeScreen();
 												break;
 											default: // error occurred
 												// display confirm dialog to retry, or exit
@@ -103,12 +102,20 @@ public class Startup extends Activity {
 									finish();
 								}
 							}).show();
-			//}
 		} else {
-			// open home activity
-			Log.v("Statup", "Displaying home screen");
-			startActivity(new Intent(this, Home.class));
+			loadResources();
+			showHomeScreen();
 		}
+	}
+	
+	private void loadResources() {
+		
+	}
+	
+	private void showHomeScreen() {
+		// open home activity
+		Log.v("Statup", "Displaying home screen");
+		startActivity(new Intent(this, Home.class));
 	}
 
 	/**
