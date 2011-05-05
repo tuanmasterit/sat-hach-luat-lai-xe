@@ -24,7 +24,7 @@ public class Home extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(getApplicationContext(), ExamScreen.class));
+				startActivity(new Intent((MyApplication)getApplicationContext(), ExamScreen.class));
 			}
 		});
 
