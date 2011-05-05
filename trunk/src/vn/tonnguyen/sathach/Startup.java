@@ -29,6 +29,7 @@ public class Startup extends Activity {
 	public static final int WHAT_DOWNLOAD_PROCESS_SUCCEED = 4;
 	public static final int WHAT_EXTRACTING_RESOURCE_FAILED = 5;
 	public static final int WHAT_EXTRACTING_RESOURCE_SUCCEED = 6;
+	public static final int WHAT_UPDATE_PROGRESS_MAX = 7;
 	
 	private ProgressDialog progressDialog;
 	
@@ -42,7 +43,7 @@ public class Startup extends Activity {
 		setContentView(R.layout.startup);
 		Log.v("Statup", "Displaying startup dialog");
 		context = this;
-		if (!isResourcesAvailable()) {
+		if (isResourcesAvailable()) {
 			// Get resources from Internet
 			// confirm is user is willing to download first
 			new AlertDialog.Builder(this)
@@ -55,7 +56,11 @@ public class Startup extends Activity {
 								public void onClick(DialogInterface dialog, int which) {
 									// Start the download process and showing the process dialog
 									Log.v("Statup", "Displaying download dialog");
-									progressDialog = ProgressDialog.show(context, context.getString(R.string.download_Resource_Message_Downloading), "");
+									//progressDialog = ProgressDialog.show(context, context.getString(R.string.download_Resource_Message_Downloading), "");
+//									progressDialog = new ProgressDialog(context);
+//									progressDialog.setCancelable(true);
+//									progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//									progressDialog.show();
 									String targetFilePathToSave = MyApplication.APPLICATION_DATA_PATH + "data.zip";
 									Handler threadHandler = new Handler() {
 										@Override
@@ -63,21 +68,44 @@ public class Startup extends Activity {
 											// process incoming messages here
 											switch(msg.what) {
 											case WHAT_UPDATE_PERCENT:
-												progressDialog.setMessage(String.valueOf(msg.obj) + "%");
+												//Log.v("Update percent", String.valueOf(msg.obj));
+												//progressDialog.setMessage(String.valueOf(msg.obj) + "%");
+												progressDialog.incrementProgressBy(Integer.parseInt(String.valueOf(msg.obj)));
 												break;
 											case WHAT_DOWNLOADING_RESOURCE:
-											case WHAT_DOWNLOAD_PROCESS_SUCCEED:
 											case WHAT_EXTRACTING_RESOURCE:
-												progressDialog.setTitle((String)msg.obj);
+												Log.v("Processing", String.valueOf(msg.obj));
+												//progressDialog.setTitle((String)msg.obj);
+												if(progressDialog != null) {
+													progressDialog.cancel();
+													progressDialog = null;
+												}
+												progressDialog = new ProgressDialog(context);
+												progressDialog.setCancelable(true);
+												progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+												progressDialog.setMessage((String)msg.obj);
+												progressDialog.setProgress(0);
+												progressDialog.show();
+												break;
+											case WHAT_UPDATE_PROGRESS_MAX:
+												Log.v("Update MAX", String.valueOf(msg.obj));
+												progressDialog.setMax(Integer.parseInt(String.valueOf(msg.obj)));
 												break;
 											case WHAT_EXTRACTING_RESOURCE_SUCCEED:
+												Log.v("All Suceed", "");
 												progressDialog.cancel(); // close the progress dialog
 												// open Home activity
 												loadResources();
 												showHomeScreen();
 												break;
+											case WHAT_DOWNLOAD_PROCESS_SUCCEED:
+												Log.v("Download Suceed", "");
+												progressDialog.cancel();
+												progressDialog = null;
+												break;
 											default: // error occurred
 												// display confirm dialog to retry, or exit
+												Log.v("Error occurred", (String)msg.obj);
 												progressDialog.cancel();
 												Toast toast = Toast.makeText(context, context.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 												toast.show();
@@ -183,10 +211,7 @@ class ResourceDownloadThread extends Thread {
 		InputStream inputStream = null;
 		FileOutputStream fileOutput = null;
 		// send message to notify that the download process is starting
-		Message msg = new Message();
-		msg.what = Startup.WHAT_DOWNLOADING_RESOURCE;
-		msg.obj = context.getString(R.string.download_Resource_Message_Downloading);
-		threadHandler.sendMessage(msg);
+		sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOADING_RESOURCE, context.getString(R.string.download_Resource_Message_Downloading));
 		try {
 			// set the download URL, a url that points to a file on the internet
 			// this is the file to be downloaded
@@ -228,6 +253,10 @@ class ResourceDownloadThread extends Thread {
 
 			// this is the total size of the file
 			int totalSize = urlConnection.getContentLength();
+			
+			// notify the total size to process
+			sendMessageToHandler(threadHandler, Startup.WHAT_UPDATE_PROGRESS_MAX, totalSize);
+			
 			// variable to store total downloaded bytes
 			int downloadedSize = 0;
 
@@ -244,23 +273,15 @@ class ResourceDownloadThread extends Thread {
 				downloadedSize += bufferLength;
 				
 				// send message to notify the download percent
-				msg = new Message();
-				msg.what = Startup.WHAT_UPDATE_PERCENT;
-				msg.obj = 100 * downloadedSize / totalSize;
-				threadHandler.sendMessage(msg);
+				sendMessageToHandler(threadHandler, Startup.WHAT_UPDATE_PERCENT, bufferLength);
 			}
 			// send message to notify the download process has been completed
-			msg = new Message();
-			msg.what = Startup.WHAT_DOWNLOAD_PROCESS_SUCCEED;
-			threadHandler.sendMessage(msg);
+			sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOAD_PROCESS_SUCCEED, "");
 			return true;
 		} catch (Exception e) {
 			Log.e("Download resource", e.getMessage());
 			// send message to notify the error
-			msg = new Message();
-			msg.what = Startup.WHAT_DOWNLOAD_PROCESS_FAILED;
-			msg.obj = e.getMessage();
-			threadHandler.sendMessage(msg);
+			sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOAD_PROCESS_FAILED, e.getMessage());
 			return false;
 		} finally {
 			try {
@@ -284,25 +305,28 @@ class ResourceDownloadThread extends Thread {
 	private boolean extractZipFile(Handler threadHandler, String zipFilePath, String targetFolderPath) {
 		ZipInputStream zipinputstream = null;
 		// send message to notify that the extract process is starting
-		Message msg = new Message();
-		msg.what = Startup.WHAT_EXTRACTING_RESOURCE;
-		msg.obj = context.getString(R.string.download_Resource_Message_Extracting);
-		threadHandler.sendMessage(msg);
+		sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE, context.getString(R.string.download_Resource_Message_Extracting));
 		try {
 			byte[] buf = new byte[1024];
 			
 			FileInputStream inputStream = new FileInputStream(zipFilePath);
 			// total compressed size, to calculate extract process percent
 			int totalSize = inputStream.available();
+			
+			// notify the total size to process
+			sendMessageToHandler(threadHandler, Startup.WHAT_UPDATE_PROGRESS_MAX, totalSize);
+			
 			zipinputstream = new ZipInputStream(inputStream);
 
 			ZipEntry zipentry = zipinputstream.getNextEntry();
 			long downloadedSize = 0;
+			long bufferLength = 0;
 			while (zipentry != null) { // for each entry to be extracted
 				// get downloaded size, to calculate extract process's percent
-				downloadedSize += zipentry.getCompressedSize();
+				bufferLength = zipentry.getCompressedSize();
+				downloadedSize += bufferLength;
 				String entryName = zipentry.getName();
-				Log.v("Extracting resources", "entryname " + entryName);
+				//Log.v("Extracting resources", "entryname " + entryName);
 				int n;
 				FileOutputStream fileoutputstream;
 				File newFile = new File(entryName);
@@ -323,24 +347,18 @@ class ResourceDownloadThread extends Thread {
 				fileoutputstream.close();
 				zipinputstream.closeEntry();
 				
-				// send message to notify the download percent
-				msg = new Message();
-				msg.what = Startup.WHAT_UPDATE_PERCENT;
-				msg.obj = 100 * downloadedSize / totalSize;
-				threadHandler.sendMessage(msg);
+				// send message to notify the download percent			
+				sendMessageToHandler(threadHandler, Startup.WHAT_UPDATE_PERCENT, bufferLength);
+				
 				zipentry = zipinputstream.getNextEntry();
 			}// while
 			// send message to notify that the extract process has been completed
-			msg = new Message();
-			msg.what = Startup.WHAT_EXTRACTING_RESOURCE_SUCCEED;
-			threadHandler.sendMessage(msg);
+			sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE_SUCCEED, "");
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			// send message to notify the error
-			msg = new Message();
-			msg.what = Startup.WHAT_EXTRACTING_RESOURCE_FAILED;
-			threadHandler.sendMessage(msg);
+			sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE_FAILED, e.getMessage());
 			return false;
 		} finally {
 			try {
@@ -351,5 +369,12 @@ class ResourceDownloadThread extends Thread {
 			} catch (Exception ex) {
 			}
 		}
+	}
+	
+	private void sendMessageToHandler(Handler threadHandler, int messageID, Object what) {
+		Message msg = new Message();
+		msg.what = messageID;
+		msg.obj = what;
+		threadHandler.sendMessage(msg);
 	}
 }
