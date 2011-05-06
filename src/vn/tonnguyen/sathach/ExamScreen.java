@@ -19,7 +19,6 @@ public class ExamScreen extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		
 		MyApplication application = (MyApplication)getApplicationContext();
-		Log.v("test", String.valueOf(application.getQuestions().keySet().size()));
 		Hashtable<Integer, Question> examQuestions = new Hashtable<Integer, Question>();
 		Random randomGenerator = new Random();
 		int questionIndex;
@@ -33,8 +32,7 @@ public class ExamScreen extends BaseActivity {
 					questionIndex = getRandomInteger(examformat.getFrom(),
 							examformat.getTo(), randomGenerator);
 				} while (examQuestions.containsKey(questionIndex));
-				// Now we have the question that was not existed in question
-				// list
+				// Now we have the question that was not existed in question list
 				Log.v("questionIndex", String.valueOf(questionIndex));
 				examQuestions.put(questionIndex, application.getQuestions().get(questionIndex));
 			}
