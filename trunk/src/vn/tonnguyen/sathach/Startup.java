@@ -20,7 +20,6 @@ import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,6 +36,9 @@ public class Startup extends BaseActivity {
 	public static final int WHAT_DOWNLOAD_PROCESS_SUCCEED = 4;
 	public static final int WHAT_EXTRACTING_RESOURCE_FAILED = 5;
 	public static final int WHAT_EXTRACTING_RESOURCE_SUCCEED = 6;
+	public static final int WHAT_LOADING_RESOURCE = 7;
+	public static final int WHAT_LOADING_RESOURCE_FAILED = 8;
+	public static final int WHAT_LOADING_RESOURCE_SUCCEED = 9;
 	
 	private ProgressDialog progressDialog;
 	
@@ -49,168 +51,99 @@ public class Startup extends BaseActivity {
 
 		setContentView(R.layout.startup);
 		Log.v("Statup", "Displaying startup dialog");
-		//context = this;
 		final MyApplication application = (MyApplication)getApplicationContext();
 		
-		try {
-			if (!isResourcesAvailable()) {
-				// Get resources from Internet
-				// confirm is user is willing to download first
-				new AlertDialog.Builder(this)
-						.setIcon(android.R.drawable.ic_dialog_info)
-						.setTitle(R.string.download_Resource_Title)
-						.setMessage(R.string.download_Resource_Message)
-						.setPositiveButton(R.string.download_Resource_Button_Yes,
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										// Start the download process and showing the process dialog
-										Log.v("Statup", "Displaying download dialog");
-										String targetFilePathToSave = MyApplication.APPLICATION_DATA_PATH + "data.zip";
-										Handler threadHandler = new Handler() {
-											@Override
-											public void handleMessage(Message msg) {
-												// process incoming messages here
-												switch(msg.what) {
-												case WHAT_UPDATE_PERCENT:
-													progressDialog.setProgress(toInt(String.valueOf(msg.obj)));
-													break;
-												case WHAT_DOWNLOADING_RESOURCE:
-												case WHAT_EXTRACTING_RESOURCE:
-													Log.v("Processing", String.valueOf(msg.obj));
-													if(progressDialog != null) {
-														progressDialog.cancel();
-														progressDialog = null;
-													}
-													progressDialog = new ProgressDialog(application);
-													progressDialog.setCancelable(true);
-													progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-													progressDialog.setMessage((String)msg.obj);
-													progressDialog.setMax(100);
-													progressDialog.setProgress(0);
-													progressDialog.show();
-													break;
-												case WHAT_EXTRACTING_RESOURCE_SUCCEED:
-													Log.v("All Suceed", "");
-													progressDialog.cancel(); // close the progress dialog
-													// load resources and open Home activity
-													try {
-														loadResources(application);
-														showHomeScreen();
-													} catch (IOException e) {
-														// show the Message and close activity
-														Log.e("Loading resources", e.getMessage());
-														Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + e.getMessage(), Toast.LENGTH_LONG);
-														toast.show();
-														finish();
-													}
-													break;
-												case WHAT_DOWNLOAD_PROCESS_SUCCEED:
-													Log.v("Download Suceed", "");
-													progressDialog.cancel();
-													progressDialog = null;
-													break;
-												default: // error occurred
-													// display error message
-													Log.v("Error occurred", (String)msg.obj);
-													progressDialog.cancel();
-													Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
-													toast.show();
-													finish();
-												}
-												super.handleMessage(msg);
-											}
-										};
-										ResourceDownloadThread thread = new ResourceDownloadThread(application, threadHandler,
-																		MyApplication.ONLINE_DATA_FILE_URL, targetFilePathToSave, 
-																		MyApplication.APPLICATION_DATA_PATH);
-										thread.start();
-									}
-								})
-						.setNegativeButton(R.string.download_Resource_Button_No,
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										// Close the activity
-										finish();
-									}
-								}).show();
-			} else {
-				loadResources(application);
-				showHomeScreen();
+		Handler threadHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				processMessage(msg, application);
+				super.handleMessage(msg);
 			}
-		} catch (Exception e) {
-			// show the Message and close activity
-			Log.e("Loading resources", e.getMessage());
-			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + e.getMessage(), Toast.LENGTH_LONG);
+		};
+		final ResourceDownloadThread thread = new ResourceDownloadThread(application, threadHandler,
+				MyApplication.ONLINE_DATA_FILE_URL, MyApplication.APPLICATION_DATA_PATH + "data.zip", 
+				MyApplication.APPLICATION_DATA_PATH);
+		if (!isResourcesAvailable()) {
+			// Get resources from Internet
+			// confirm is user is willing to download first
+			new AlertDialog.Builder(this)
+					.setIcon(android.R.drawable.ic_dialog_info)
+					.setTitle(R.string.download_Resource_Title)
+					.setMessage(R.string.download_Resource_Message)
+					.setPositiveButton(R.string.download_Resource_Button_Yes,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									// Start the download process and showing the process dialog
+									Log.v("Statup", "Displaying download dialog");
+									thread.start();
+								}
+							})
+					.setNegativeButton(R.string.download_Resource_Button_No,
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									// Close the activity
+									Log.v("Startup screen", "Closing startup activity");
+									finish();
+								}
+							}).show();
+		} else {
+			thread.setResourceAvailable(true); // make sure that we wont download resource
+			thread.start();
+		}
+	}
+	
+	private void processMessage(Message msg, MyApplication application) {
+		// process incoming messages here
+		switch(msg.what) {
+		case WHAT_DOWNLOADING_RESOURCE:
+		case WHAT_EXTRACTING_RESOURCE:
+		case WHAT_LOADING_RESOURCE:
+			Log.v("Processing", String.valueOf(msg.obj));
+			if(progressDialog != null) {
+				progressDialog.cancel();
+				progressDialog = null;
+			}
+			progressDialog = new ProgressDialog(this);
+			progressDialog.setCancelable(true);
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog.setMessage((String)msg.obj);
+			progressDialog.setMax(100);
+			progressDialog.setProgress(0);
+			progressDialog.show();
+			break;
+		case WHAT_UPDATE_PERCENT:
+			progressDialog.setProgress(toInt(String.valueOf(msg.obj)));
+			break;
+		case WHAT_DOWNLOAD_PROCESS_SUCCEED:
+		case WHAT_EXTRACTING_RESOURCE_SUCCEED:
+			Log.v("Startup", String.valueOf(msg.obj));
+			progressDialog.cancel();
+			progressDialog = null;
+			break;
+		case WHAT_LOADING_RESOURCE_SUCCEED:
+			Log.v("Loading resource Suceed", String.valueOf(msg.obj));
+			progressDialog.cancel();
+			progressDialog = null;
+			showHomeScreen();
+			break;
+		default: // error occurred
+			// display error message
+			Log.v("Error occurred", (String)msg.obj);
+			progressDialog.cancel();
+			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 			toast.show();
+			Log.v("Startup screen", "Closing startup activity");
 			finish();
 		}
-	}
-	
-	private void loadResources(MyApplication application) throws IOException {
-		// read question.dat to get question data
-		String[] questionsAndAnswers = readFileAsStringArray(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH);
-		Hashtable<Integer, Question> questions = new Hashtable<Integer, Question>();
-		Question question = null;
-		int questionIndex, questionList, answer, numberOfAnswer = 0;
-		String questionRawData = "";
-		for (int i = 1; i <= 405; i++) {
-			String pictureName = String.format("%03d.JPG", i);
-			questionIndex = (i - 1) % 25;
-			questionList = (i - 1) / 25;
-			questionRawData = questionsAndAnswers[questionList];
-			answer = Integer.parseInt(questionRawData.substring(2 * questionIndex, 2 * questionIndex + 1));
-			numberOfAnswer = Integer.parseInt(questionRawData.substring(2 * questionIndex + 1, 2 * questionIndex + 2));
-
-			question = new Question(pictureName, numberOfAnswer, answer);
-			questions.put(i, question);
-		}
-		application.setQuestions(questions);
-		
-		// then read index.dat, to get level and question format data
-		ArrayList<Level> levels = new ArrayList<Level>();
-		String[] indexData = readFileAsStringArray(MyApplication.APPLICATION_INDEX_FILE_PATH);
-		for(String line : indexData) {
-			String[] data = line.split(";");		
-			levels.add(new Level(toInt(data[0]), data[1], MyApplication.APPLICATION_DATA_PATH + data[2], getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2])));
-		}
-		application.setLevels(levels);
-	}
-	
-	private ArrayList<ExamFormat> getExamFormats(String dataFilePath) throws IOException {
-		ArrayList<ExamFormat> examsFormatList = new ArrayList<ExamFormat>();
-		String[] examsFormat = readFileAsStringArray(dataFilePath);
-		String[] examFormatData = null;
-		for(String examFormatLine : examsFormat) {
-			examFormatData = examFormatLine.split(";");
-			examsFormatList.add(new ExamFormat(toInt(examFormatData[0]), toInt(examFormatData[1]), toInt(examFormatData[2])));
-		}
-		return examsFormatList;
 	}
 	
 	private int toInt(String value) {
 		return Integer.parseInt(value);
 	}
-	
-	private String[] readFileAsStringArray(String filePath) throws IOException {
-		//Get the text file
-		File file = new File(filePath);
-		if(!file.exists()) {
-			throw new FileNotFoundException("File not found: " + filePath);
-		}
 
-		ArrayList<String> stringArray = new ArrayList<String>();
-		//Read text from file
-	    BufferedReader br = new BufferedReader(new FileReader(file));
-	    String line;
-	    while ((line = br.readLine()) != null) {
-	    	stringArray.add(line);
-	    }
-	    return stringArray.toArray(new String[stringArray.size()]);
-	}
-	
 	private void showHomeScreen() {
 		// open home activity
 		Log.v("Statup", "Displaying home screen");
@@ -240,7 +173,7 @@ public class Startup extends BaseActivity {
 
 class ResourceDownloadThread extends Thread {
 	
-	private Context context;
+	private MyApplication application;
 	
 	private String urlToDownload;
 	
@@ -249,22 +182,33 @@ class ResourceDownloadThread extends Thread {
 	private String targetFileToSave;
 	
 	private Handler threadHandler;
-	public Handler GetThreadHandler() {
-		return threadHandler;
+	
+	private boolean resourceAvailable = false;
+	
+	public void setResourceAvailable(boolean value) {
+		resourceAvailable = value;
 	}
 	
-	public ResourceDownloadThread(Context context, Handler threadHandler, String urlToDownload, String targetFileToSave, String targetFolderPath) {
-		this.context = context;
+	public ResourceDownloadThread(MyApplication application, Handler threadHandler, String urlToDownload, String targetFileToSave, String targetFolderPath) {
+		this(application, threadHandler, urlToDownload, targetFileToSave, targetFolderPath, false);
+	}
+	
+	public ResourceDownloadThread(MyApplication application, Handler threadHandler, String urlToDownload, String targetFileToSave, String targetFolderPath, boolean resourceAvailable) {
+		this.application = application;
 		this.threadHandler = threadHandler;
 		this.urlToDownload = urlToDownload;
 		this.targetFileToSave = targetFileToSave;
 		this.targetFolderPath = targetFolderPath;
+		this.resourceAvailable = resourceAvailable;
 	}
 	
 	public void run() {
 		try {
-			downloadResources(threadHandler, urlToDownload, targetFileToSave);
-			extractZipFile(threadHandler, targetFileToSave, targetFolderPath);
+			if(!resourceAvailable) {
+				downloadResources(threadHandler, urlToDownload, targetFileToSave);
+				extractZipFile(threadHandler, targetFileToSave, targetFolderPath);
+			}
+			loadResources();
 		} finally {
 			// delete zip file
 			try {
@@ -274,15 +218,17 @@ class ResourceDownloadThread extends Thread {
 	}
 	
 	/***
-	 * Get resources from Internet
-	 * 
-	 * @return true if the download process has been completed, false otherwise
+	 * Download zipped resource file from Internet, and save it to targetFileToSave
+	 * @param threadHandler A thread handler, which will process messages, to update UI 
+	 * @param urlToDownload URL of zip file to download
+	 * @param targetFileToSave Path of the file to save
+	 * @return Flag to indicate whether the process has been completed or not
 	 */
 	private boolean downloadResources(Handler threadHandler, String urlToDownload, String targetFileToSave) {
 		InputStream inputStream = null;
 		FileOutputStream fileOutput = null;
 		// send message to notify that the download process is starting
-		sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOADING_RESOURCE, context.getString(R.string.download_Resource_Message_Downloading));
+		sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOADING_RESOURCE, application.getString(R.string.download_Resource_Message_Downloading));
 		try {
 			// set the download URL, a url that points to a file on the internet
 			// this is the file to be downloaded
@@ -344,7 +290,7 @@ class ResourceDownloadThread extends Thread {
 				sendMessageToHandler(threadHandler, Startup.WHAT_UPDATE_PERCENT, 100 * downloadedSize / totalSize);
 			}
 			// send message to notify the download process has been completed
-			sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOAD_PROCESS_SUCCEED, "");
+			sendMessageToHandler(threadHandler, Startup.WHAT_DOWNLOAD_PROCESS_SUCCEED, application.getString(R.string.download_Resource_Message_Downloaded));
 			return true;
 		} catch (Exception e) {
 			Log.e("Download resource", e.getMessage());
@@ -370,10 +316,17 @@ class ResourceDownloadThread extends Thread {
 		}
 	}
 
+	/***
+	 * Extract downloaded zip file to data folder
+	 * @param threadHandler A thread handler, which will process messages, to update UI 
+	 * @param zipFilePath Path to zip file to extract
+	 * @param targetFolderPath Path to data folder to extract files to
+	 * @return Flag to indicate whether the process has been completed or not
+	 */
 	private boolean extractZipFile(Handler threadHandler, String zipFilePath, String targetFolderPath) {
 		ZipInputStream zipinputstream = null;
 		// send message to notify that the extract process is starting
-		sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE, context.getString(R.string.download_Resource_Message_Extracting));
+		sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE, application.getString(R.string.download_Resource_Message_Extracting));
 		try {
 			byte[] buf = new byte[1024];
 			
@@ -418,7 +371,7 @@ class ResourceDownloadThread extends Thread {
 				zipentry = zipinputstream.getNextEntry();
 			}// while
 			// send message to notify that the extract process has been completed
-			sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE_SUCCEED, "");
+			sendMessageToHandler(threadHandler, Startup.WHAT_EXTRACTING_RESOURCE_SUCCEED, application.getString(R.string.download_Resource_Message_Extracted));
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -435,12 +388,90 @@ class ResourceDownloadThread extends Thread {
 			}
 		}
 	}
+
+	/**
+	 * Load resources from data files to memory
+	 */
+	private void loadResources() {
+		// send message to notify that the resource loading process is starting
+		sendMessageToHandler(threadHandler, Startup.WHAT_LOADING_RESOURCE, application.getString(R.string.loading_Data));
+		try {
+			// read question.dat to get question data
+			String[] questionsAndAnswers = readFileAsStringArray(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH);
+			Hashtable<Integer, Question> questions = new Hashtable<Integer, Question>();
+			Question question = null;
+			int questionIndex, questionList, answer, numberOfAnswer = 0;
+			String questionRawData = "";
+			for (int i = 1; i <= MyApplication.NUMBER_OF_QUESTIONS; i++) {
+				String pictureName = String.format("%03d.JPG", i);
+				questionIndex = (i - 1) % 25;
+				questionList = (i - 1) / 25;
+				questionRawData = questionsAndAnswers[questionList];
+				answer = Integer.parseInt(questionRawData.substring(
+						2 * questionIndex, 2 * questionIndex + 1));
+				numberOfAnswer = Integer.parseInt(questionRawData.substring(
+						2 * questionIndex + 1, 2 * questionIndex + 2));
+
+				question = new Question(pictureName, numberOfAnswer, answer);
+				questions.put(i, question);
+				sendMessageToHandler(threadHandler, Startup.WHAT_UPDATE_PERCENT, 80 * i / MyApplication.NUMBER_OF_QUESTIONS);
+			}
+			application.setQuestions(questions);
+
+			// then read index.dat, to get level and question format data
+			ArrayList<Level> levels = new ArrayList<Level>();
+			String[] indexData = readFileAsStringArray(MyApplication.APPLICATION_INDEX_FILE_PATH);
+			for (String line : indexData) {
+				String[] data = line.split(";");
+				levels.add(new Level(toInt(data[0]), data[1], MyApplication.APPLICATION_DATA_PATH + data[2],
+										getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2])));
+			}
+			application.setLevels(levels);
+			sendMessageToHandler(threadHandler, Startup.WHAT_LOADING_RESOURCE_SUCCEED, application.getString(R.string.download_Resource_Message_Loaded));
+		} catch (IOException e) {
+			Log.e("Loading resource", e.getMessage());
+			// send message to notify the error
+			sendMessageToHandler(threadHandler, Startup.WHAT_LOADING_RESOURCE_FAILED, e.getMessage());
+		}
+	}
+	
+	private ArrayList<ExamFormat> getExamFormats(String dataFilePath) throws IOException {
+		ArrayList<ExamFormat> examsFormatList = new ArrayList<ExamFormat>();
+		String[] examsFormat = readFileAsStringArray(dataFilePath);
+		String[] examFormatData = null;
+		for(String examFormatLine : examsFormat) {
+			examFormatData = examFormatLine.split(";");
+			examsFormatList.add(new ExamFormat(toInt(examFormatData[0]), toInt(examFormatData[1]), toInt(examFormatData[2])));
+		}
+		return examsFormatList;
+	}
+	
+	private int toInt(String value) {
+		return Integer.parseInt(value);
+	}
+	
+	private String[] readFileAsStringArray(String filePath) throws IOException {
+		//Get the text file
+		File file = new File(filePath);
+		if(!file.exists()) {
+			throw new FileNotFoundException("File not found: " + filePath);
+		}
+
+		ArrayList<String> stringArray = new ArrayList<String>();
+		//Read text from file
+	    BufferedReader br = new BufferedReader(new FileReader(file));
+	    String line;
+	    while ((line = br.readLine()) != null) {
+	    	stringArray.add(line);
+	    }
+	    return stringArray.toArray(new String[stringArray.size()]);
+	}
 	
 	private long lastUpdatePercentInMilliseconds = 0;
 	
 	private void sendMessageToHandler(Handler threadHandler, int messageID, Object what) {
-		// with message type of WHAT_UPDATE_PERCENT, let's throttle it for 1000ms, to make sure within that 500ms, only 1 message was sent(performance purpose)
-		if(messageID == Startup.WHAT_UPDATE_PERCENT && (System.currentTimeMillis() - lastUpdatePercentInMilliseconds) < 1000) {
+		// with message type of WHAT_UPDATE_PERCENT, let's throttle it for 500 ms, to make sure within that 500ms, only 1 message was sent(performance purpose)
+		if(messageID == Startup.WHAT_UPDATE_PERCENT && (System.currentTimeMillis() - lastUpdatePercentInMilliseconds) < 500) {
 			return;
 		}
 		lastUpdatePercentInMilliseconds = System.currentTimeMillis();

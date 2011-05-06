@@ -9,6 +9,9 @@
     <string name="download_Resource_Message_Downloading">Đang tải dữ liệu...</string>
     <string name="download_Resource_Message_Extracting">Đang giải nén...</string>
     <string name="download_Resource_Error_Occurred">Có lỗi trong quá trình download dữ liệu, xin vui lòng thử lại. Lỗi: </string>
+    <string name="download_Resource_Message_Downloaded">Đã tải xong dữ liệu</string>
+    <string name="download_Resource_Message_Extracted">Đã giải nén xong</string>
+    <string name="download_Resource_Message_Loaded">Đã nạp xong dữ liệu</string>
     
     <string name="menu_new_exam">New exam</string>
     <string name="menu_exit">Exit</string>

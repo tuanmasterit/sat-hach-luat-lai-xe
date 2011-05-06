@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-	<WebView
-		android:id="@+id/webView"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
-</LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<TableLayout android:layout_gravity="center_horizontal"
+		android:layout_alignParentBottom="true"
+		android:layout_centerHorizontal="true" android:id="@+id/tableLayout"
+		android:layout_height="wrap_content" android:layout_width="fill_parent"
+		android:stretchColumns="*">
+		<TableRow>
+			<RadioGroup android:id="@+id/radioGroup" android:layout_span="2" android:orientation="horizontal"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<RadioButton android:id="@+id/radioAnswer1" android:layout_weight="1"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:text="1"></RadioButton>
+				<RadioButton android:id="@+id/radioAnswer2" android:layout_weight="1"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:text="2"></RadioButton>
+				<RadioButton android:id="@+id/radioAnswer3" android:layout_weight="1"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:text="3"></RadioButton>
+				<RadioButton android:id="@+id/radioAnswer4" android:layout_weight="1"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:text="4"></RadioButton>
+			</RadioGroup>
+		</TableRow>
+		<TableRow>
+			<Button android:text="Button" android:id="@+id/button1"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+			<Button android:text="Button" android:id="@+id/button2"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+		</TableRow>
+	</TableLayout>
+
+	<WebView android:id="@+id/webView" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:layout_above="@+id/tableLayout" />
+</RelativeLayout>
