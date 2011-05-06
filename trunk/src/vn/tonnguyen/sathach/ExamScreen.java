@@ -8,6 +8,7 @@ import vn.tonnguyen.sathach.bean.Question;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class ExamScreen extends BaseActivity {
 	
@@ -48,6 +49,9 @@ public class ExamScreen extends BaseActivity {
 		
 		setContentView(R.layout.exam);
 		WebView full = (WebView)findViewById(R.id.webView);
+        //Make sure links in the webview is handled by the webview and not sent to a full browser
+		full.setWebViewClient(new WebViewClient());
+		
 		full.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
         //if ROM supports Multi-Touch     
 		full.getSettings().setBuiltInZoomControls(true);
