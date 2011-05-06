@@ -18,8 +18,6 @@ import java.util.zip.ZipInputStream;
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -31,7 +29,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-public class Startup extends Activity {
+public class Startup extends BaseActivity {
 	public static final int WHAT_UPDATE_PERCENT = 0;
 	public static final int WHAT_DOWNLOADING_RESOURCE = 1;
 	public static final int WHAT_EXTRACTING_RESOURCE = 2;
@@ -42,7 +40,7 @@ public class Startup extends Activity {
 	
 	private ProgressDialog progressDialog;
 	
-	private Context context;
+	//private Context context;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -51,7 +49,7 @@ public class Startup extends Activity {
 
 		setContentView(R.layout.startup);
 		Log.v("Statup", "Displaying startup dialog");
-		context = this;
+		//context = this;
 		final MyApplication application = (MyApplication)getApplicationContext();
 		
 		try {
@@ -84,7 +82,7 @@ public class Startup extends Activity {
 														progressDialog.cancel();
 														progressDialog = null;
 													}
-													progressDialog = new ProgressDialog(context);
+													progressDialog = new ProgressDialog(application);
 													progressDialog.setCancelable(true);
 													progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 													progressDialog.setMessage((String)msg.obj);
@@ -102,7 +100,7 @@ public class Startup extends Activity {
 													} catch (IOException e) {
 														// show the Message and close activity
 														Log.e("Loading resources", e.getMessage());
-														Toast toast = Toast.makeText(context, context.getString(R.string.download_Resource_Error_Occurred) + e.getMessage(), Toast.LENGTH_LONG);
+														Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + e.getMessage(), Toast.LENGTH_LONG);
 														toast.show();
 														finish();
 													}
@@ -116,14 +114,14 @@ public class Startup extends Activity {
 													// display error message
 													Log.v("Error occurred", (String)msg.obj);
 													progressDialog.cancel();
-													Toast toast = Toast.makeText(context, context.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
+													Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 													toast.show();
 													finish();
 												}
 												super.handleMessage(msg);
 											}
 										};
-										ResourceDownloadThread thread = new ResourceDownloadThread(context, threadHandler,
+										ResourceDownloadThread thread = new ResourceDownloadThread(application, threadHandler,
 																		MyApplication.ONLINE_DATA_FILE_URL, targetFilePathToSave, 
 																		MyApplication.APPLICATION_DATA_PATH);
 										thread.start();
@@ -145,7 +143,7 @@ public class Startup extends Activity {
 		} catch (Exception e) {
 			// show the Message and close activity
 			Log.e("Loading resources", e.getMessage());
-			Toast toast = Toast.makeText(context, context.getString(R.string.download_Resource_Error_Occurred) + e.getMessage(), Toast.LENGTH_LONG);
+			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + e.getMessage(), Toast.LENGTH_LONG);
 			toast.show();
 			finish();
 		}
@@ -155,19 +153,18 @@ public class Startup extends Activity {
 		// read question.dat to get question data
 		String[] questionsAndAnswers = readFileAsStringArray(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH);
 		Hashtable<Integer, Question> questions = new Hashtable<Integer, Question>();
-		Log.v("questionsAndAnswers.length", String.valueOf(questionsAndAnswers.length));
+		Question question = null;
+		int questionIndex, questionList, answer, numberOfAnswer = 0;
+		String questionRawData = "";
 		for (int i = 1; i <= 405; i++) {
 			String pictureName = String.format("%03d.JPG", i);
-			int questionIndex = (i - 1) % 25;
-			int questionList = (i - 1) / 25;
+			questionIndex = (i - 1) % 25;
+			questionList = (i - 1) / 25;
+			questionRawData = questionsAndAnswers[questionList];
+			answer = Integer.parseInt(questionRawData.substring(2 * questionIndex, 2 * questionIndex + 1));
+			numberOfAnswer = Integer.parseInt(questionRawData.substring(2 * questionIndex + 1, 2 * questionIndex + 2));
 
-			int answer = Integer.parseInt(questionsAndAnswers[questionList].substring(
-					2 * questionIndex, 2 * questionIndex + 1));
-			int numberOfAnswer = Integer.parseInt(questionsAndAnswers[questionList]
-					.substring(2 * questionIndex + 1, 2 * questionIndex + 2));
-
-			Question question = new Question(pictureName, numberOfAnswer, answer);
-			Log.v("question", question.toString());
+			question = new Question(pictureName, numberOfAnswer, answer);
 			questions.put(i, question);
 		}
 		application.setQuestions(questions);
@@ -176,15 +173,8 @@ public class Startup extends Activity {
 		ArrayList<Level> levels = new ArrayList<Level>();
 		String[] indexData = readFileAsStringArray(MyApplication.APPLICATION_INDEX_FILE_PATH);
 		for(String line : indexData) {
-			String[] data = line.split(";");
-			Level level = new Level();
-			
-			level.setId(toInt(data[0]));
-			level.setName(data[1]);
-			level.setDataFilePath(MyApplication.APPLICATION_DATA_PATH + data[2]);
-			level.setExamsFormat(getExamFormats(level.getDataFilePath()));
-			
-			levels.add(level);
+			String[] data = line.split(";");		
+			levels.add(new Level(toInt(data[0]), data[1], MyApplication.APPLICATION_DATA_PATH + data[2], getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2])));
 		}
 		application.setLevels(levels);
 	}
@@ -192,8 +182,9 @@ public class Startup extends Activity {
 	private ArrayList<ExamFormat> getExamFormats(String dataFilePath) throws IOException {
 		ArrayList<ExamFormat> examsFormatList = new ArrayList<ExamFormat>();
 		String[] examsFormat = readFileAsStringArray(dataFilePath);
+		String[] examFormatData = null;
 		for(String examFormatLine : examsFormat) {
-			String[] examFormatData = examFormatLine.split(";");
+			examFormatData = examFormatLine.split(";");
 			examsFormatList.add(new ExamFormat(toInt(examFormatData[0]), toInt(examFormatData[1]), toInt(examFormatData[2])));
 		}
 		return examsFormatList;
@@ -395,13 +386,13 @@ class ResourceDownloadThread extends Thread {
 			ZipEntry zipentry = zipinputstream.getNextEntry();
 			long downloadedSize = 0;
 			long bufferLength = 0;
+			int n;
 			while (zipentry != null) { // for each entry to be extracted
 				// get downloaded size, to calculate extract process's percent
 				bufferLength = zipentry.getCompressedSize();
 				downloadedSize += bufferLength;
 				String entryName = zipentry.getName();
 				//Log.v("Extracting resources", "entryname " + entryName);
-				int n;
 				FileOutputStream fileoutputstream;
 				File newFile = new File(entryName);
 				String directory = newFile.getParent();
