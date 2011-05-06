@@ -5,12 +5,11 @@ import java.util.Random;
 
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Question;
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
 
-public class ExamScreen extends Activity {
+public class ExamScreen extends BaseActivity {
 	
 	/** Called when the activity is first created. */
 	@Override
