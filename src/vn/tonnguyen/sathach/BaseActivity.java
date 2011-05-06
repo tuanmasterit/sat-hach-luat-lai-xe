@@ -2,6 +2,7 @@ package vn.tonnguyen.sathach;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.Window;
 import android.view.WindowManager;
 
 /**
@@ -20,5 +21,8 @@ public class BaseActivity extends Activity {
 		// and set WindowManager.LayoutParams.FLAG_FULLSCREEN flag for main window.
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
                 WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+		
+		//Remove title bar
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 	}
 }
