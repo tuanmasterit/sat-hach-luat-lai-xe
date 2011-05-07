@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -22,7 +21,7 @@ public class ExamScreen extends BaseActivity {
 	private MyApplication application;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
-	private WebView full; // a WebView, to display question image
+	private WebView webView; // a WebView, to display question image
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -31,26 +30,24 @@ public class ExamScreen extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		
 		application = (MyApplication)getApplicationContext();
-		if(application.getSelectedLevelIndex() < 0) {
+		int levelIndex = application.getRecentlyLevel();
+		if(levelIndex < 0) {
 			Toast.makeText(application, application.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
 				.show();
 			return;
 		}
 		
 		setContentView(R.layout.exam);
-		
-		// generate exam
-		examQuestions = generateRandomQuestion(application.getLevels().get(application.getSelectedLevelIndex()));
-
-		full = (WebView)findViewById(R.id.webView);
+		webView = (WebView)findViewById(R.id.webView);
         //Make sure links in the webview is handled by the webview and not sent to a full browser
-		full.setWebViewClient(new WebViewClient());
-		full.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
+		//full.setWebViewClient(new WebViewClient());
+		webView.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
         //if ROM supports Multi-Touch     
-		full.getSettings().setBuiltInZoomControls(true);
+		webView.getSettings().setBuiltInZoomControls(true);
 		//full.getSettings().setLoadWithOverviewMode(true);
-		full.getSettings().setUseWideViewPort(true);
-		full.setInitialScale(75); // so the phone can display the whole image on screen. This value should be persist if user change the zoom level
+		webView.getSettings().setUseWideViewPort(true);
+		webView.setInitialScale(application.getRecentlyZoom()); // so the phone can display the whole image on screen. 
+		// This value should be persist if user change the zoom level
 		// so they dont have to change the zoom level every time they view a question
 		
 		// bind click event for next and previous buttons
@@ -79,9 +76,44 @@ public class ExamScreen extends BaseActivity {
 			}
 		});
 		
+		// TODO Check to restore session
+		
+		// generate exam
+		examQuestions = generateRandomQuestion(application.getLevels().get(levelIndex));
+		
 		// display the first question
 		currentQuestionIndex = 0;
 		showQuestion(currentQuestionIndex);
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
+		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
+		// save the current session, so next time when user come back, we will load it
+		saveSession();
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		super.onRestoreInstanceState(state);
+		Log.d("ExamScreen", "onRestoreInstanceState " + state.toString());
+		// restore the last session of user
+		restoreSession();
+	}
+	
+	/**
+	 * Store current session, so next time when user come back, we will restore it. Only 1 session will be stored
+	 */
+	private void saveSession() {
+		
+	}
+	
+	/**
+	 * Get the last session and restore it
+	 */
+	private void restoreSession() {
+		
 	}
 	
 	/***
@@ -135,10 +167,16 @@ public class ExamScreen extends BaseActivity {
 	}
 	
 	private void next() {
+		if(currentQuestionIndex >= examQuestions.length - 1) { // no more question left to show
+			return;
+		}
 		showQuestion(++currentQuestionIndex);
 	}
 	
 	private void previous() {
+		if(currentQuestionIndex <= 0) { // already at the first question
+			return;
+		}
 		showQuestion(--currentQuestionIndex);
 	}
 	
@@ -151,7 +189,10 @@ public class ExamScreen extends BaseActivity {
 		Log.d("Displaying question", "Index: " + questionIndex + " - " + examQuestions[questionIndex].toString());
 		String html = "<html><img src=\"" + examQuestions[questionIndex].getPictureName() + "\"></html>";
 		/* Finally, display the content using WebView */
-		full.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		int scale = (int)(100 * webView.getScale());
+		application.setRecentlyZoom(scale);
+		webView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		webView.setInitialScale(scale);
 	}
 	
 	private Question[] generateRandomQuestion(Level selectedLevel) {
