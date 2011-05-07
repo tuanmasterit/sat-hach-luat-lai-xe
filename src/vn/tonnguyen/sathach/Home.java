@@ -44,19 +44,20 @@ public class Home extends BaseActivity {
 			
 			@Override
 			public void onClick(View v) {
+				// TODO check if we have a pending exam, to asking for resume or create new
 				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(Home.this);
 				selectLevelDialog.setTitle(R.string.home_SelectlLevel_Title);
-				selectLevelDialog.setSingleChoiceItems(menuItems, 0, new DialogInterface.OnClickListener() {
+				selectLevelDialog.setSingleChoiceItems(menuItems, application.getRecentlyLevel(), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// onClick Action
 						// the level list has been ordered by index, so whichButton will be the selected index
-						application.setSelectedLevelIndex(whichButton);
+						application.setRecentlyLevel(whichButton);
 					}
 				}).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// on Ok button action
-						Log.v("Selected level index to create new exam", String.valueOf(application.getSelectedLevelIndex()));
-						if(application.getSelectedLevelIndex() >= 0) {
+						Log.v("Selected level index to create new exam", String.valueOf(application.getRecentlyLevel()));
+						if(application.getRecentlyLevel() >= 0) {
 							startActivity(new Intent((MyApplication)getApplicationContext(), ExamScreen.class));
 						} else {
 							Toast.makeText(application, application.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
