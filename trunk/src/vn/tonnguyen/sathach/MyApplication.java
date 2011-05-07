@@ -23,6 +23,8 @@ public class MyApplication extends Application {
 	
 	public static final String ONLINE_DATA_FILE_URL = "http://sat-hach-luat-lai-xe.googlecode.com/files/Data.zip";
 	
+	public static final String APPLICATION_SAVING_ZIP_FILE_PATH = APPLICATION_DATA_PATH + "data.zip";
+	
 	public static final int NUMBER_OF_QUESTIONS = 405;
 	
 	public static final String USER_PREFERENCE_KEY = "UserSetting";
