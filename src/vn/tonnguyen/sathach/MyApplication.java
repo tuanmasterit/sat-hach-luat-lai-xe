@@ -28,6 +28,11 @@ public class MyApplication extends Application {
 	
 	private ArrayList<Level> levels;
 	
+	/**
+	 * The index in ArrayList<Level> levels, to indicate which level has been selected in order to create new exam
+	 */
+	private int selectedLevelIndex;
+	
 	public Hashtable<Integer, Question> getQuestions() {
 		return questions;
 	}
@@ -47,5 +52,13 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+	}
+
+	public int getSelectedLevelIndex() {
+		return selectedLevelIndex;
+	}
+
+	public void setSelectedLevelIndex(int selectedLevelIndex) {
+		this.selectedLevelIndex = selectedLevelIndex;
 	}
 }

@@ -2,6 +2,9 @@
 <resources>
     <string name="loading_Data">Đang nạp dữ liệu...</string>
     <string name="app_name">Sát hạch luật lái xe</string>
+    <string name="ok_button">Đồng ý</string>
+    <string name="cancel_button">Bỏ qua</string>
+    
     <string name="download_Resource_Title">Tải dữ liệu</string>
     <string name="download_Resource_Message">Chương trình cần tải dữ liệu câu hỏi từ Internet(~10MB), sẽ mất phí nếu sử dụng 3G. Khuyến cáo nên sử dụng Wifi.</string>
     <string name="download_Resource_Button_Yes">Đồng ý tải dữ liệu</string>
@@ -13,6 +16,16 @@
     <string name="download_Resource_Message_Extracted">Đã giải nén xong</string>
     <string name="download_Resource_Message_Loaded">Đã nạp xong dữ liệu</string>
     
+    <string name="home_SelectlLevel_Title">Chọn hạng</string>
+    
     <string name="menu_new_exam">New exam</string>
     <string name="menu_exit">Exit</string>
+    
+    <string name="error_pleaseSelect_Level">Xin vui lòng chọn một hạng</string>
+    <string name="error_data_corrupted">Dữ liệu lỗi</string>
+    
+    <string name="exam_exit_confirm_title">Bạn muốn hoàn tất bài thi?</string>
+    <string name="exam_exit_confirm_message">Chọn "Đồng ý" để hoàn tất bài thi, hoặc chọn "Tiếp tục làm bài" để quay lại bài thi</string>
+    <string name="exam_exit_confirm_ok">Đồng ý</string>
+    <string name="exam_exit_confirm_cancel">Tiếp tục làm bài</string>
 </resources>
