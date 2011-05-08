@@ -28,12 +28,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 public class Startup extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
 	public static final int WHAT_LOADING_RESOURCE = 2;
-	public static final int WHAT_LOADING_RESOURCE_FAILED = 3;
 	public static final int WHAT_LOADING_RESOURCE_SUCCEED = 4;
 	
 	public static final int DIALOG_DOWNLOAD_PROGRESS = 5;
@@ -42,52 +43,55 @@ public class Startup extends BaseActivity {
 	
 	private ProgressDialog progressDialog;
 	private Handler threadHandler;
-	private MyApplication application;
+	private MyApplication context;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.startup);
-		Log.v("Statup", "Displaying startup dialog");
-		application = (MyApplication)getApplicationContext();
 		
-		threadHandler = new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				processMessage(msg, application);
-				super.handleMessage(msg);
+		Log.v("Statup", "Displaying startup dialog");
+		setContentView(R.layout.startup);
+		context = (MyApplication)getApplicationContext();
+		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
+			threadHandler = new Handler() {
+				@Override
+				public void handleMessage(Message msg) {
+					processMessage(msg, context);
+					super.handleMessage(msg);
+				}
+			};
+			if (!isResourcesAvailable()) { // check if resource has been downloaded into data folder
+				// Get resources from Internet
+				// confirm is user is willing to download first
+				new AlertDialog.Builder(this)
+						.setIcon(android.R.drawable.ic_dialog_info)
+						.setTitle(R.string.download_Resource_Title)
+						.setMessage(R.string.download_Resource_Message)
+						.setPositiveButton(R.string.download_Resource_Button_Yes,
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										// Start the download process and showing the process dialog
+										Log.v("Statup", "Displaying download dialog");
+										new DownloadFilesTask().execute(MyApplication.ONLINE_DATA_FILE_URL, MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
+									}
+								})
+						.setNegativeButton(R.string.download_Resource_Button_No,
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										// Close the activity
+										Log.v("Startup screen", "Closing startup activity");
+										finish();
+									}
+								}).show();
+			} else {
+				startLoadingResource();
 			}
-		};
-		if (!isResourcesAvailable()) {
-			// Get resources from Internet
-			// confirm is user is willing to download first
-			new AlertDialog.Builder(this)
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setTitle(R.string.download_Resource_Title)
-					.setMessage(R.string.download_Resource_Message)
-					.setPositiveButton(R.string.download_Resource_Button_Yes,
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									// Start the download process and showing the process dialog
-									Log.v("Statup", "Displaying download dialog");
-									new DownloadFilesTask().execute(MyApplication.ONLINE_DATA_FILE_URL, MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
-								}
-							})
-					.setNegativeButton(R.string.download_Resource_Button_No,
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									// Close the activity
-									Log.v("Startup screen", "Closing startup activity");
-									finish();
-								}
-							}).show();
 		} else {
-			startLoadingResource();
+			initComponents();
 		}
 	}
 	
@@ -99,21 +103,21 @@ public class Startup extends BaseActivity {
 	    switch (id) {
 	        case DIALOG_DOWNLOAD_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
-	        	progressDialog.setMessage(application.getString(R.string.download_Resource_Message_Downloading));
+	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Downloading));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        	progressDialog.setCancelable(false);
 	        	progressDialog.show();
 	            return progressDialog;
 	        case DIALOG_EXTRACT_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
-	        	progressDialog.setMessage(application.getString(R.string.download_Resource_Message_Extracting));
+	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Extracting));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        	progressDialog.setCancelable(false);
 	        	progressDialog.show();
 	            return progressDialog;
 	        case DIALOG_LOADING_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
-	        	progressDialog.setMessage(application.getString(R.string.loading_Data));
+	        	progressDialog.setMessage(context.getString(R.string.loading_Data));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        	progressDialog.setCancelable(false);
 	        	progressDialog.show();
@@ -130,7 +134,7 @@ public class Startup extends BaseActivity {
 			Log.v("Loading resource Suceed", String.valueOf(msg.obj));
 			progressDialog.cancel();
 			progressDialog = null;
-			showHomeScreen();
+			initComponents();
 			break;
 		default: // error occurred
 			// display error message
@@ -143,16 +147,72 @@ public class Startup extends BaseActivity {
 		}
 	}
 	
+	/**
+	 * Start the thread to load resource into memory
+	 */
 	private void startLoadingResource() {
 		showDialog(DIALOG_LOADING_PROGRESS);
-		ResourceLoaderThread thread = new ResourceLoaderThread(application, threadHandler);
+		ResourceLoaderThread thread = new ResourceLoaderThread();
 		thread.start();
 	}
 
-	private void showHomeScreen() {
-		// open home activity
-		Log.v("Statup", "Displaying home screen");
-		startActivity(new Intent(this, Home.class));
+	/**
+	 * Init data, bind event for buttons
+	 */
+	private void initComponents() {
+		ArrayList<Level> levels = context.getLevels();
+		if(levels == null || levels.size() < 1) {
+			Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG)
+				.show();
+			return;
+		}
+		final String[] menuItems = new String[levels.size()];
+		for(int i = 0; i < levels.size(); i++) {
+			menuItems[i] = levels.get(i).getName();
+		}
+	    // Register the onClick listener with the implementation above
+		((Button)findViewById(R.id.button_new_game)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO check if we have a pending exam, to asking for resume or create new
+				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(Startup.this);
+				selectLevelDialog.setTitle(R.string.home_SelectlLevel_Title);
+				selectLevelDialog.setSingleChoiceItems(menuItems, context.getRecentlyLevel(), new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// onClick Action
+						// the level list has been ordered by index, so whichButton will be the selected index
+						context.setRecentlyLevel(whichButton);
+					}
+				}).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// on Ok button action
+						Log.v("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
+						if(context.getRecentlyLevel() >= 0) {
+							startActivity(new Intent((MyApplication)getApplicationContext(), ExamScreen.class));
+						} else {
+							Toast.makeText(context, context.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
+								.show();
+						}
+					}
+				}).setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// on cancel button action
+						dialog.cancel();
+					}
+				});
+				selectLevelDialog.show();
+			}
+		});
+
+	    // Register the onClick listener with the implementation above
+		((Button)findViewById(R.id.button_exit)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// exit
+				finish();
+			}
+		});
 	}
 
 	/**
@@ -175,13 +235,25 @@ public class Startup extends BaseActivity {
 		return new File(filePath).exists();
 	}
 	
-	private void sendMessageToHandler(Handler threadHandler, int messageID, Object what) {
+	/**
+	 * Pushes a message onto the end of the message queue after all pending messages before the current time. 
+	 * It will be received in handleMessage(Message), in the thread attached to this handler.
+	 * @param messageID Integer ID of the message, to identify a message
+	 * @param what An object to send belong with the message
+	 */
+	private void sendMessageToHandler(int messageID, Object what) {
 		Message msg = new Message();
 		msg.what = messageID;
 		msg.obj = what;
 		threadHandler.sendMessage(msg);
 	}
 	
+	/**
+	 * A async task to download data file from Internet. This task can run in background, so the download process
+	 * will be executed even if user has leave the application
+	 * @author Ton Nguyen
+	 *
+	 */
 	private class DownloadFilesTask extends AsyncTask<String, Integer, String> {
 		private boolean isSucceed = false;
 		private String errorMessage = "";
@@ -194,6 +266,9 @@ public class Startup extends BaseActivity {
 	        showDialog(DIALOG_DOWNLOAD_PROGRESS);
 	    }
 		
+	    /**
+	     * Will be invoked when calling execute(). Everything the task need to do, will be implement here
+	     */
 		protected String doInBackground(String... params) {
 			Log.d("Download resource", "Start downloading");
 			InputStream inputStream = null;
@@ -277,21 +352,33 @@ public class Startup extends BaseActivity {
 			}
 		}
 
+		/**
+		 * This method will be invoke be UI thread. The purpose is to update UI
+		 */
 		protected void onProgressUpdate(Integer... args) {
 			progressDialog.setProgress(args[0]);
 		}
 		
+		/**
+		 * After doInBackground has been completed, this method will be called, by UI thread
+		 */
 		protected void onPostExecute(String unused) {
 			if(isSucceed) {
 				// start extracting downloaded file
 				new ExtractFilesTask().execute(MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH, MyApplication.APPLICATION_DATA_PATH);
 			} else {
 				// send message to notify the error
-				sendMessageToHandler(threadHandler, Startup.WHAT_ERROR, errorMessage);
+				sendMessageToHandler(Startup.WHAT_ERROR, errorMessage);
 			}
 		}
 	}
 	
+	/**
+	 * A async task to extract downloaded data file from Internet. This task can run in background, so the extracting process
+	 * will be executed even if user has leave the application
+	 * @author Ton Nguyen
+	 *
+	 */
 	private class ExtractFilesTask extends AsyncTask<String, Integer, String> {
 		private boolean isSucceed = false;
 		private String errorMessage = "";
@@ -304,6 +391,9 @@ public class Startup extends BaseActivity {
 	        showDialog(DIALOG_EXTRACT_PROGRESS);
 	    }
 		
+	    /**
+	     * Will be invoked when calling execute(). Everything the task need to do, will be implement here
+	     */
 		protected String doInBackground(String... params) {
 			Log.d("Extract resource", "Start extracting");
 			ZipInputStream zipinputstream = null;
@@ -371,31 +461,40 @@ public class Startup extends BaseActivity {
 			}
 		}
 
+		/**
+		 * This method will be invoke be UI thread. The purpose is to update UI
+		 */
 		protected void onProgressUpdate(Integer... args) {
 			progressDialog.setProgress(args[0]);
 		}
 		
+		/**
+		 * After doInBackground has been completed, this method will be called, by UI thread
+		 */
 		protected void onPostExecute(String unused) {
 			if(isSucceed) {
 				// start loading resource
 				startLoadingResource();
 			} else {
 				// send message to notify the error
-				sendMessageToHandler(threadHandler, Startup.WHAT_ERROR, errorMessage);
+				sendMessageToHandler(Startup.WHAT_ERROR, errorMessage);
 			}
 		}
 	}
 	
+	/**
+	 * A thread to init resources, load questions and level data into memory
+	 * @author Ton Nguyen
+	 *
+	 */
 	private class ResourceLoaderThread extends Thread {
 		
-		private MyApplication application;
-		private Handler threadHandler;
-		
-		public ResourceLoaderThread(MyApplication application, Handler threadHandler) {
-			this.application = application;
-			this.threadHandler = threadHandler;
+		public ResourceLoaderThread() {
 		}
 		
+		/**
+		 * Thread's start point
+		 */
 		public void run() {
 			loadResources();
 		}
@@ -426,7 +525,7 @@ public class Startup extends BaseActivity {
 					
 					progressDialog.setProgress(80 * i / MyApplication.NUMBER_OF_QUESTIONS);
 				}
-				application.setQuestions(questions);
+				context.setQuestions(questions);
 
 				// then read index.dat, to get level and question format data
 				ArrayList<Level> levels = new ArrayList<Level>();
@@ -436,15 +535,21 @@ public class Startup extends BaseActivity {
 					levels.add(new Level(toInt(data[0]), data[1], MyApplication.APPLICATION_DATA_PATH + data[2],
 											getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2])));
 				}
-				application.setLevels(levels);
-				sendMessageToHandler(threadHandler, Startup.WHAT_LOADING_RESOURCE_SUCCEED, application.getString(R.string.download_Resource_Message_Loaded));
+				context.setLevels(levels);
+				sendMessageToHandler(Startup.WHAT_LOADING_RESOURCE_SUCCEED, context.getString(R.string.download_Resource_Message_Loaded));
 			} catch (IOException e) {
 				Log.e("Loading resource", e.getMessage());
 				// send message to notify the error
-				sendMessageToHandler(threadHandler, Startup.WHAT_LOADING_RESOURCE_FAILED, e.getMessage());
+				sendMessageToHandler(Startup.WHAT_ERROR, e.getMessage());
 			}
 		}
 		
+		/**
+		 * Gets the exam format from data file. The exam format will describe the algorithm to generate questions
+		 * @param dataFilePath path to the data file
+		 * @return An ArrayList of ExamFormat
+		 * @throws IOException if data file cannot be found, or read
+		 */
 		private ArrayList<ExamFormat> getExamFormats(String dataFilePath) throws IOException {
 			ArrayList<ExamFormat> examsFormatList = new ArrayList<ExamFormat>();
 			String[] examsFormat = readFileAsStringArray(dataFilePath);
@@ -456,10 +561,21 @@ public class Startup extends BaseActivity {
 			return examsFormatList;
 		}
 		
+		/**
+		 * Quick shorcut to parse a string to int
+		 * @param value input string to parse to int
+		 * @return the primitive integer value represented by value
+		 */
 		private int toInt(String value) {
 			return Integer.parseInt(value);
 		}
 		
+		/**
+		 * Read an input text file, and return as text lines
+		 * @param filePath path to file to read
+		 * @return A String array, which represents every lines of input file
+		 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
+		 */
 		private String[] readFileAsStringArray(String filePath) throws IOException {
 			//Get the text file
 			File file = new File(filePath);

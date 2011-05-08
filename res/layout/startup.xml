@@ -3,7 +3,11 @@
 	android:baselineAligned="false" android:orientation="vertical"
 	android:gravity="center" android:layout_height="fill_parent"
 	android:layout_width="fill_parent">
-	<TextView android:id="@+id/loadingText" android:layout_width="wrap_content"
-		android:text="@string/loading_Data" android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true" />
+	<Button android:id="@+id/button_new_game" android:layout_width="wrap_content"
+		android:text="@string/menu_new_exam" android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"></Button>
+	<Button android:id="@+id/button_exit" android:layout_width="wrap_content"
+		android:layout_below="@+id/button_new_game" android:text="@string/menu_exit"
+		android:layout_height="wrap_content" android:layout_alignLeft="@+id/button_new_game"
+		android:layout_alignRight="@+id/button_new_game"></Button>
 </RelativeLayout>
