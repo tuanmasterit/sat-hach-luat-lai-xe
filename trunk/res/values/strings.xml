@@ -18,8 +18,8 @@
     
     <string name="home_SelectlLevel_Title">Chọn hạng</string>
     
-    <string name="menu_new_exam">New exam</string>
-    <string name="menu_exit">Exit</string>
+    <string name="menu_new_exam">Làm bài thi</string>
+    <string name="menu_exit">Thoát</string>
     
     <string name="error_pleaseSelect_Level">Xin vui lòng chọn một hạng</string>
     <string name="error_data_corrupted">Dữ liệu lỗi</string>
@@ -28,4 +28,6 @@
     <string name="exam_exit_confirm_message">Chọn "Đồng ý" để hoàn tất bài thi, hoặc chọn "Tiếp tục làm bài" để quay lại bài thi</string>
     <string name="exam_exit_confirm_ok">Đồng ý</string>
     <string name="exam_exit_confirm_cancel">Tiếp tục làm bài</string>
+    
+    <string name="exam_menu_end_exam">Kết thúc</string>
 </resources>
