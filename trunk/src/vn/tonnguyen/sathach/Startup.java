@@ -32,6 +32,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
 public class Startup extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
 	public static final int WHAT_LOADING_RESOURCE = 2;
@@ -52,6 +55,13 @@ public class Startup extends BaseActivity {
 		
 		Log.v("Statup", "Displaying startup dialog");
 		setContentView(R.layout.startup);
+		// Look up the AdView as a resource and load a request.
+	    AdView adView = (AdView)this.findViewById(R.id.adView);
+	    AdRequest re = new AdRequest();
+	    re.setTesting(true);
+	    re.setGender(AdRequest.Gender.MALE);
+	    adView.loadAd(re);
+
 		context = (MyApplication)getApplicationContext();
 		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
 			threadHandler = new Handler() {
