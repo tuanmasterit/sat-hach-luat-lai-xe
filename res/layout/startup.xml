@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:baselineAligned="false" android:orientation="vertical"
-	android:gravity="center" android:layout_height="fill_parent"
+	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
+	android:orientation="vertical"
+	android:layout_height="fill_parent"
 	android:layout_width="fill_parent">
 	<Button android:id="@+id/button_new_game" android:layout_width="wrap_content"
 		android:text="@string/menu_new_exam" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"></Button>
+		android:layout_centerInParent="true"></Button>
 	<Button android:id="@+id/button_exit" android:layout_width="wrap_content"
 		android:layout_below="@+id/button_new_game" android:text="@string/menu_exit"
 		android:layout_height="wrap_content" android:layout_alignLeft="@+id/button_new_game"
 		android:layout_alignRight="@+id/button_new_game"></Button>
+		
+	<com.google.ads.AdView android:id="@+id/adView"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		ads:adUnitId="a14dc8aa6b933d0"
+		ads:adSize="BANNER" 
+		android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
