@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="loading_Data">Đang nạp dữ liệu...</string>
-    <string name="app_name">Sát hạch luật lái xe</string>
+    <string name="app_name">Lý thuyết lái xe</string>
     <string name="ok_button">Đồng ý</string>
     <string name="cancel_button">Bỏ qua</string>
     

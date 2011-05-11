@@ -17,25 +17,26 @@
 		<RadioButton android:id="@+id/radioAnswer4"
 			android:layout_weight="1" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:text="4"></RadioButton>
+		<Button android:text="&lt;" android:id="@+id/buttonPrevious"
+			android:layout_weight="1" android:layout_width="fill_parent"
+			android:layout_height="wrap_content"></Button>
+		<Button android:text="&gt;" android:id="@+id/buttonNext"
+			android:layout_weight="1" android:layout_width="fill_parent"
+			android:layout_height="wrap_content"></Button>
 	</RadioGroup>
 
+<!-- 
 	<LinearLayout android:orientation="horizontal" android:id="@+id/buttonGroup"
 		android:layout_height="wrap_content" android:layout_width="fill_parent"
 		android:layout_alignParentBottom="true" android:layout_toLeftOf="@+id/radioGroup">
 		<Button android:text="&lt;&lt;" android:id="@+id/buttonFirst"
 			android:layout_weight="1" android:layout_width="wrap_content"
 			android:layout_height="wrap_content"></Button>
-		<Button android:text="&lt;" android:id="@+id/buttonPrevious"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content"></Button>
-		<Button android:text="&gt;" android:id="@+id/buttonNext"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content"></Button>
 		<Button android:text="&gt;&gt;" android:id="@+id/buttonLast"
 			android:layout_weight="1" android:layout_width="wrap_content"
 			android:layout_height="wrap_content"></Button>
 	</LinearLayout>
-
+ -->
 	<WebView android:id="@+id/webView" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:layout_toLeftOf="@+id/radioGroup"
 		android:layout_above="@+id/buttonGroup" />

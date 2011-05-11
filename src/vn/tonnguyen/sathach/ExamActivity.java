@@ -24,7 +24,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-public class ExamScreen extends BaseActivity {
+public class ExamActivity extends BaseActivity {
 	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
@@ -44,7 +44,7 @@ public class ExamScreen extends BaseActivity {
 			return;
 		}
 		
-		setContentView(R.layout.exam);
+		setContentView(R.layout.activity_exam);
 		webView = (WebView)findViewById(R.id.webView);
         //Make sure links in the webview is handled by the webview and not sent to a full browser
 		//full.setWebViewClient(new WebViewClient());
@@ -58,18 +58,18 @@ public class ExamScreen extends BaseActivity {
 		// so they dont have to change the zoom level every time they view a question
 		
 		// bind click event for next and previous buttons
-		((Button)findViewById(R.id.buttonFirst)).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				gotoFirst();
-			}
-		});
-		((Button)findViewById(R.id.buttonLast)).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				gotoLast();
-			}
-		});
+//		((Button)findViewById(R.id.buttonFirst)).setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				gotoFirst();
+//			}
+//		});
+//		((Button)findViewById(R.id.buttonLast)).setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				gotoLast();
+//			}
+//		});
 		((Button)findViewById(R.id.buttonNext)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -126,7 +126,7 @@ public class ExamScreen extends BaseActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.exam_screen_menu, menu);
+	    inflater.inflate(R.menu.menu_exam_screen, menu);
 	    return true;
 	}
 	
@@ -200,7 +200,7 @@ public class ExamScreen extends BaseActivity {
 	
 	private void onExit() {
 		// confirm to exit exam
-    	new AlertDialog.Builder(ExamScreen.this)
+    	new AlertDialog.Builder(ExamActivity.this)
 		.setIcon(android.R.drawable.ic_dialog_info)
 		.setTitle(R.string.exam_exit_confirm_title)
 		.setMessage(R.string.exam_exit_confirm_message)
@@ -236,15 +236,15 @@ public class ExamScreen extends BaseActivity {
 		toast.show();
 	}
 	
-	private void gotoFirst() {
-		currentQuestionIndex = 0;
-		showQuestion(currentQuestionIndex);
-	}
-	
-	private void gotoLast() {
-		currentQuestionIndex = examQuestions.length - 1;
-		showQuestion(currentQuestionIndex);
-	}
+//	private void gotoFirst() {
+//		currentQuestionIndex = 0;
+//		showQuestion(currentQuestionIndex);
+//	}
+//	
+//	private void gotoLast() {
+//		currentQuestionIndex = examQuestions.length - 1;
+//		showQuestion(currentQuestionIndex);
+//	}
 	
 	private void next() {
 		if(currentQuestionIndex >= examQuestions.length - 1) { // no more question left to show

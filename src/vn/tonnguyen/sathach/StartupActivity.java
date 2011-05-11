@@ -35,7 +35,7 @@ import android.widget.Toast;
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
-public class Startup extends BaseActivity {
+public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
 	public static final int WHAT_LOADING_RESOURCE = 2;
 	public static final int WHAT_LOADING_RESOURCE_SUCCEED = 4;
@@ -54,7 +54,7 @@ public class Startup extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		
 		Log.v("Statup", "Displaying startup dialog");
-		setContentView(R.layout.startup);
+		setContentView(R.layout.activity_startup);
 		// Look up the AdView as a resource and load a request.
 	    AdView adView = (AdView)this.findViewById(R.id.adView);
 	    AdRequest re = new AdRequest();
@@ -184,8 +184,7 @@ public class Startup extends BaseActivity {
 		((Button)findViewById(R.id.button_new_game)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO check if we have a pending exam, to asking for resume or create new
-				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(Startup.this);
+				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(StartupActivity.this);
 				selectLevelDialog.setTitle(R.string.home_SelectlLevel_Title);
 				selectLevelDialog.setSingleChoiceItems(menuItems, context.getRecentlyLevel(), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -198,7 +197,7 @@ public class Startup extends BaseActivity {
 						// on Ok button action
 						Log.v("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
 						if(context.getRecentlyLevel() >= 0) {
-							startActivity(new Intent((MyApplication)getApplicationContext(), ExamScreen.class));
+							startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
 						} else {
 							Toast.makeText(context, context.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
 								.show();
@@ -378,7 +377,7 @@ public class Startup extends BaseActivity {
 				new ExtractFilesTask().execute(MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH, MyApplication.APPLICATION_DATA_PATH);
 			} else {
 				// send message to notify the error
-				sendMessageToHandler(Startup.WHAT_ERROR, errorMessage);
+				sendMessageToHandler(StartupActivity.WHAT_ERROR, errorMessage);
 			}
 		}
 	}
@@ -487,7 +486,7 @@ public class Startup extends BaseActivity {
 				startLoadingResource();
 			} else {
 				// send message to notify the error
-				sendMessageToHandler(Startup.WHAT_ERROR, errorMessage);
+				sendMessageToHandler(StartupActivity.WHAT_ERROR, errorMessage);
 			}
 		}
 	}
@@ -546,11 +545,11 @@ public class Startup extends BaseActivity {
 											getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2])));
 				}
 				context.setLevels(levels);
-				sendMessageToHandler(Startup.WHAT_LOADING_RESOURCE_SUCCEED, context.getString(R.string.download_Resource_Message_Loaded));
+				sendMessageToHandler(StartupActivity.WHAT_LOADING_RESOURCE_SUCCEED, context.getString(R.string.download_Resource_Message_Loaded));
 			} catch (IOException e) {
 				Log.e("Loading resource", e.getMessage());
 				// send message to notify the error
-				sendMessageToHandler(Startup.WHAT_ERROR, e.getMessage());
+				sendMessageToHandler(StartupActivity.WHAT_ERROR, e.getMessage());
 			}
 		}
 		
