@@ -1,22 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
-	android:orientation="vertical"
-	android:layout_height="fill_parent"
-	android:layout_width="fill_parent">
-	<Button android:id="@+id/button_new_game" android:layout_width="wrap_content"
-		android:text="@string/menu_new_exam" android:layout_height="wrap_content"
-		android:layout_centerInParent="true"></Button>
-	<Button android:id="@+id/button_exit" android:layout_width="wrap_content"
-		android:layout_below="@+id/button_new_game" android:text="@string/menu_exit"
-		android:layout_height="wrap_content" android:layout_alignLeft="@+id/button_new_game"
-		android:layout_alignRight="@+id/button_new_game"></Button>
-		
-	<com.google.ads.AdView android:id="@+id/adView"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		ads:adUnitId="a14dc8aa6b933d0"
-		ads:adSize="BANNER" 
-		android:layout_alignParentBottom="true" />
+    android:id="@+id/home_root"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-</RelativeLayout>
+	<!-- Action bar -->
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="@dimen/title_height" android:orientation="horizontal"
+		android:background="@color/title_background">
+		<ImageView android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:src="@drawable/title_icon" />
+	</LinearLayout>
+    
+    <!-- Grid -->
+	<LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="5dip">
+        <!-- First row -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <Button android:id="@+id/startup_btn_startexam" 
+                android:layout_gravity="center_vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:textSize="@dimen/text_size_medium"
+                android:textStyle="bold"
+                android:textColor="@color/startup_btn_text"
+                android:background="@null"
+                android:text="@string/menu_new_exam"
+                android:drawableTop="@drawable/startup_btn_startexam"/>
+            <Button android:id="@+id/startup_btn_exit"
+                android:layout_gravity="center_vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:textSize="@dimen/text_size_medium"
+                android:textStyle="bold"
+                android:textColor="@color/startup_btn_text"
+                android:background="@null"
+                android:text="@string/menu_exit"
+                android:drawableTop="@drawable/startup_btn_exit"/>
+        </LinearLayout>
+    </LinearLayout>
+    
+    <LinearLayout
+	        android:id="@+id/adViewContainer"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:gravity="center">
+        <com.google.ads.AdView android:id="@+id/adView"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			ads:adUnitId="a14dc8aa6b933d0"
+			ads:adSize="BANNER" />
+    </LinearLayout>
+    
+</LinearLayout>
