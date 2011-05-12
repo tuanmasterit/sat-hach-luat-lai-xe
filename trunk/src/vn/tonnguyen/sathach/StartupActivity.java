@@ -181,7 +181,7 @@ public class StartupActivity extends BaseActivity {
 			menuItems[i] = levels.get(i).getName();
 		}
 	    // Register the onClick listener with the implementation above
-		((Button)findViewById(R.id.button_new_game)).setOnClickListener(new View.OnClickListener() {
+		((Button)findViewById(R.id.startup_btn_startexam)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(StartupActivity.this);
@@ -214,7 +214,7 @@ public class StartupActivity extends BaseActivity {
 		});
 
 	    // Register the onClick listener with the implementation above
-		((Button)findViewById(R.id.button_exit)).setOnClickListener(new View.OnClickListener() {
+		((Button)findViewById(R.id.startup_btn_exit)).setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
