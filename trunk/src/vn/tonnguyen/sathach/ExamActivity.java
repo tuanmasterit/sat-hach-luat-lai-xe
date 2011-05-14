@@ -1,5 +1,6 @@
 package vn.tonnguyen.sathach;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,10 +108,8 @@ public class ExamActivity extends BaseActivity {
 			}
 		});
 		
-		// TODO Check to restore session
-		if(savedInstanceState != null) { // question will be retrieve back and display in onRestoreInstanceState
-			//Log.d("Get question from saved state", "onCreate");
-			//examQuestions = (Question[])savedInstanceState.getSerializable("CurrentQuestions");
+		if(savedInstanceState != null) { 
+			// question will be retrieve back and display in onRestoreInstanceState
 		} else {
 			// generate exam
 			examQuestions = generateRandomQuestion(context.getLevels().get(levelIndex));
@@ -149,9 +148,10 @@ public class ExamActivity extends BaseActivity {
 	protected void onSaveInstanceState(Bundle state) {
 		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
 		// save the current session, so next time when user come back, we will load it
-		state.putSerializable("CurrentQuestions", examQuestions);
-		state.putInt("currentQuestionIndex", currentQuestionIndex);
-		saveSession();
+		if(examQuestions != null) {
+			state.putSerializable("CurrentQuestions", examQuestions);
+			state.putInt("currentQuestionIndex", currentQuestionIndex);
+		}
 		super.onSaveInstanceState(state);
 	}
 	
@@ -160,25 +160,13 @@ public class ExamActivity extends BaseActivity {
 		Log.d("ExamScreen", "onRestoreInstanceState " + state.toString());
 		Log.d("Get question from saved state", "onRestore");
 		// restore the last session of user
-		examQuestions = (Question[])state.getSerializable("CurrentQuestions");
-		currentQuestionIndex = state.getInt("currentQuestionIndex");
-		showQuestion(currentQuestionIndex); // display the last viewed question
-		restoreSession();
+		Serializable obj = state.getSerializable("CurrentQuestions");
+		if(obj != null) {
+			examQuestions = (Question[])obj;
+			currentQuestionIndex = state.getInt("currentQuestionIndex");
+			showQuestion(currentQuestionIndex); // display the last viewed question
+		}
 		super.onRestoreInstanceState(state);
-	}
-	
-	/**
-	 * Store current session, so next time when user come back, we will restore it. Only 1 session will be stored
-	 */
-	private void saveSession() {
-		
-	}
-	
-	/**
-	 * Get the last session and restore it
-	 */
-	private void restoreSession() {
-		
 	}
 	
 	/***

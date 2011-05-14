@@ -4,27 +4,29 @@
 
 	<RadioGroup android:id="@+id/radioGroup"
 		android:orientation="vertical" android:layout_alignParentRight="true"
-		android:layout_width="wrap_content" android:layout_height="fill_parent">
+		android:layout_width="wrap_content" android:layout_height="wrap_content">
 		<RadioButton android:id="@+id/radioAnswer1"
 			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="1"></RadioButton>
+			android:layout_height="30sp" android:text="1"></RadioButton>
 		<RadioButton android:id="@+id/radioAnswer2"
 			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="2"></RadioButton>
+			android:layout_height="30sp" android:text="2"></RadioButton>
 		<RadioButton android:id="@+id/radioAnswer3"
 			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="3"></RadioButton>
+			android:layout_height="30sp" android:text="3"></RadioButton>
 		<RadioButton android:id="@+id/radioAnswer4"
 			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="4"></RadioButton>
-		<Button android:text="&lt;" android:id="@+id/buttonPrevious"
-			android:layout_weight="1" android:layout_width="fill_parent"
-			android:layout_height="wrap_content"></Button>
-		<Button android:text="&gt;" android:id="@+id/buttonNext"
-			android:layout_weight="1" android:layout_width="fill_parent"
-			android:layout_height="wrap_content"></Button>
+			android:layout_height="30sp" android:text="4"></RadioButton>
 	</RadioGroup>
-
+	<LinearLayout android:orientation="vertical" android:layout_alignParentRight="true" android:layout_below="@+id/radioGroup"
+		android:layout_width="wrap_content" android:layout_height="wrap_content">
+		<Button android:text="&lt;" android:id="@+id/buttonPrevious"
+				android:layout_weight="1" android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></Button>
+		<Button android:text="&gt;" android:id="@+id/buttonNext"
+				android:layout_weight="1" android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></Button>
+	</LinearLayout>
 <!-- 
 	<LinearLayout android:orientation="horizontal" android:id="@+id/buttonGroup"
 		android:layout_height="wrap_content" android:layout_width="fill_parent"

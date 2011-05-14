@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="title_background">#25aad5</color>
+	<color name="title_background">#495DF5</color>
 	<color name="startup_btn_text">#ff355689</color>
+	<color name="grid_background">#E2E3EE</color>
 </resources>
