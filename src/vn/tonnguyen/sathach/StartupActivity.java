@@ -18,6 +18,7 @@ import java.util.zip.ZipInputStream;
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -29,13 +30,15 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
-public class StartupActivity extends BaseActivity {
+public class StartupActivity extends Activity {
 	public static final int WHAT_ERROR = 1;
 	public static final int WHAT_LOADING_RESOURCE = 2;
 	public static final int WHAT_LOADING_RESOURCE_SUCCEED = 4;
@@ -54,6 +57,10 @@ public class StartupActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		
 		Log.v("Statup", "Displaying startup dialog");
+		
+		//Remove title bar
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		setContentView(R.layout.activity_startup);
 		// Look up the AdView as a resource and load a request.
 	    AdView adView = (AdView)this.findViewById(R.id.adView);
@@ -61,6 +68,9 @@ public class StartupActivity extends BaseActivity {
 	    re.setTesting(true);
 	    re.setGender(AdRequest.Gender.MALE);
 	    adView.loadAd(re);
+	    
+	    ((LinearLayout)findViewById(R.id.startup_titleBarContainer)).getBackground().setDither(true);
+	    ((LinearLayout)findViewById(R.id.startup_gridContainer)).getBackground().setDither(true);
 
 		context = (MyApplication)getApplicationContext();
 		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
@@ -150,6 +160,7 @@ public class StartupActivity extends BaseActivity {
 			// display error message
 			Log.v("Error occurred", (String)msg.obj);
 			progressDialog.cancel();
+			progressDialog = null;
 			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 			toast.show();
 			Log.v("Startup screen", "Closing startup activity");
@@ -222,6 +233,12 @@ public class StartupActivity extends BaseActivity {
 				finish();
 			}
 		});
+		
+		// make sure dialog has been dismissed
+		if(progressDialog != null && progressDialog.isShowing()) {
+			progressDialog.cancel();
+			progressDialog = null;
+		}
 	}
 
 	/**
