@@ -56,7 +56,7 @@ public class StartupActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Log.v("Statup", "Displaying startup dialog");
+		Log.v("Statup onCreate", "Displaying startup dialog");
 		
 		//Remove title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -115,31 +115,72 @@ public class StartupActivity extends Activity {
 		}
 	}
 	
+	@Override
+	public void onStart() {
+		Log.v("Statup onStart", "onStart");
+		super.onStart();
+	}
+	
+	@Override
+	public void onResume() {
+		Log.v("Statup onResume", "onResume");
+		super.onResume();
+	}
+	
+	@Override
+	public void onPause() {
+		Log.v("Statup onPause", "onPause");
+		super.onPause();
+	}
+	
+	@Override
+	public void onStop() {
+		Log.v("Statup onStop", "onStop");
+		super.onStop();
+	}
+	
+	@Override
+	public void onDestroy() {
+		Log.v("Statup onDestroy", "onDestroy");
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onRestart() {
+		Log.v("Statup onRestart", "onRestart");
+		super.onRestart();
+	}
+	
 	/**
 	 * Override the onCreateDialog, show when async task was working, user leaved application, and came back, Android will know what dialog should be displayed
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
+		Log.v("Statup onCreateDialog", "onCreateDialog " + id);
+		if(progressDialog != null && progressDialog.isShowing()) {
+			progressDialog.cancel();
+			progressDialog = null;
+		}
 	    switch (id) {
 	        case DIALOG_DOWNLOAD_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Downloading));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(false);
+	        	progressDialog.setCancelable(true);
 	        	progressDialog.show();
 	            return progressDialog;
 	        case DIALOG_EXTRACT_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Extracting));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(false);
+	        	progressDialog.setCancelable(true);
 	        	progressDialog.show();
 	            return progressDialog;
 	        case DIALOG_LOADING_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.loading_Data));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(false);
+	        	progressDialog.setCancelable(true);
 	        	progressDialog.show();
 	            return progressDialog;
 	        default:
@@ -233,12 +274,6 @@ public class StartupActivity extends Activity {
 				finish();
 			}
 		});
-		
-		// make sure dialog has been dismissed
-		if(progressDialog != null && progressDialog.isShowing()) {
-			progressDialog.cancel();
-			progressDialog = null;
-		}
 	}
 
 	/**

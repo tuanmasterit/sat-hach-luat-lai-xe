@@ -1,43 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<TableLayout android:layout_gravity="center_horizontal"
-		android:layout_alignParentBottom="true"
-		android:layout_centerHorizontal="true" android:id="@+id/tableLayout"
-		android:layout_height="wrap_content" android:layout_width="fill_parent"
-		android:stretchColumns="*">
-		<TableRow>
-			<RadioGroup android:id="@+id/radioGroup" android:layout_span="4" android:orientation="horizontal"
-				android:layout_width="fill_parent" android:layout_height="wrap_content">
-				<RadioButton android:id="@+id/radioAnswer1" android:layout_weight="1"
-					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:text="1"></RadioButton>
-				<RadioButton android:id="@+id/radioAnswer2" android:layout_weight="1"
-					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:text="2"></RadioButton>
-				<RadioButton android:id="@+id/radioAnswer3" android:layout_weight="1"
-					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:text="3"></RadioButton>
-				<RadioButton android:id="@+id/radioAnswer4" android:layout_weight="1"
-					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:text="4"></RadioButton>
-			</RadioGroup>
-			<Button android:text="&lt;" android:id="@+id/buttonPrevious"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
-			<Button android:text="&gt;" android:id="@+id/buttonNext"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
-		</TableRow>
-		<!-- 
-		<TableRow>
-			<Button android:text="&lt;&lt;" android:id="@+id/buttonFirst"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
-			
-			<Button android:text="&gt;&gt;" android:id="@+id/buttonLast"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
-		</TableRow>
-		 -->
-	</TableLayout>
-
+	<LinearLayout android:layout_alignParentBottom="true"
+					android:id="@+id/exam_buttonContainer"
+					android:layout_height="wrap_content" 
+					android:layout_width="fill_parent" >
+		<RadioGroup android:id="@+id/radioGroup" android:orientation="horizontal"
+			android:layout_width="wrap_content" android:layout_height="wrap_content">
+			<RadioButton android:id="@+id/radioAnswer1" android:layout_weight="1" android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button1" />
+			<RadioButton android:id="@+id/radioAnswer2" android:layout_weight="1" android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button2" />
+			<RadioButton android:id="@+id/radioAnswer3" android:layout_weight="1" android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button3" />
+			<RadioButton android:id="@+id/radioAnswer4" android:layout_weight="1" android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button4" />
+		</RadioGroup>
+		<Button android:id="@+id/buttonPrevious" android:layout_weight="1"
+			android:layout_width="wrap_content" android:layout_height="43sp"
+			android:text="" android:background="@null" android:drawableTop="@drawable/exam_back_button" />
+		<Button android:id="@+id/buttonNext" android:layout_weight="1"
+			android:layout_width="wrap_content" android:layout_height="43sp"
+			android:text="" android:background="@null" android:drawableTop="@drawable/exam_next_button" />
+	</LinearLayout>
+	
 	<WebView android:id="@+id/webView" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_above="@+id/tableLayout" />
+		android:layout_height="fill_parent" android:layout_above="@+id/exam_buttonContainer" />
 </RelativeLayout>

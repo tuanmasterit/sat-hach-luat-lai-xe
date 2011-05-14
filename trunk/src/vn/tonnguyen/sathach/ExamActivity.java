@@ -59,18 +59,6 @@ public class ExamActivity extends BaseActivity {
 		// so they dont have to change the zoom level every time they view a question
 		
 		// bind click event for next and previous buttons
-//		((Button)findViewById(R.id.buttonFirst)).setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				gotoFirst();
-//			}
-//		});
-//		((Button)findViewById(R.id.buttonLast)).setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				gotoLast();
-//			}
-//		});
 		((Button)findViewById(R.id.buttonNext)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -223,16 +211,6 @@ public class ExamActivity extends BaseActivity {
 		Toast toast = Toast.makeText(context, rightChoice + "/" + examQuestions.length, Toast.LENGTH_LONG);
 		toast.show();
 	}
-	
-//	private void gotoFirst() {
-//		currentQuestionIndex = 0;
-//		showQuestion(currentQuestionIndex);
-//	}
-//	
-//	private void gotoLast() {
-//		currentQuestionIndex = examQuestions.length - 1;
-//		showQuestion(currentQuestionIndex);
-//	}
 	
 	private void next() {
 		if(currentQuestionIndex >= examQuestions.length - 1) { // no more question left to show

@@ -5,40 +5,28 @@
 	<RadioGroup android:id="@+id/radioGroup"
 		android:orientation="vertical" android:layout_alignParentRight="true"
 		android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<RadioButton android:id="@+id/radioAnswer1"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="30sp" android:text="1"></RadioButton>
-		<RadioButton android:id="@+id/radioAnswer2"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="30sp" android:text="2"></RadioButton>
-		<RadioButton android:id="@+id/radioAnswer3"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="30sp" android:text="3"></RadioButton>
-		<RadioButton android:id="@+id/radioAnswer4"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="30sp" android:text="4"></RadioButton>
+			<RadioButton android:id="@+id/radioAnswer1" android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button1" />
+			<RadioButton android:id="@+id/radioAnswer2"  android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button2" />
+			<RadioButton android:id="@+id/radioAnswer3"  android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button3" />
+			<RadioButton android:id="@+id/radioAnswer4"  android:button="@null"
+				android:layout_width="wrap_content" android:layout_height="43sp"
+				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button4" />
 	</RadioGroup>
 	<LinearLayout android:orientation="vertical" android:layout_alignParentRight="true" android:layout_below="@+id/radioGroup"
 		android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<Button android:text="&lt;" android:id="@+id/buttonPrevious"
-				android:layout_weight="1" android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></Button>
-		<Button android:text="&gt;" android:id="@+id/buttonNext"
-				android:layout_weight="1" android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></Button>
+		<Button android:id="@+id/buttonPrevious" 
+			android:layout_width="wrap_content" android:layout_height="43sp"
+			android:text="" android:background="@null" android:drawableTop="@drawable/exam_back_button" />
+		<Button android:id="@+id/buttonNext" 
+			android:layout_width="wrap_content" android:layout_height="43sp"
+			android:text="" android:background="@null" android:drawableTop="@drawable/exam_next_button" />
 	</LinearLayout>
-<!-- 
-	<LinearLayout android:orientation="horizontal" android:id="@+id/buttonGroup"
-		android:layout_height="wrap_content" android:layout_width="fill_parent"
-		android:layout_alignParentBottom="true" android:layout_toLeftOf="@+id/radioGroup">
-		<Button android:text="&lt;&lt;" android:id="@+id/buttonFirst"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content"></Button>
-		<Button android:text="&gt;&gt;" android:id="@+id/buttonLast"
-			android:layout_weight="1" android:layout_width="wrap_content"
-			android:layout_height="wrap_content"></Button>
-	</LinearLayout>
- -->
 	<WebView android:id="@+id/webView" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:layout_toLeftOf="@+id/radioGroup"
 		android:layout_above="@+id/buttonGroup" />
