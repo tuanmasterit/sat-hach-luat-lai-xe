@@ -29,7 +29,7 @@ public class ExamActivity extends BaseActivity {
 	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
-	private WebView webView; // a WebView, to display question image
+	private WebView questionView; // a WebView, to display question image
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -46,50 +46,50 @@ public class ExamActivity extends BaseActivity {
 		}
 		
 		setContentView(R.layout.activity_exam);
-		webView = (WebView)findViewById(R.id.webView);
+		questionView = (WebView)findViewById(R.id.exam_QuestionView);
         //Make sure links in the webview is handled by the webview and not sent to a full browser
 		//full.setWebViewClient(new WebViewClient());
-		webView.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
+		questionView.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
         //if ROM supports Multi-Touch     
-		webView.getSettings().setBuiltInZoomControls(true);
+		questionView.getSettings().setBuiltInZoomControls(true);
 		//full.getSettings().setLoadWithOverviewMode(true);
-		webView.getSettings().setUseWideViewPort(true);
-		webView.setInitialScale(context.getRecentlyZoom()); // so the phone can display the whole image on screen. 
+		questionView.getSettings().setUseWideViewPort(true);
+		questionView.setInitialScale(context.getRecentlyZoom()); // so the phone can display the whole image on screen. 
 		// This value should be persist if user change the zoom level
 		// so they dont have to change the zoom level every time they view a question
 		
 		// bind click event for next and previous buttons
-		((Button)findViewById(R.id.buttonNext)).setOnClickListener(new View.OnClickListener() {
+		((Button)findViewById(R.id.exam_buttonNext)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				next();
 			}
 		});
-		((Button)findViewById(R.id.buttonPrevious)).setOnClickListener(new View.OnClickListener() {
+		((Button)findViewById(R.id.exam_buttonPrevious)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				previous();
 			}
 		});
-		((RadioButton)findViewById(R.id.radioAnswer1)).setOnClickListener(new View.OnClickListener() {
+		((RadioButton)findViewById(R.id.exam_radioAnswer1)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				updateChoice(1);
 			}
 		});
-		((RadioButton)findViewById(R.id.radioAnswer2)).setOnClickListener(new View.OnClickListener() {
+		((RadioButton)findViewById(R.id.exam_radioAnswer2)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				updateChoice(2);
 			}
 		});
-		((RadioButton)findViewById(R.id.radioAnswer3)).setOnClickListener(new View.OnClickListener() {
+		((RadioButton)findViewById(R.id.exam_radioAnswer3)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				updateChoice(3);
 			}
 		});
-		((RadioButton)findViewById(R.id.radioAnswer4)).setOnClickListener(new View.OnClickListener() {
+		((RadioButton)findViewById(R.id.exam_radioAnswer4)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				updateChoice(4);
@@ -243,16 +243,16 @@ public class ExamActivity extends BaseActivity {
 	 * @param questionIndex index of the question, to get from examQuestions
 	 */
 	private void showQuestion(int questionIndex) {
-		RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radioGroup); 
+		RadioGroup radioGroup = (RadioGroup)findViewById(R.id.exam_radioGroup); 
 		Question questionToShow = examQuestions[questionIndex];
 		/* Create a new Html that contains the full-screen image */
 		Log.d("Displaying question", "Index: " + questionIndex + " - " + questionToShow.toString());
 		String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
 		/* Finally, display the content using WebView */
-		int scale = (int)(100 * webView.getScale());
+		int scale = (int)(100 * questionView.getScale());
 		context.setRecentlyZoom(scale);
-		webView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
-		webView.setInitialScale(scale);
+		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		questionView.setInitialScale(scale);
 		
 		// disable answer-radio-button that won't be used:
 		radioGroup.clearCheck(); // clear answer
@@ -261,10 +261,12 @@ public class ExamActivity extends BaseActivity {
 		// disable all radio button in this group
 		for(int i = 0; i < childCount; i++) {
 			radioGroup.getChildAt(i).setEnabled(false);
+			radioGroup.getChildAt(i).setVisibility(View.INVISIBLE);
 		}
 		// then enable only if answer is available
 		for(int i = 0; i < questionToShow.getNumberOfAnswers(); i++) {
 			radioGroup.getChildAt(i).setEnabled(true);
+			radioGroup.getChildAt(i).setVisibility(View.VISIBLE);
 		}
 		// if user has chosen a choice for this question, lets select it
 		if(questionToShow.getUserChoice() > 0) {
