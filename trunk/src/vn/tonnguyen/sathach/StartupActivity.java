@@ -18,7 +18,6 @@ import java.util.zip.ZipInputStream;
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -30,7 +29,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -38,7 +36,7 @@ import android.widget.Toast;
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 
-public class StartupActivity extends Activity {
+public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
 	public static final int WHAT_LOADING_RESOURCE = 2;
 	public static final int WHAT_LOADING_RESOURCE_SUCCEED = 4;
@@ -58,12 +56,9 @@ public class StartupActivity extends Activity {
 		
 		Log.v("Statup onCreate", "Displaying startup dialog");
 		
-		//Remove title bar
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
 		setContentView(R.layout.activity_startup);
 		// Look up the AdView as a resource and load a request.
-	    AdView adView = (AdView)this.findViewById(R.id.adView);
+	    AdView adView = (AdView)this.findViewById(R.id.adViewComponent);
 	    AdRequest re = new AdRequest();
 	    re.setTesting(true);
 	    re.setGender(AdRequest.Gender.MALE);

@@ -2,32 +2,31 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
 
-	<RadioGroup android:id="@+id/radioGroup"
+	<RadioGroup android:id="@+id/exam_radioGroup"
 		android:orientation="vertical" android:layout_alignParentRight="true"
 		android:layout_width="wrap_content" android:layout_height="wrap_content">
-			<RadioButton android:id="@+id/radioAnswer1" android:button="@null"
+			<RadioButton android:id="@+id/exam_radioAnswer1" android:button="@null"
 				android:layout_width="wrap_content" android:layout_height="43sp"
 				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button1" />
-			<RadioButton android:id="@+id/radioAnswer2"  android:button="@null"
+			<RadioButton android:id="@+id/exam_radioAnswer2"  android:button="@null"
 				android:layout_width="wrap_content" android:layout_height="43sp"
 				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button2" />
-			<RadioButton android:id="@+id/radioAnswer3"  android:button="@null"
+			<RadioButton android:id="@+id/exam_radioAnswer3"  android:button="@null"
 				android:layout_width="wrap_content" android:layout_height="43sp"
 				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button3" />
-			<RadioButton android:id="@+id/radioAnswer4"  android:button="@null"
+			<RadioButton android:id="@+id/exam_radioAnswer4"  android:button="@null"
 				android:layout_width="wrap_content" android:layout_height="43sp"
 				android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button4" />
 	</RadioGroup>
-	<LinearLayout android:orientation="vertical" android:layout_alignParentRight="true" android:layout_below="@+id/radioGroup"
+	<LinearLayout android:orientation="vertical" android:layout_alignParentRight="true" android:layout_below="@+id/exam_radioGroup"
 		android:layout_width="wrap_content" android:layout_height="wrap_content">
-		<Button android:id="@+id/buttonPrevious" 
+		<Button android:id="@+id/exam_buttonPrevious" 
 			android:layout_width="wrap_content" android:layout_height="43sp"
 			android:text="" android:background="@null" android:drawableTop="@drawable/exam_back_button" />
-		<Button android:id="@+id/buttonNext" 
+		<Button android:id="@+id/exam_buttonNext" 
 			android:layout_width="wrap_content" android:layout_height="43sp"
 			android:text="" android:background="@null" android:drawableTop="@drawable/exam_next_button" />
 	</LinearLayout>
-	<WebView android:id="@+id/webView" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_toLeftOf="@+id/radioGroup"
-		android:layout_above="@+id/buttonGroup" />
+	<WebView android:id="@+id/exam_QuestionView" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:layout_toLeftOf="@+id/exam_radioGroup"  />
 </RelativeLayout>
