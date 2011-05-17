@@ -6,17 +6,205 @@
     android:layout_height="fill_parent">
 	
 	<!-- Action bar -->
-	<LinearLayout android:layout_width="fill_parent" android:id="@+id/exam_titleBarContainer"
-		android:layout_height="@dimen/title_height" 
-		android:background="@drawable/startup_title_bar_background" android:orientation="horizontal">
-		<TextView android:id="@+id/exam_titleBar_QuestionNavigation" android:layout_width="wrap_content"
-			android:layout_height="fill_parent" android:text="15/30" />
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="fill_parent" 
-			android:src="@drawable/title_icon"
-			android:layout_gravity="center" />
-		<TextView android:id="@+id/exam_titleBar_RemainingTime" android:layout_width="wrap_content"
-			android:layout_height="fill_parent" android:text="12:45" />
+	<LinearLayout android:layout_width="fill_parent" 
+				android:id="@+id/exam_titleBarContainer"
+				android:layout_height="@dimen/title_height" 
+				android:background="@drawable/startup_title_bar_background" 
+				android:orientation="horizontal" >
+		<TextView android:id="@+id/exam_titleBar_QuestionNavigation" 
+				android:layout_width="wrap_content"
+				android:layout_height="fill_parent" 
+				android:text="15/30"
+				android:paddingLeft="5sp"
+				android:paddingTop="14sp" />
+		<LinearLayout android:id="@+id/exam_titleBar_question_navigation_container" 
+				android:orientation="vertical"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent" 
+				android:paddingTop="5sp"
+				android:layout_weight="1" >
+				
+				<!-- First row -->
+				<LinearLayout 	android:id="@+id/exam_titleBar_question_navigation_line1" 
+								android:layout_width="fill_parent"
+								android:layout_height="wrap_content"
+								android:gravity="center_horizontal"
+								android:layout_gravity="center_vertical"
+								android:layout_weight="1" >
+					<Button android:id="@+id/exam_titleBar_question1" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question2" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question3" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question4" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question5" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question6" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question7" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question8" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question9" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question10" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:background="@color/titleBar_unanswered_question"  />
+				</LinearLayout>
+				
+				<!-- Second row -->
+				<LinearLayout 	android:id="@+id/exam_titleBar_question_navigation_line2" 
+								android:layout_width="fill_parent"
+								android:layout_height="wrap_content"
+								android:gravity="center_horizontal"
+								android:layout_gravity="center_vertical"
+								android:layout_weight="1" >
+					<Button android:id="@+id/exam_titleBar_question11" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question12" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question13" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question14" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question15" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question16" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question17" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question18" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question19" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question20" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:background="@color/titleBar_unanswered_question"  />
+				</LinearLayout>
+				
+				<!-- Third row -->
+				<LinearLayout 	android:id="@+id/exam_titleBar_question_navigation_line3" 
+								android:layout_width="fill_parent"
+								android:layout_height="wrap_content"
+								android:gravity="center_horizontal"
+								android:layout_gravity="center_vertical"
+								android:layout_weight="1" >
+					<Button android:id="@+id/exam_titleBar_question21" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question22" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question23" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question24" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question25" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question26" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question27" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question28" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_unanswered_question"  />
+					<Button android:id="@+id/exam_titleBar_question29" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:layout_marginRight="2sp"
+							android:background="@color/titleBar_answered_question"  />
+					<Button android:id="@+id/exam_titleBar_question30" 
+							android:layout_width="21sp" 
+							android:layout_height="10sp"
+							android:background="@color/titleBar_unanswered_question"  />
+				</LinearLayout>
+		</LinearLayout>
+				
+		<TextView android:id="@+id/exam_titleBar_RemainingTime" 
+				android:layout_width="wrap_content"
+				android:layout_height="fill_parent" 
+				android:text="12:45"
+				android:paddingRight="5sp"
+				android:paddingTop="14sp" />
 	</LinearLayout>
     
     <!-- Grid -->
@@ -26,8 +214,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@drawable/startup_grid_background"
-        android:padding="5dip">
+        android:background="@drawable/startup_grid_background" >
         <!-- First row -->
         <LinearLayout
             android:orientation="horizontal"
@@ -37,35 +224,62 @@
             <WebView android:id="@+id/exam_QuestionView" 
             	android:layout_width="fill_parent"
 				android:layout_height="fill_parent" />
-    </LinearLayout>
+    	</LinearLayout>
     
-    <LinearLayout
-	        android:id="@+id/exam_ButtonContainer"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:orientation="horizontal"
-	        android:gravity="center">
-		<RadioGroup android:id="@+id/exam_radioGroup" android:orientation="horizontal"
-				android:layout_width="wrap_content" android:layout_height="wrap_content">
-				<RadioButton android:id="@+id/exam_radioAnswer1" android:button="@null"
-					android:layout_width="wrap_content" android:layout_height="43sp"
-					android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button1" />
-				<RadioButton android:id="@+id/exam_radioAnswer2" android:button="@null"
-					android:layout_width="wrap_content" android:layout_height="43sp"
-					android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button2" />
-				<RadioButton android:id="@+id/exam_radioAnswer3" android:button="@null"
-					android:layout_width="wrap_content" android:layout_height="43sp"
-					android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button3" />
-				<RadioButton android:id="@+id/exam_radioAnswer4" android:button="@null"
-					android:layout_width="wrap_content" android:layout_height="43sp"
-					android:text="" android:background="@null" android:drawableTop="@drawable/exam_radio_button4" />
+	    <LinearLayout
+		        android:id="@+id/exam_ButtonContainer"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:background="@drawable/startup_title_bar_background"
+		        android:gravity="center">
+			<RadioGroup android:id="@+id/exam_radioGroup" 
+						android:orientation="horizontal"
+						android:layout_width="wrap_content" 
+						android:layout_height="wrap_content">
+				<RadioButton android:id="@+id/exam_radioAnswer1" 
+					android:button="@null"
+					android:layout_width="wrap_content" 
+					android:layout_height="43sp"
+					android:text="" 
+					android:background="@null" 
+					android:drawableTop="@drawable/exam_radio_button1" />
+				<RadioButton android:id="@+id/exam_radioAnswer2" 
+					android:button="@null"
+					android:layout_width="wrap_content" 
+					android:layout_height="43sp"
+					android:text="" 
+					android:background="@null" 
+					android:drawableTop="@drawable/exam_radio_button2" />
+				<RadioButton android:id="@+id/exam_radioAnswer3" 
+					android:button="@null"
+					android:layout_width="wrap_content" 
+					android:layout_height="43sp"
+					android:text="" 
+					android:background="@null" 
+					android:drawableTop="@drawable/exam_radio_button3" />
+				<RadioButton android:id="@+id/exam_radioAnswer4" 
+					android:button="@null"
+					android:layout_width="wrap_content" 
+					android:layout_height="43sp"
+					android:text="" 
+					android:background="@null" 
+					android:drawableTop="@drawable/exam_radio_button4" />
 			</RadioGroup>
-			<Button android:id="@+id/exam_buttonPrevious" android:layout_weight="1"
-				android:layout_width="wrap_content" android:layout_height="43sp"
-				android:text="" android:background="@null" android:drawableTop="@drawable/exam_back_button" />
-			<Button android:id="@+id/exam_buttonNext" android:layout_weight="1"
-				android:layout_width="wrap_content" android:layout_height="43sp"
-				android:text="" android:background="@null" android:drawableTop="@drawable/exam_next_button" />
+			<Button android:id="@+id/exam_buttonPrevious" 
+				android:layout_weight="1"
+				android:layout_width="wrap_content" 
+				android:layout_height="43sp"
+				android:text="" 
+				android:background="@null" 
+				android:drawableTop="@drawable/exam_back_button" />
+			<Button android:id="@+id/exam_buttonNext" 
+				android:layout_weight="1"
+				android:layout_width="wrap_content" 
+				android:layout_height="43sp"
+				android:text="" 
+				android:background="@null" 
+				android:drawableTop="@drawable/exam_next_button" />
 		</LinearLayout>
     </LinearLayout>
 </LinearLayout>
