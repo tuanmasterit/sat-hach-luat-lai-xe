@@ -3,4 +3,6 @@
 	<color name="title_background">#495DF5</color>
 	<color name="startup_btn_text">#ff355689</color>
 	<color name="grid_background">#E2E3EE</color>
+	<color name="titleBar_answered_question">#98EF4A</color>
+	<color name="titleBar_unanswered_question">#FF0000</color>
 </resources>

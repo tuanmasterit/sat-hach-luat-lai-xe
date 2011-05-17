@@ -10,6 +10,7 @@ import java.util.Random;
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
+import vn.tonnguyen.sathach.bean.QuestionState;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -21,8 +22,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExamActivity extends BaseActivity {
@@ -30,6 +33,9 @@ public class ExamActivity extends BaseActivity {
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
 	private WebView questionView; // a WebView, to display question image
+	private TextView questionNavigation; // text control to display current question in total
+	private RadioGroup radioGroup; // radio group which contains all answer choices
+	private TextView remainingTimeTextView; // text control to display remaining time
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -57,6 +63,10 @@ public class ExamActivity extends BaseActivity {
 		questionView.setInitialScale(context.getRecentlyZoom()); // so the phone can display the whole image on screen. 
 		// This value should be persist if user change the zoom level
 		// so they dont have to change the zoom level every time they view a question
+		
+		questionNavigation = (TextView)findViewById(R.id.exam_titleBar_QuestionNavigation);
+		radioGroup = (RadioGroup)findViewById(R.id.exam_radioGroup);
+		remainingTimeTextView = (TextView)findViewById(R.id.exam_titleBar_RemainingTime);
 		
 		// bind click event for next and previous buttons
 		((Button)findViewById(R.id.exam_buttonNext)).setOnClickListener(new View.OnClickListener() {
@@ -103,8 +113,82 @@ public class ExamActivity extends BaseActivity {
 			examQuestions = generateRandomQuestion(context.getLevels().get(levelIndex));
 			// display the first question
 			currentQuestionIndex = 0;
+			remainingTimeTextView.setText("20:00");
+			setAllQuestionNavitionToUnAnswered();
 			showQuestion(currentQuestionIndex);
 		}
+	}
+	
+	/**
+	 * Set all question navigation at the very top to unanswered state
+	 */
+	private void setAllQuestionNavitionToUnAnswered() {
+		for(int x = 1; x <= 3; x++) {
+			updateQuestionInLineState(x, QuestionState.UNANSWERED);
+		}
+	}
+	
+	/**
+	 * Update state for questions in a line
+	 * @param questionLine Line of question to update (for example: 1, 2 or 3)
+	 * @param state New state for questions
+	 */
+	private void updateQuestionInLineState(int questionLine, QuestionState state) {
+		LinearLayout line;
+		switch (questionLine) {
+		case 1:
+			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
+			break;
+		case 2:
+			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
+			break;
+		default:
+			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
+			break;
+		}
+		int childCount = line.getChildCount();
+		for(int x = 0; x < childCount; x++) {
+			updateQuestionNagivationState((Button)line.getChildAt(x), state);
+		}
+	}
+	
+	/**
+	 * Update state for a question button in navigation section
+	 * @param button Question button to update UI
+	 * @param state New state for questions
+	 */
+	private void updateQuestionNagivationState(Button button, QuestionState state) {
+		if(state == QuestionState.ANSWERED) {
+			Log.d("ExamScreen", "Mark button " + button.getId() + " as ANSWERED");
+			button.setBackgroundResource(R.color.titleBar_answered_question);
+		} else {
+			Log.d("ExamScreen", "Mark button " + button.getId() + " as UNANSWERED");
+			button.setBackgroundResource(R.color.titleBar_unanswered_question);
+		}
+	}
+	
+	/**
+	 * Update state for a question, looking by question index, which starts from zero
+	 * @param questionIndex Index of question to update state, which starts from zero
+	 * @param state New state for questions
+	 */
+	private void updateQuestionNagivationState(int questionIndex, QuestionState state) {
+		int lineNumber = (questionIndex / 10) + 1;
+		int buttonIndex = questionIndex % 10;
+		
+		LinearLayout line;
+		switch (lineNumber) {
+		case 1:
+			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
+			break;
+		case 2:
+			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
+			break;
+		default:
+			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
+			break;
+		}
+		updateQuestionNagivationState((Button)line.getChildAt(buttonIndex), state);
 	}
 	
 	/**
@@ -152,6 +236,10 @@ public class ExamActivity extends BaseActivity {
 		if(obj != null) {
 			examQuestions = (Question[])obj;
 			currentQuestionIndex = state.getInt("currentQuestionIndex");
+			// update question navigation section, to mark which questions have been answered, which was not
+			for(int x = 0; x < examQuestions.length; x++) {
+				updateQuestionNagivationState(x, examQuestions[x].getUserChoice() > 0 ? QuestionState.ANSWERED : QuestionState.UNANSWERED);
+			}
 			showQuestion(currentQuestionIndex); // display the last viewed question
 		}
 		super.onRestoreInstanceState(state);
@@ -236,6 +324,7 @@ public class ExamActivity extends BaseActivity {
 								" - User choice: " + choice + 
 								" - Answer: " + currentQuestion.getAnswer());
 		currentQuestion.setUserChoice(choice);
+		updateQuestionNagivationState(currentQuestionIndex, QuestionState.ANSWERED);
 	}
 	
 	/**
@@ -243,7 +332,6 @@ public class ExamActivity extends BaseActivity {
 	 * @param questionIndex index of the question, to get from examQuestions
 	 */
 	private void showQuestion(int questionIndex) {
-		RadioGroup radioGroup = (RadioGroup)findViewById(R.id.exam_radioGroup); 
 		Question questionToShow = examQuestions[questionIndex];
 		/* Create a new Html that contains the full-screen image */
 		Log.d("Displaying question", "Index: " + questionIndex + " - " + questionToShow.toString());
@@ -253,6 +341,9 @@ public class ExamActivity extends BaseActivity {
 		context.setRecentlyZoom(scale);
 		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
 		questionView.setInitialScale(scale);
+		
+		// update text to show current question in total:
+		questionNavigation.setText((questionIndex + 1) + "/" + examQuestions.length);
 		
 		// disable answer-radio-button that won't be used:
 		radioGroup.clearCheck(); // clear answer
