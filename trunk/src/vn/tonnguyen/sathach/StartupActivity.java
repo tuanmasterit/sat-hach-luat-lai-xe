@@ -54,7 +54,7 @@ public class StartupActivity extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Log.v("Statup onCreate", "Displaying startup dialog");
+		Log.d("Statup onCreate", "Displaying startup dialog");
 		
 		setContentView(R.layout.activity_startup);
 		// Look up the AdView as a resource and load a request.
@@ -88,7 +88,7 @@ public class StartupActivity extends BaseActivity {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 										// Start the download process and showing the process dialog
-										Log.v("Statup", "Displaying download dialog");
+										Log.d("Statup", "Displaying download dialog");
 										new DownloadFilesTask().execute(MyApplication.ONLINE_DATA_FILE_URL, MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
 									}
 								})
@@ -98,7 +98,7 @@ public class StartupActivity extends BaseActivity {
 									public void onClick(DialogInterface dialog,
 											int which) {
 										// Close the activity
-										Log.v("Startup screen", "Closing startup activity");
+										Log.d("Startup screen", "Closing startup activity");
 										finish();
 									}
 								}).show();
@@ -112,37 +112,37 @@ public class StartupActivity extends BaseActivity {
 	
 	@Override
 	public void onStart() {
-		Log.v("Statup onStart", "onStart");
+		Log.d("Statup onStart", "onStart");
 		super.onStart();
 	}
 	
 	@Override
 	public void onResume() {
-		Log.v("Statup onResume", "onResume");
+		Log.d("Statup onResume", "onResume");
 		super.onResume();
 	}
 	
 	@Override
 	public void onPause() {
-		Log.v("Statup onPause", "onPause");
+		Log.d("Statup onPause", "onPause");
 		super.onPause();
 	}
 	
 	@Override
 	public void onStop() {
-		Log.v("Statup onStop", "onStop");
+		Log.d("Statup onStop", "onStop");
 		super.onStop();
 	}
 	
 	@Override
 	public void onDestroy() {
-		Log.v("Statup onDestroy", "onDestroy");
+		Log.d("Statup onDestroy", "onDestroy");
 		super.onDestroy();
 	}
 	
 	@Override
 	public void onRestart() {
-		Log.v("Statup onRestart", "onRestart");
+		Log.d("Statup onRestart", "onRestart");
 		super.onRestart();
 	}
 	
@@ -151,7 +151,7 @@ public class StartupActivity extends BaseActivity {
 	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		Log.v("Statup onCreateDialog", "onCreateDialog " + id);
+		Log.d("Statup onCreateDialog", "onCreateDialog " + id);
 		if(progressDialog != null && progressDialog.isShowing()) {
 			progressDialog.cancel();
 			progressDialog = null;
@@ -187,19 +187,19 @@ public class StartupActivity extends BaseActivity {
 		// process incoming messages here
 		switch(msg.what) {
 		case WHAT_LOADING_RESOURCE_SUCCEED:
-			Log.v("Loading resource Suceed", String.valueOf(msg.obj));
+			Log.d("Loading resource Suceed", String.valueOf(msg.obj));
 			progressDialog.cancel();
 			progressDialog = null;
 			initComponents();
 			break;
 		default: // error occurred
 			// display error message
-			Log.v("Error occurred", (String)msg.obj);
+			Log.d("Error occurred", (String)msg.obj);
 			progressDialog.cancel();
 			progressDialog = null;
 			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 			toast.show();
-			Log.v("Startup screen", "Closing startup activity");
+			Log.d("Startup screen", "Closing startup activity");
 			finish();
 		}
 	}
@@ -242,7 +242,7 @@ public class StartupActivity extends BaseActivity {
 				}).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// on Ok button action
-						Log.v("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
+						Log.d("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
 						if(context.getRecentlyLevel() >= 0) {
 							startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
 						} else {
@@ -471,7 +471,7 @@ public class StartupActivity extends BaseActivity {
 					bufferLength = zipentry.getCompressedSize();
 					downloadedSize += bufferLength;
 					String entryName = zipentry.getName();
-					//Log.v("Extracting resources", "entryname " + entryName);
+					//Log.d("Extracting resources", "entryname " + entryName);
 					FileOutputStream fileoutputstream;
 					File newFile = new File(entryName);
 					String directory = newFile.getParent();

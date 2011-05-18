@@ -21,4 +21,11 @@
         <item name="android:textColor">@color/startup_btn_text</item>
         <item name="android:background">@null</item>
     </style>
+    
+    <style name="ExamQuestionNavigationButton">
+        <item name="android:layout_width">21sp</item>
+        <item name="android:layout_height">10sp</item>
+        <item name="android:layout_marginRight">2sp</item>
+        <item name="android:background">@color/titleBar_answered_question</item>
+    </style>
 </resources>

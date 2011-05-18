@@ -11,9 +11,12 @@ import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
 import vn.tonnguyen.sathach.bean.QuestionState;
+import vn.tonnguyen.sathach.bean.Session;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -29,13 +32,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExamActivity extends BaseActivity {
+	
+	//private static final long EXAM_TIME = 1200000;
+	private static final long EXAM_TIME = 60000;
+	
 	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
+	private long remainingTime = EXAM_TIME; // the remaining exam time that user has(they have 20 minutes for each exam)
 	private Question[] examQuestions; // hold the list of random questions
 	private WebView questionView; // a WebView, to display question image
 	private TextView questionNavigation; // text control to display current question in total
 	private RadioGroup radioGroup; // radio group which contains all answer choices
 	private TextView remainingTimeTextView; // text control to display remaining time
+	private Handler threadHandler; // handler to process messages from RemainingTimeUpdater thread
+	private boolean isInExam; // flag to indicate whether user is in exam
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -43,6 +53,7 @@ public class ExamActivity extends BaseActivity {
 
 		super.onCreate(savedInstanceState);
 		
+		Log.d("ExamScreen", "onCreate");
 		context = (MyApplication)getApplicationContext();
 		int levelIndex = context.getRecentlyLevel();
 		if(levelIndex < 0) {
@@ -106,6 +117,15 @@ public class ExamActivity extends BaseActivity {
 			}
 		});
 		
+		// create thread handler for processing message from RemainingTimeUpdater
+		threadHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				processMessage(msg, context);
+				super.handleMessage(msg);
+			}
+		};
+		
 		if(savedInstanceState != null) { 
 			// question will be retrieve back and display in onRestoreInstanceState
 		} else {
@@ -116,6 +136,11 @@ public class ExamActivity extends BaseActivity {
 			remainingTimeTextView.setText("20:00");
 			setAllQuestionNavitionToUnAnswered();
 			showQuestion(currentQuestionIndex);
+			// start a thread to display, update remaining time, the exam duration is 20 minutes
+			isInExam = true;
+			remainingTime = EXAM_TIME;
+			// this thread will be started in onResume event
+			//new RemainingTimeUpdater().start();
 		}
 	}
 	
@@ -219,12 +244,51 @@ public class ExamActivity extends BaseActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle state) {
 		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
+		// stop the remaining time updater thread
+		isInExam = false;
 		// save the current session, so next time when user come back, we will load it
 		if(examQuestions != null) {
-			state.putSerializable("CurrentQuestions", examQuestions);
+			state.putSerializable("CurrentSession", new Session(examQuestions, currentQuestionIndex, remainingTime));
 			state.putInt("currentQuestionIndex", currentQuestionIndex);
 		}
 		super.onSaveInstanceState(state);
+	}
+	
+	@Override
+	public void onStart() {
+		Log.d("ExamScreen onStart", "onStart");
+		super.onStart();
+	}
+	
+	@Override
+	public void onResume() {
+		Log.d("ExamScreen onResume", "onResume");
+		super.onResume();
+		restartRemainingTimeUpdater();
+	}
+	
+	@Override
+	public void onPause() {
+		Log.d("ExamScreen onPause", "onPause");
+		super.onPause();
+	}
+	
+	@Override
+	public void onStop() {
+		Log.d("ExamScreen onStop", "onStop");
+		super.onStop();
+	}
+	
+	@Override
+	public void onDestroy() {
+		Log.d("ExamScreen onDestroy", "onDestroy");
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onRestart() {
+		Log.d("ExamScreen onRestart", "onRestart");
+		super.onRestart();
 	}
 	
 	@Override
@@ -232,17 +296,27 @@ public class ExamActivity extends BaseActivity {
 		Log.d("ExamScreen", "onRestoreInstanceState " + state.toString());
 		Log.d("Get question from saved state", "onRestore");
 		// restore the last session of user
-		Serializable obj = state.getSerializable("CurrentQuestions");
+		Serializable obj = state.getSerializable("CurrentSession");
 		if(obj != null) {
-			examQuestions = (Question[])obj;
-			currentQuestionIndex = state.getInt("currentQuestionIndex");
+			Session session = (Session)obj;
+			examQuestions = session.getQuestions();
+			currentQuestionIndex = session.getCurrentQuestionIndex();
+			remainingTime = session.getRemainingTime();
 			// update question navigation section, to mark which questions have been answered, which was not
 			for(int x = 0; x < examQuestions.length; x++) {
 				updateQuestionNagivationState(x, examQuestions[x].getUserChoice() > 0 ? QuestionState.ANSWERED : QuestionState.UNANSWERED);
 			}
 			showQuestion(currentQuestionIndex); // display the last viewed question
+			// start the remaining time updater thread
+			restartRemainingTimeUpdater();
 		}
 		super.onRestoreInstanceState(state);
+	}
+	
+	private void restartRemainingTimeUpdater() {
+		// make sure this flag it true which means that user is in exam
+		isInExam = true;
+		new RemainingTimeUpdater().start();
 	}
 	
 	/***
@@ -272,6 +346,7 @@ public class ExamActivity extends BaseActivity {
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						isInExam = false;
 						// show result
 						showResult();
 						finish();
@@ -382,8 +457,10 @@ public class ExamActivity extends BaseActivity {
 					questionIndex = getRandomInteger(examformat.getFrom(), examformat.getTo(), randomGenerator);
 				} while (examQuestions.containsKey(questionIndex));
 				// Now we have the question that was not existed in question list
-				Log.v("questionIndex", String.valueOf(questionIndex));
-				examQuestions.put(questionIndex, context.getQuestions().get(questionIndex));
+				Log.d("questionIndex", String.valueOf(questionIndex));
+				// invoke clone to make sure it was not referenced to the original questions,
+				// which may lead to already-been-answered question when doing exam
+				examQuestions.put(questionIndex, context.getQuestions().get(questionIndex).clone());
 			}
 		}
 		// sort the question list as random
@@ -402,5 +479,96 @@ public class ExamActivity extends BaseActivity {
 		long fraction = (long) (range * aRandom.nextDouble());
 		int randomNumber = (int) (fraction + aStart);
 		return randomNumber;
+	}
+
+	public static final int WHAT_UPDATE_REMAINING_TIME = 1;
+	public static final int WHAT_TIME_IS_UP = 2;
+	
+	/**
+	 * Pushes a message onto the end of the message queue after all pending messages before the current time. 
+	 * It will be received in handleMessage(Message), in the thread attached to this handler.
+	 * @param messageID Integer ID of the message, to identify a message
+	 */
+	private void sendMessageToHandler(int messageID) {
+		Message msg = new Message();
+		msg.what = messageID;
+		threadHandler.sendMessage(msg);
+	}
+	
+	private void processMessage(Message msg, MyApplication application) {
+		// process incoming messages here
+		switch(msg.what) {
+		case WHAT_UPDATE_REMAINING_TIME:
+			Log.d("ExamScreen", "Updating remaining time...");
+			remainingTimeTextView.setText(getRemainingTimeString(remainingTime));
+			break;
+		case WHAT_TIME_IS_UP:
+			Log.d("ExamScreen", "Time is up!");
+			// TODO show a information dialog here to notify that time is up
+			// show result
+			showResult();
+			finish();
+			break;
+//		default: // error occurred
+//			break;
+		}
+	}
+	
+	private String getRemainingTimeString(long timeLeft) {
+		return String.format("%d:%d", 
+					(int) ((timeLeft / 1000) / 60),
+					(int) ((timeLeft / 1000) % 60));
+	}
+	
+	/**
+	 * A thread to update remaining time of Exam screen
+	 * @author Ton Nguyen
+	 *
+	 */
+	private class RemainingTimeUpdater extends Thread {
+		
+		private static final long ONE_SECOND = 1000;
+		
+		private long lastMoment;
+		
+		/**
+		 * Create an instance of remaining time updater.
+		 */
+		public RemainingTimeUpdater() {
+		}
+		
+		/**
+		 * Thread's start point
+		 */
+		public void run() {
+			lastMoment = System.currentTimeMillis();
+			doWork();
+		}
+
+		/**
+		 * Update remaining time while user is in exam
+		 */
+		private void doWork() {
+			while(isInExam) {
+				Log.d("ExamScreen", "RemainingTimeUpdater is running...");
+				// check if user has time left, otherwise, notify them to stop and see the exam result
+				if(remainingTime > 0) {
+					remainingTime = remainingTime - (System.currentTimeMillis() - lastMoment);
+					lastMoment = System.currentTimeMillis();
+					sendMessageToHandler(WHAT_UPDATE_REMAINING_TIME);
+					try {
+						sleep(ONE_SECOND);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					// time is up
+					isInExam = false;
+					sendMessageToHandler(WHAT_TIME_IS_UP);
+				}
+			}
+			Log.d("ExamScreen", "RemainingTimeUpdater has been destroyed");
+			// user decided to end exam, lets destroy this thread
+		}
 	}
 }
