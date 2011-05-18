@@ -64,4 +64,11 @@ public class Question implements Serializable {
 		return String.format("Question %s, number of answer : %d, answer: %d user choice: %d",
 				getPictureName(), getNumberOfAnswers(), getAnswer(), getUserChoice());
 	}
+	
+	/**
+	 * Return a copy of this
+	 */
+	public Question clone() {
+		return new Question(pictureName, numberOfAnswers, answer);
+	}
 }
