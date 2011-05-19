@@ -28,6 +28,9 @@
     <string name="exam_exit_confirm_message">Chọn "Đồng ý" để hoàn tất bài thi, hoặc chọn "Tiếp tục làm bài" để quay lại bài thi</string>
     <string name="exam_exit_confirm_ok">Đồng ý</string>
     <string name="exam_exit_confirm_cancel">Tiếp tục làm bài</string>
+    <string name="exam_exit_timeIsUpDialog_title">Hết thời gian</string>
+    <string name="exam_exit_timeIsUpDialog_message">Đã hết thời gian làm bài!</string>
+    <string name="exam_exit_timeIsUpDialog_viewResult_button">Xem kết quả</string>
     
     <string name="exam_menu_end_exam">Kết thúc</string>
 </resources>

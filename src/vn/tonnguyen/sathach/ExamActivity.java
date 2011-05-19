@@ -33,12 +33,12 @@ import android.widget.Toast;
 
 public class ExamActivity extends BaseActivity {
 	
-	//private static final long EXAM_TIME = 1200000;
-	private static final long EXAM_TIME = 60000;
+	//private static final long EXAM_TIME = 1200000; // 20 minutes
+	//private static final long EXAM_TIME = 30000; // 2 minutes
 	
 	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
-	private long remainingTime = EXAM_TIME; // the remaining exam time that user has(they have 20 minutes for each exam)
+	private long remainingTime;// = EXAM_TIME; // the remaining exam time that user has(they have 20 minutes for each exam)
 	private Question[] examQuestions; // hold the list of random questions
 	private WebView questionView; // a WebView, to display question image
 	private TextView questionNavigation; // text control to display current question in total
@@ -46,6 +46,9 @@ public class ExamActivity extends BaseActivity {
 	private TextView remainingTimeTextView; // text control to display remaining time
 	private Handler threadHandler; // handler to process messages from RemainingTimeUpdater thread
 	private boolean isInExam; // flag to indicate whether user is in exam
+	private Button previousButton;
+	private Button nextButton;
+	private Level selectedLevel;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -80,42 +83,53 @@ public class ExamActivity extends BaseActivity {
 		remainingTimeTextView = (TextView)findViewById(R.id.exam_titleBar_RemainingTime);
 		
 		// bind click event for next and previous buttons
-		((Button)findViewById(R.id.exam_buttonNext)).setOnClickListener(new View.OnClickListener() {
+		nextButton = (Button)findViewById(R.id.exam_buttonNext);
+		nextButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				next();
 			}
 		});
-		((Button)findViewById(R.id.exam_buttonPrevious)).setOnClickListener(new View.OnClickListener() {
+		previousButton = (Button)findViewById(R.id.exam_buttonPrevious);
+		previousButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				previous();
 			}
 		});
 		((RadioButton)findViewById(R.id.exam_radioAnswer1)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				updateChoice(1);
 			}
 		});
 		((RadioButton)findViewById(R.id.exam_radioAnswer2)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				updateChoice(2);
 			}
 		});
 		((RadioButton)findViewById(R.id.exam_radioAnswer3)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				updateChoice(3);
 			}
 		});
 		((RadioButton)findViewById(R.id.exam_radioAnswer4)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				updateChoice(4);
 			}
 		});
+		
+		// listen click event for question navigation buttons
+		addClickListenerForQuestionNavigationButtons();
 		
 		// create thread handler for processing message from RemainingTimeUpdater
 		threadHandler = new Handler() {
@@ -129,8 +143,9 @@ public class ExamActivity extends BaseActivity {
 		if(savedInstanceState != null) { 
 			// question will be retrieve back and display in onRestoreInstanceState
 		} else {
+			selectedLevel = context.getLevels().get(levelIndex);
 			// generate exam
-			examQuestions = generateRandomQuestion(context.getLevels().get(levelIndex));
+			examQuestions = generateRandomQuestion(selectedLevel);
 			// display the first question
 			currentQuestionIndex = 0;
 			remainingTimeTextView.setText("20:00");
@@ -138,27 +153,28 @@ public class ExamActivity extends BaseActivity {
 			showQuestion(currentQuestionIndex);
 			// start a thread to display, update remaining time, the exam duration is 20 minutes
 			isInExam = true;
-			remainingTime = EXAM_TIME;
+			remainingTime = selectedLevel.getExamTime();
+			//remainingTime = 60000;
+			
 			// this thread will be started in onResume event
 			//new RemainingTimeUpdater().start();
 		}
 	}
 	
 	/**
-	 * Set all question navigation at the very top to unanswered state
+	 * Add click event for question navigation buttons, to navigate between questions
 	 */
-	private void setAllQuestionNavitionToUnAnswered() {
+	private void addClickListenerForQuestionNavigationButtons() {
 		for(int x = 1; x <= 3; x++) {
-			updateQuestionInLineState(x, QuestionState.UNANSWERED);
+			addClickListenerForALine(x);
 		}
 	}
 	
 	/**
-	 * Update state for questions in a line
+	 * Add click event for buttons in a line of navigation bar
 	 * @param questionLine Line of question to update (for example: 1, 2 or 3)
-	 * @param state New state for questions
 	 */
-	private void updateQuestionInLineState(int questionLine, QuestionState state) {
+	private void addClickListenerForALine(int questionLine) {
 		LinearLayout line;
 		switch (questionLine) {
 		case 1:
@@ -173,7 +189,25 @@ public class ExamActivity extends BaseActivity {
 		}
 		int childCount = line.getChildCount();
 		for(int x = 0; x < childCount; x++) {
-			updateQuestionNagivationState((Button)line.getChildAt(x), state);
+			final int buttonIndex = x;
+			final int currentLine = questionLine;
+			((Button)line.getChildAt(x)).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					context.vibrateIfEnabled();
+					currentQuestionIndex = (currentLine - 1) * 10 + buttonIndex;
+					showQuestion(currentQuestionIndex);
+				}
+			});
+		}
+	}
+	
+	/**
+	 * Set all question navigation at the very top to unanswered state
+	 */
+	private void setAllQuestionNavitionToUnAnswered() {
+		for(int x = 0; x < 30; x++) {
+			updateQuestionNagivationState(x, QuestionState.UNANSWERED);
 		}
 	}
 	
@@ -248,7 +282,7 @@ public class ExamActivity extends BaseActivity {
 		isInExam = false;
 		// save the current session, so next time when user come back, we will load it
 		if(examQuestions != null) {
-			state.putSerializable("CurrentSession", new Session(examQuestions, currentQuestionIndex, remainingTime));
+			state.putSerializable("CurrentSession", new Session(examQuestions, currentQuestionIndex, remainingTime, selectedLevel));
 			state.putInt("currentQuestionIndex", currentQuestionIndex);
 		}
 		super.onSaveInstanceState(state);
@@ -302,6 +336,7 @@ public class ExamActivity extends BaseActivity {
 			examQuestions = session.getQuestions();
 			currentQuestionIndex = session.getCurrentQuestionIndex();
 			remainingTime = session.getRemainingTime();
+			selectedLevel = session.getSelectedLevel();
 			// update question navigation section, to mark which questions have been answered, which was not
 			for(int x = 0; x < examQuestions.length; x++) {
 				updateQuestionNagivationState(x, examQuestions[x].getUserChoice() > 0 ? QuestionState.ANSWERED : QuestionState.UNANSWERED);
@@ -346,6 +381,7 @@ public class ExamActivity extends BaseActivity {
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						context.vibrateIfEnabled();
 						isInExam = false;
 						// show result
 						showResult();
@@ -357,6 +393,7 @@ public class ExamActivity extends BaseActivity {
 					@Override
 					public void onClick(DialogInterface dialog,
 							int which) {
+						context.vibrateIfEnabled();
 						// do nothing
 					}
 				}).show();
@@ -371,7 +408,9 @@ public class ExamActivity extends BaseActivity {
 			}
 		}
 		
-		Toast toast = Toast.makeText(context, rightChoice + "/" + examQuestions.length, Toast.LENGTH_LONG);
+		boolean isPass = rightChoice >= selectedLevel.getPassPoint();
+		
+		Toast toast = Toast.makeText(context, rightChoice + "/" + examQuestions.length + " - Pass : " + isPass, Toast.LENGTH_LONG);
 		toast.show();
 	}
 	
@@ -437,6 +476,19 @@ public class ExamActivity extends BaseActivity {
 		// if user has chosen a choice for this question, lets select it
 		if(questionToShow.getUserChoice() > 0) {
 			((RadioButton)radioGroup.getChildAt(questionToShow.getUserChoice() - 1)).setChecked(true);
+		}
+		
+		// disable previous button if questionIndex == 0, and next button if questionIndex == last question index
+		previousButton.setEnabled(true);
+		previousButton.setVisibility(View.VISIBLE);
+		nextButton.setEnabled(true);
+		nextButton.setVisibility(View.VISIBLE);
+		if(questionIndex <= 0) {
+			previousButton.setEnabled(false);
+			previousButton.setVisibility(View.INVISIBLE);
+		} else if(questionIndex >= examQuestions.length - 1) {
+			nextButton.setEnabled(false);
+			nextButton.setVisibility(View.INVISIBLE);
 		}
 	}
 	
@@ -504,10 +556,21 @@ public class ExamActivity extends BaseActivity {
 			break;
 		case WHAT_TIME_IS_UP:
 			Log.d("ExamScreen", "Time is up!");
-			// TODO show a information dialog here to notify that time is up
-			// show result
-			showResult();
-			finish();
+			new AlertDialog.Builder(this)
+			.setIcon(android.R.drawable.ic_dialog_info)
+			.setTitle(R.string.exam_exit_timeIsUpDialog_title)
+			.setMessage(R.string.exam_exit_timeIsUpDialog_message)
+			.setPositiveButton(R.string.exam_exit_timeIsUpDialog_viewResult_button,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							context.vibrateIfEnabled();
+							// show result
+							showResult();
+							finish();
+						}
+					})
+			.show();
 			break;
 //		default: // error occurred
 //			break;
@@ -515,9 +578,13 @@ public class ExamActivity extends BaseActivity {
 	}
 	
 	private String getRemainingTimeString(long timeLeft) {
+		// make sure we don't have negative number
+		if(timeLeft < 0) {
+			timeLeft = 0;
+		}
 		return String.format("%d:%d", 
-					(int) ((timeLeft / 1000) / 60),
-					(int) ((timeLeft / 1000) % 60));
+					(int)((timeLeft / 1000) / 60),
+					(int)((timeLeft / 1000) % 60));
 	}
 	
 	/**
