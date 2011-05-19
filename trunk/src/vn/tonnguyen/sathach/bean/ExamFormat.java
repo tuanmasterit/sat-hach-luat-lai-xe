@@ -1,6 +1,13 @@
 package vn.tonnguyen.sathach.bean;
 
-public class ExamFormat {
+import java.io.Serializable;
+
+public class ExamFormat implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 740161584143640482L;
+	
 	private int numberOfQuestion;
 	private int from;
 	private int to;

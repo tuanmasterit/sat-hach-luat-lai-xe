@@ -8,6 +8,7 @@ import vn.tonnguyen.sathach.bean.Question;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.os.Vibrator;
 
 public class MyApplication extends Application {
 	
@@ -33,9 +34,14 @@ public class MyApplication extends Application {
 	
 	public static final String USER_PREFERENCE_ZOOM_KEY = "ZOOM";
 	
+	public static final String USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH = "VibrateOnTouch";
+	
 	private Hashtable<Integer, Question> questions;
 	
 	private ArrayList<Level> levels;
+	
+	// Get instance of Vibrator from current Context
+	private Vibrator vibrator;
 	
 	public Hashtable<Integer, Question> getQuestions() {
 		return questions;
@@ -96,5 +102,30 @@ public class MyApplication extends Application {
 	 */
 	public void setRecentlyZoom(int scale) {
 		getUserPreferences().edit().putInt(USER_PREFERENCE_ZOOM_KEY, scale).commit();
+	}
+	
+	/**
+	 * Get the flag which indicates whether the phone will vibrate on touch
+	 * @return flag which indicates whether the phone will vibrate on touch
+	 */
+	public boolean getEnableVibrateOnTouch() {
+		return getUserPreferences().getBoolean(USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH, true);
+	}
+	
+	/**
+	 * Update configuration "Vibrate On Touch" feature
+	 * @param enable Should the phone vibrate on touch
+	 */
+	public void setEnableVibrateOnTouch(boolean enable) {
+		getUserPreferences().edit().putBoolean(USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH, enable).commit();
+	}
+	
+	public void vibrateIfEnabled() {
+		if(getEnableVibrateOnTouch()) {
+			if(vibrator == null) {
+				vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+			}
+			vibrator.vibrate(100);
+		}
 	}
 }

@@ -10,15 +10,17 @@ public class Session implements Serializable {
 	private Question[] questions;
 	private int currentQuestionIndex;
 	private long remainingTime;
+	private Level selectedLevel;
 	
 	public Session() {
 		
 	}
 	
-	public Session(Question[] questions, int currentQuestionIndex, long remainingTime) {
+	public Session(Question[] questions, int currentQuestionIndex, long remainingTime, Level selectedLevel) {
 		this.questions = questions;
 		this.currentQuestionIndex = currentQuestionIndex;
 		this.remainingTime = remainingTime;
+		this.selectedLevel = selectedLevel;
 	}
 
 	public Question[] getQuestions() {
@@ -43,5 +45,13 @@ public class Session implements Serializable {
 
 	public void setRemainingTime(long remainingTime) {
 		this.remainingTime = remainingTime;
+	}
+
+	public Level getSelectedLevel() {
+		return selectedLevel;
+	}
+
+	public void setSelectedLevel(Level selectedLevel) {
+		this.selectedLevel = selectedLevel;
 	}
 }

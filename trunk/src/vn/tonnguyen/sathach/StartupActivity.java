@@ -87,6 +87,7 @@ public class StartupActivity extends BaseActivity {
 								new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
+										context.vibrateIfEnabled();
 										// Start the download process and showing the process dialog
 										Log.d("Statup", "Displaying download dialog");
 										new DownloadFilesTask().execute(MyApplication.ONLINE_DATA_FILE_URL, MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
@@ -97,6 +98,7 @@ public class StartupActivity extends BaseActivity {
 									@Override
 									public void onClick(DialogInterface dialog,
 											int which) {
+										context.vibrateIfEnabled();
 										// Close the activity
 										Log.d("Startup screen", "Closing startup activity");
 										finish();
@@ -231,6 +233,7 @@ public class StartupActivity extends BaseActivity {
 		((Button)findViewById(R.id.startup_btn_startexam)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(StartupActivity.this);
 				selectLevelDialog.setTitle(R.string.home_SelectlLevel_Title);
 				selectLevelDialog.setSingleChoiceItems(menuItems, context.getRecentlyLevel(), new DialogInterface.OnClickListener() {
@@ -242,6 +245,7 @@ public class StartupActivity extends BaseActivity {
 				}).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// on Ok button action
+						context.vibrateIfEnabled();
 						Log.d("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
 						if(context.getRecentlyLevel() >= 0) {
 							startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
@@ -253,6 +257,7 @@ public class StartupActivity extends BaseActivity {
 				}).setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// on cancel button action
+						context.vibrateIfEnabled();
 						dialog.cancel();
 					}
 				});
@@ -265,6 +270,7 @@ public class StartupActivity extends BaseActivity {
 			
 			@Override
 			public void onClick(View v) {
+				context.vibrateIfEnabled();
 				// exit
 				finish();
 			}
@@ -589,7 +595,8 @@ public class StartupActivity extends BaseActivity {
 				for (String line : indexData) {
 					String[] data = line.split(";");
 					levels.add(new Level(toInt(data[0]), data[1], MyApplication.APPLICATION_DATA_PATH + data[2],
-											getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2])));
+											getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2]),
+											toInt(data[3]), toLong(data[4])));
 				}
 				context.setLevels(levels);
 				sendMessageToHandler(StartupActivity.WHAT_LOADING_RESOURCE_SUCCEED, context.getString(R.string.download_Resource_Message_Loaded));
@@ -618,12 +625,21 @@ public class StartupActivity extends BaseActivity {
 		}
 		
 		/**
-		 * Quick shorcut to parse a string to int
+		 * Quick shortcut to parse a string to int
 		 * @param value input string to parse to int
 		 * @return the primitive integer value represented by value
 		 */
 		private int toInt(String value) {
 			return Integer.parseInt(value);
+		}
+		
+		/**
+		 * Quick shortcut to parse a string to long
+		 * @param value input string to parse to long
+		 * @return the primitive long value represented by value
+		 */
+		private long toLong(String value) {
+			return Long.parseLong(value);
 		}
 		
 		/**
