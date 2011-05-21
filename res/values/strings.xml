@@ -19,6 +19,7 @@
     <string name="home_SelectlLevel_Title">Chọn hạng</string>
     
     <string name="menu_new_exam">Làm bài thi</string>
+    <string name="menu_config">Thiết lập</string>
     <string name="menu_exit">Thoát</string>
     
     <string name="error_pleaseSelect_Level">Xin vui lòng chọn một hạng</string>
@@ -33,4 +34,7 @@
     <string name="exam_exit_timeIsUpDialog_viewResult_button">Xem kết quả</string>
     
     <string name="exam_menu_end_exam">Kết thúc</string>
+    
+    <string name="preference_vibrateSetting_title">Rung khi nhấn nút</string>
+    <string name="preference_vibrateSetting_summary">Máy sẽ rung mỗi khi nhấn nút</string>
 </resources>
