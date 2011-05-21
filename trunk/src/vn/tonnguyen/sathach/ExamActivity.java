@@ -14,6 +14,7 @@ import vn.tonnguyen.sathach.bean.QuestionState;
 import vn.tonnguyen.sathach.bean.Session;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,9 +33,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExamActivity extends BaseActivity {
-	
-	//private static final long EXAM_TIME = 1200000; // 20 minutes
-	//private static final long EXAM_TIME = 30000; // 2 minutes
 	
 	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
@@ -128,8 +126,11 @@ public class ExamActivity extends BaseActivity {
 			}
 		});
 		
-		// listen click event for question navigation buttons
-		addClickListenerForQuestionNavigationButtons();
+		// add listen click event for question navigation buttons
+		//addClickListenerForQuestionNavigationButtons();
+		
+		// add question navigation buttons
+		addQuestionNavigationButtons();
 		
 		// create thread handler for processing message from RemainingTimeUpdater
 		threadHandler = new Handler() {
@@ -162,19 +163,19 @@ public class ExamActivity extends BaseActivity {
 	}
 	
 	/**
-	 * Add click event for question navigation buttons, to navigate between questions
+	 * Add 30 question navigation buttons to the status bar on top
 	 */
-	private void addClickListenerForQuestionNavigationButtons() {
+	private void addQuestionNavigationButtons() {
 		for(int x = 1; x <= 3; x++) {
-			addClickListenerForALine(x);
+			addQuestionNavigationButtonsForALine(x);
 		}
 	}
 	
 	/**
-	 * Add click event for buttons in a line of navigation bar
-	 * @param questionLine Line of question to update (for example: 1, 2 or 3)
+	 * Add 10 questions navigation buttons to a line, which is a LinearLayout
+	 * @param questionLine number of question line, aka row, for example: 1, 2 or 3
 	 */
-	private void addClickListenerForALine(int questionLine) {
+	private void addQuestionNavigationButtonsForALine(int questionLine) {
 		LinearLayout line;
 		switch (questionLine) {
 		case 1:
@@ -187,20 +188,67 @@ public class ExamActivity extends BaseActivity {
 			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
 			break;
 		}
-		int childCount = line.getChildCount();
-		for(int x = 0; x < childCount; x++) {
-			final int buttonIndex = x;
-			final int currentLine = questionLine;
-			((Button)line.getChildAt(x)).setOnClickListener(new View.OnClickListener() {
+		Button button;
+		int start = (questionLine - 1) * 10;
+		int end = start + 10;
+		for(int x = start; x < end; x++) {
+			final int index = x;
+			// create a button from template
+			button = (Button)getLayoutInflater().inflate(R.layout.navigation_button, line, false);
+			// add that button to the linearlayout
+			line.addView(button);
+			// Add click event for this button, to show question that this button related to
+			button.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					context.vibrateIfEnabled();
-					currentQuestionIndex = (currentLine - 1) * 10 + buttonIndex;
+					currentQuestionIndex = index;
 					showQuestion(currentQuestionIndex);
 				}
 			});
 		}
 	}
+//	
+//	/**
+//	 * Add click event for question navigation buttons, to navigate between questions
+//	 */
+//	private void addClickListenerForQuestionNavigationButtons() {
+//		for(int x = 1; x <= 3; x++) {
+//			addClickListenerForALine(x);
+//		}
+//	}
+//	
+//	/**
+//	 * Add click event for buttons in a line of navigation bar
+//	 * @param questionLine Line of question to update (for example: 1, 2 or 3)
+//	 */
+//	private void addClickListenerForALine(int questionLine) {
+//		LinearLayout line;
+//		switch (questionLine) {
+//		case 1:
+//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
+//			break;
+//		case 2:
+//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
+//			break;
+//		default:
+//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
+//			break;
+//		}
+//		int childCount = line.getChildCount();
+//		for(int x = 0; x < childCount; x++) {
+//			final int buttonIndex = x;
+//			final int currentLine = questionLine;
+//			((Button)line.getChildAt(x)).setOnClickListener(new View.OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					context.vibrateIfEnabled();
+//					currentQuestionIndex = (currentLine - 1) * 10 + buttonIndex;
+//					showQuestion(currentQuestionIndex);
+//				}
+//			});
+//		}
+//	}
 	
 	/**
 	 * Set all question navigation at the very top to unanswered state
@@ -218,10 +266,10 @@ public class ExamActivity extends BaseActivity {
 	 */
 	private void updateQuestionNagivationState(Button button, QuestionState state) {
 		if(state == QuestionState.ANSWERED) {
-			Log.d("ExamScreen", "Mark button " + button.getId() + " as ANSWERED");
+			//Log.d("ExamScreen", "Mark button " + button.getId() + " as ANSWERED");
 			button.setBackgroundResource(R.color.titleBar_answered_question);
 		} else {
-			Log.d("ExamScreen", "Mark button " + button.getId() + " as UNANSWERED");
+			//Log.d("ExamScreen", "Mark button " + button.getId() + " as UNANSWERED");
 			button.setBackgroundResource(R.color.titleBar_unanswered_question);
 		}
 	}
@@ -267,8 +315,13 @@ public class ExamActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 	    switch (item.getItemId()) {
-	    case R.id.end_exam:
+	    case R.id.exam_screen_end_exam:
 	        onExit();
+	        return true;
+	    case R.id.exam_screen_preference:
+	    	context.vibrateIfEnabled();
+			Intent settingsActivity = new Intent(context, Preferences.class);
+			startActivity(settingsActivity);
 	        return true;
 	    default:
 	        return super.onOptionsItemSelected(item);

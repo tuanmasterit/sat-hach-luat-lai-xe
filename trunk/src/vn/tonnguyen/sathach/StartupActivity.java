@@ -275,6 +275,17 @@ public class StartupActivity extends BaseActivity {
 				finish();
 			}
 		});
+		
+		// show preference screen when clicking on preference button
+		((Button)findViewById(R.id.startup_btn_config)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				context.vibrateIfEnabled();
+				Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), Preferences.class);
+				startActivity(settingsActivity);
+			}
+		});
 	}
 
 	/**

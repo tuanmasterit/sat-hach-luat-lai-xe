@@ -9,6 +9,7 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 
 public class MyApplication extends Application {
 	
@@ -43,6 +44,9 @@ public class MyApplication extends Application {
 	// Get instance of Vibrator from current Context
 	private Vibrator vibrator;
 	
+	// a in-memory-copy of setting for vibrate on touch, to optimize the performance
+	private boolean isVibrateOnTouchEnabled;
+	
 	public Hashtable<Integer, Question> getQuestions() {
 		return questions;
 	}
@@ -62,6 +66,8 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		isVibrateOnTouchEnabled = getEnableVibrateOnTouch();
 	}
 	
 	/**
@@ -69,7 +75,8 @@ public class MyApplication extends Application {
 	 * @return
 	 */
 	public SharedPreferences getUserPreferences() {
-		return getSharedPreferences(MyApplication.USER_PREFERENCE_KEY, MODE_PRIVATE);
+		return PreferenceManager.getDefaultSharedPreferences(this);
+			//getSharedPreferences(MyApplication.USER_PREFERENCE_KEY, MODE_PRIVATE);
 	}
 	
 	/**
@@ -109,23 +116,32 @@ public class MyApplication extends Application {
 	 * @return flag which indicates whether the phone will vibrate on touch
 	 */
 	public boolean getEnableVibrateOnTouch() {
-		return getUserPreferences().getBoolean(USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH, true);
+		return getUserPreferences().getBoolean(USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH, false);
 	}
 	
-	/**
-	 * Update configuration "Vibrate On Touch" feature
-	 * @param enable Should the phone vibrate on touch
-	 */
-	public void setEnableVibrateOnTouch(boolean enable) {
-		getUserPreferences().edit().putBoolean(USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH, enable).commit();
-	}
+//	/**
+//	 * Update configuration "Vibrate On Touch" feature
+//	 * @param enable Should the phone vibrate on touch
+//	 */
+//	public void setEnableVibrateOnTouch(boolean enable) {
+//		isVibrateOnTouchEnabled = enable;
+//		getUserPreferences().edit().putBoolean(USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH, enable).commit();
+//	}
 	
 	public void vibrateIfEnabled() {
-		if(getEnableVibrateOnTouch()) {
+		if(isVibrateOnTouchEnabled) {
 			if(vibrator == null) {
 				vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
 			}
-			vibrator.vibrate(100);
+			vibrator.vibrate(50);
 		}
+	}
+
+	public boolean isVibrateOnTouchEnabled() {
+		return isVibrateOnTouchEnabled;
+	}
+
+	public void setVibrateOnTouchEnabled(boolean isVibrateOnTouchEnabled) {
+		this.isVibrateOnTouchEnabled = isVibrateOnTouchEnabled;
 	}
 }
