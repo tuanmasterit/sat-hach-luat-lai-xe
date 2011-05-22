@@ -47,6 +47,7 @@ public class ExamActivity extends BaseActivity {
 	private Button previousButton;
 	private Button nextButton;
 	private Level selectedLevel;
+	private QuestionNavigationQuickAction quickActionMenu; // a quick action menu which will be popped up when clicking on question navigation button
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -129,6 +130,17 @@ public class ExamActivity extends BaseActivity {
 		// add listen click event for question navigation buttons
 		//addClickListenerForQuestionNavigationButtons();
 		
+		quickActionMenu = new QuestionNavigationQuickAction(findViewById(R.id.exam_titleBar_question_navigation_container));
+		quickActionMenu.setAnimStyle(QuestionNavigationQuickAction.ANIM_AUTO);
+		
+		// clicking on navigation container will show a quick action dialog, to choose question to goto
+		findViewById(R.id.exam_titleBar_question_navigation_container).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				context.vibrateIfEnabled();
+				quickActionMenu.show();
+			}
+		});
 		// add question navigation buttons
 		addQuestionNavigationButtons();
 		
@@ -197,58 +209,31 @@ public class ExamActivity extends BaseActivity {
 			button = (Button)getLayoutInflater().inflate(R.layout.navigation_button, line, false);
 			// add that button to the linearlayout
 			line.addView(button);
-			// Add click event for this button, to show question that this button related to
+			// Add click event for this button, to show quick action menu
 			button.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					context.vibrateIfEnabled();
+					quickActionMenu.show();
+				}
+			});
+			
+			// add another button to quick action menu
+			QuestionActionItem questionButton = new QuestionActionItem();
+			questionButton.setTitle(String.valueOf(index + 1));
+			//chart.setIcon(getResources().getDrawable(R.drawable.chart));
+			questionButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					context.vibrateIfEnabled();
 					currentQuestionIndex = index;
 					showQuestion(currentQuestionIndex);
+					quickActionMenu.dismiss();
 				}
 			});
+			quickActionMenu.addActionItem(questionButton);
 		}
 	}
-//	
-//	/**
-//	 * Add click event for question navigation buttons, to navigate between questions
-//	 */
-//	private void addClickListenerForQuestionNavigationButtons() {
-//		for(int x = 1; x <= 3; x++) {
-//			addClickListenerForALine(x);
-//		}
-//	}
-//	
-//	/**
-//	 * Add click event for buttons in a line of navigation bar
-//	 * @param questionLine Line of question to update (for example: 1, 2 or 3)
-//	 */
-//	private void addClickListenerForALine(int questionLine) {
-//		LinearLayout line;
-//		switch (questionLine) {
-//		case 1:
-//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
-//			break;
-//		case 2:
-//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
-//			break;
-//		default:
-//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
-//			break;
-//		}
-//		int childCount = line.getChildCount();
-//		for(int x = 0; x < childCount; x++) {
-//			final int buttonIndex = x;
-//			final int currentLine = questionLine;
-//			((Button)line.getChildAt(x)).setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					context.vibrateIfEnabled();
-//					currentQuestionIndex = (currentLine - 1) * 10 + buttonIndex;
-//					showQuestion(currentQuestionIndex);
-//				}
-//			});
-//		}
-//	}
 	
 	/**
 	 * Set all question navigation at the very top to unanswered state
@@ -266,10 +251,8 @@ public class ExamActivity extends BaseActivity {
 	 */
 	private void updateQuestionNagivationState(Button button, QuestionState state) {
 		if(state == QuestionState.ANSWERED) {
-			//Log.d("ExamScreen", "Mark button " + button.getId() + " as ANSWERED");
 			button.setBackgroundResource(R.color.titleBar_answered_question);
 		} else {
-			//Log.d("ExamScreen", "Mark button " + button.getId() + " as UNANSWERED");
 			button.setBackgroundResource(R.color.titleBar_unanswered_question);
 		}
 	}
@@ -296,6 +279,8 @@ public class ExamActivity extends BaseActivity {
 			break;
 		}
 		updateQuestionNagivationState((Button)line.getChildAt(buttonIndex), state);
+		
+		quickActionMenu.updateQuestionState(questionIndex, state);
 	}
 	
 	/**
@@ -316,6 +301,7 @@ public class ExamActivity extends BaseActivity {
 	    // Handle item selection
 	    switch (item.getItemId()) {
 	    case R.id.exam_screen_end_exam:
+	    	context.vibrateIfEnabled();
 	        onExit();
 	        return true;
 	    case R.id.exam_screen_preference:
@@ -341,11 +327,11 @@ public class ExamActivity extends BaseActivity {
 		super.onSaveInstanceState(state);
 	}
 	
-	@Override
-	public void onStart() {
-		Log.d("ExamScreen onStart", "onStart");
-		super.onStart();
-	}
+//	@Override
+//	public void onStart() {
+//		Log.d("ExamScreen onStart", "onStart");
+//		super.onStart();
+//	}
 	
 	@Override
 	public void onResume() {
@@ -354,29 +340,29 @@ public class ExamActivity extends BaseActivity {
 		restartRemainingTimeUpdater();
 	}
 	
-	@Override
-	public void onPause() {
-		Log.d("ExamScreen onPause", "onPause");
-		super.onPause();
-	}
-	
-	@Override
-	public void onStop() {
-		Log.d("ExamScreen onStop", "onStop");
-		super.onStop();
-	}
-	
-	@Override
-	public void onDestroy() {
-		Log.d("ExamScreen onDestroy", "onDestroy");
-		super.onDestroy();
-	}
-	
-	@Override
-	public void onRestart() {
-		Log.d("ExamScreen onRestart", "onRestart");
-		super.onRestart();
-	}
+//	@Override
+//	public void onPause() {
+//		Log.d("ExamScreen onPause", "onPause");
+//		super.onPause();
+//	}
+//	
+//	@Override
+//	public void onStop() {
+//		Log.d("ExamScreen onStop", "onStop");
+//		super.onStop();
+//	}
+//	
+//	@Override
+//	public void onDestroy() {
+//		Log.d("ExamScreen onDestroy", "onDestroy");
+//		super.onDestroy();
+//	}
+//	
+//	@Override
+//	public void onRestart() {
+//		Log.d("ExamScreen onRestart", "onRestart");
+//		super.onRestart();
+//	}
 	
 	@Override
 	protected void onRestoreInstanceState(Bundle state) {
@@ -494,23 +480,27 @@ public class ExamActivity extends BaseActivity {
 		updateQuestionNagivationState(currentQuestionIndex, QuestionState.ANSWERED);
 	}
 	
+	private void displayQuestion(Question questionToShow) {
+		/* Create a new Html that contains the full-screen image */
+		Log.d("Displaying question", questionToShow.toString());
+		String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
+		/* Finally, display the content using WebView */
+		int scale = (int)(100 * questionView.getScale()); // keep the last zoom ratio
+		context.setRecentlyZoom(scale);
+		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		questionView.setInitialScale(scale);
+	}
+	
 	/**
 	 * Display the question to UI
 	 * @param questionIndex index of the question, to get from examQuestions
 	 */
 	private void showQuestion(int questionIndex) {
 		Question questionToShow = examQuestions[questionIndex];
-		/* Create a new Html that contains the full-screen image */
-		Log.d("Displaying question", "Index: " + questionIndex + " - " + questionToShow.toString());
-		String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
-		/* Finally, display the content using WebView */
-		int scale = (int)(100 * questionView.getScale());
-		context.setRecentlyZoom(scale);
-		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
-		questionView.setInitialScale(scale);
+		displayQuestion(questionToShow);
 		
 		// update text to show current question in total:
-		questionNavigation.setText((questionIndex + 1) + "/" + examQuestions.length);
+		questionNavigation.setText(String.format("%02d", questionIndex + 1) + "/" + examQuestions.length);
 		
 		// disable answer-radio-button that won't be used:
 		radioGroup.clearCheck(); // clear answer
@@ -635,7 +625,7 @@ public class ExamActivity extends BaseActivity {
 		if(timeLeft < 0) {
 			timeLeft = 0;
 		}
-		return String.format("%d:%d", 
+		return String.format("%02d:%02d", 
 					(int)((timeLeft / 1000) / 60),
 					(int)((timeLeft / 1000) % 60));
 	}

@@ -5,4 +5,7 @@
 	<color name="grid_background">#E2E3EE</color>
 	<color name="titleBar_answered_question">#98EF4A</color>
 	<color name="titleBar_unanswered_question">#FF0000</color>
+	<color name="white">#FFFFFF</color>
+	<color name="question_action_menu_answered_question_color">#666</color>
+	<color name="question_action_menu_answered_question_background_color">#FFFFFF</color>
 </resources>
