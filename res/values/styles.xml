@@ -1,14 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="TitleBar">
+    <style name="TitleBarContainer">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">@dimen/title_height</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:background">@color/title_background</item>
+        <item name="android:background">@drawable/startup_title_bar_background</item>
     </style>
     <style name="TitleBarLogo">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">fill_parent</item>
+        <item name="android:src">@drawable/title_icon</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+    <style name="TitleBar_QuestionInfo">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:text">"15/30"</item>
+        <item name="android:paddingLeft">5sp</item>
+        <item name="android:paddingTop">14sp</item>
+    </style>
+    <style name="TitleBar_QuestionNavigationContainer">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingBottom">3sp</item>
+        <item name="android:paddingTop">5sp</item>
+        <item name="android:layout_marginLeft">5sp</item>
+        <item name="android:layout_marginRight">3sp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+	<style name="TitleBar_QuestionNavigationRow">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">2sp</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    <style name="TitleBar_RemainingTime">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:text">"12:45"</item>
+        <item name="android:paddingLeft">5sp</item>
+        <item name="android:paddingTop">14sp</item>
+        <item name="android:paddingRight">5sp</item>
+    </style>
+    <style name="ExamAnswerButton">
+        <item name="android:button">@null</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">43sp</item>
+        <item name="android:text">""</item>
+        <item name="android:background">@null</item>
+    </style>
+    <style name="ExamNavigationButton">
+        <item name="android:button">@null</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">43sp</item>
+        <item name="android:text">""</item>
+        <item name="android:background">@null</item>
     </style>
     <style name="HomeButton">
         <item name="android:layout_gravity">center_vertical</item>

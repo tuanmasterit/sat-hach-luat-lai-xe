@@ -28,13 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
 
 public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
@@ -57,15 +51,6 @@ public class StartupActivity extends BaseActivity {
 		Log.d("Statup onCreate", "Displaying startup dialog");
 		
 		setContentView(R.layout.activity_startup);
-		// Look up the AdView as a resource and load a request.
-	    AdView adView = (AdView)this.findViewById(R.id.adViewComponent);
-	    AdRequest re = new AdRequest();
-	    re.setTesting(true);
-	    re.setGender(AdRequest.Gender.MALE);
-	    adView.loadAd(re);
-	    
-	    ((LinearLayout)findViewById(R.id.startup_titleBarContainer)).getBackground().setDither(true);
-	    ((LinearLayout)findViewById(R.id.startup_gridContainer)).getBackground().setDither(true);
 
 		context = (MyApplication)getApplicationContext();
 		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
@@ -108,44 +93,8 @@ public class StartupActivity extends BaseActivity {
 				startLoadingResource();
 			}
 		} else {
-			initComponents();
+			showHomeScreen();
 		}
-	}
-	
-	@Override
-	public void onStart() {
-		Log.d("Statup onStart", "onStart");
-		super.onStart();
-	}
-	
-	@Override
-	public void onResume() {
-		Log.d("Statup onResume", "onResume");
-		super.onResume();
-	}
-	
-	@Override
-	public void onPause() {
-		Log.d("Statup onPause", "onPause");
-		super.onPause();
-	}
-	
-	@Override
-	public void onStop() {
-		Log.d("Statup onStop", "onStop");
-		super.onStop();
-	}
-	
-	@Override
-	public void onDestroy() {
-		Log.d("Statup onDestroy", "onDestroy");
-		super.onDestroy();
-	}
-	
-	@Override
-	public void onRestart() {
-		Log.d("Statup onRestart", "onRestart");
-		super.onRestart();
 	}
 	
 	/**
@@ -192,7 +141,7 @@ public class StartupActivity extends BaseActivity {
 			Log.d("Loading resource Suceed", String.valueOf(msg.obj));
 			progressDialog.cancel();
 			progressDialog = null;
-			initComponents();
+			showHomeScreen();
 			break;
 		default: // error occurred
 			// display error message
@@ -216,76 +165,11 @@ public class StartupActivity extends BaseActivity {
 	}
 
 	/**
-	 * Init data, bind event for buttons
+	 * Display home screen, after data has been loaded
 	 */
-	private void initComponents() {
-		ArrayList<Level> levels = context.getLevels();
-		if(levels == null || levels.size() < 1) {
-			Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG)
-				.show();
-			return;
-		}
-		final String[] menuItems = new String[levels.size()];
-		for(int i = 0; i < levels.size(); i++) {
-			menuItems[i] = levels.get(i).getName();
-		}
-	    // Register the onClick listener with the implementation above
-		((Button)findViewById(R.id.startup_btn_startexam)).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				context.vibrateIfEnabled();
-				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(StartupActivity.this);
-				selectLevelDialog.setTitle(R.string.home_SelectlLevel_Title);
-				selectLevelDialog.setSingleChoiceItems(menuItems, context.getRecentlyLevel(), new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// onClick Action
-						// the level list has been ordered by index, so whichButton will be the selected index
-						context.setRecentlyLevel(whichButton);
-					}
-				}).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// on Ok button action
-						context.vibrateIfEnabled();
-						Log.d("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
-						if(context.getRecentlyLevel() >= 0) {
-							startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
-						} else {
-							Toast.makeText(context, context.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
-								.show();
-						}
-					}
-				}).setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// on cancel button action
-						context.vibrateIfEnabled();
-						dialog.cancel();
-					}
-				});
-				selectLevelDialog.show();
-			}
-		});
-
-	    // Register the onClick listener with the implementation above
-		((Button)findViewById(R.id.startup_btn_exit)).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				context.vibrateIfEnabled();
-				// exit
-				finish();
-			}
-		});
-		
-		// show preference screen when clicking on preference button
-		((Button)findViewById(R.id.startup_btn_config)).setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				context.vibrateIfEnabled();
-				Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), Preferences.class);
-				startActivity(settingsActivity);
-			}
-		});
+	private void showHomeScreen() {
+		Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), HomeActivity.class);
+		startActivity(settingsActivity);
 	}
 
 	/**
