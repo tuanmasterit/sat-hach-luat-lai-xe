@@ -1,6 +1,7 @@
 package vn.tonnguyen.sathach;
 
 import vn.tonnguyen.sathach.bean.QuestionState;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Log;
@@ -21,11 +22,28 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 	
 	private boolean isActionListCreated = false;
 	
-	private final int numberOfRow = 6;
-	private final int numberOfQuestionInRow = 5;
+	private int numberOfRow = 6;
+	private int numberOfQuestionInRow = 5;
+
+	private int orientation;
 	
 	public QuestionNavigationQuickAction(View anchor) {
 		super(anchor);
+		
+		orientation = context.getResources().getConfiguration().orientation;
+		updateItemSize(orientation);
+		
+		setAnimStyle(ANIM_AUTO);
+	}
+	
+	private void updateItemSize(int orientation) {
+		if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			numberOfRow = 3;
+			numberOfQuestionInRow = 10;
+		} else {
+			numberOfRow = 6;
+			numberOfQuestionInRow = 5;
+		}
 	}
 
 	@Override
@@ -81,7 +99,7 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 		String title;
 		OnClickListener listener;
 		
-		// create 6 rows, each row has 5 buttons
+		// create numberOfRow rows, each row has numberOfQuestionInRow buttons
 		int i = 0;
 		LinearLayout row;
 		for(int rowIndex = 0; rowIndex < numberOfRow; rowIndex++) {
@@ -159,7 +177,7 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 		if(!isActionListCreated) { // make sure all items have been added
 			createActionList();
 		}
-		int rowIndex = questionIndex / numberOfRow;
+		int rowIndex = questionIndex / numberOfQuestionInRow;
 		int buttonIndex = questionIndex % numberOfQuestionInRow;
 		
 		Log.d("ActionMenu", "rowIndex=" + rowIndex + " - buttonIndex=" + buttonIndex);

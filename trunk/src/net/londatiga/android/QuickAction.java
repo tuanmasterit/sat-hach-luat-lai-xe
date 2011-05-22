@@ -34,7 +34,7 @@ public class QuickAction extends CustomPopupWindow {
 	private final ImageView mArrowDown;
 	protected final Animation mTrackAnim;
 	protected final LayoutInflater inflater;
-	private final Context context;
+	protected final Context context;
 	
 	protected static final int ANIM_GROW_FROM_LEFT = 1;
 	protected static final int ANIM_GROW_FROM_RIGHT = 2;

@@ -77,7 +77,7 @@ public class ExamActivity extends BaseActivity {
 		// This value should be persist if user change the zoom level
 		// so they dont have to change the zoom level every time they view a question
 		
-		questionNavigation = (TextView)findViewById(R.id.exam_titleBar_QuestionNavigation);
+		questionNavigation = (TextView)findViewById(R.id.exam_titleBar_QuestionInfo);
 		radioGroup = (RadioGroup)findViewById(R.id.exam_radioGroup);
 		remainingTimeTextView = (TextView)findViewById(R.id.exam_titleBar_RemainingTime);
 		
@@ -131,7 +131,6 @@ public class ExamActivity extends BaseActivity {
 		//addClickListenerForQuestionNavigationButtons();
 		
 		quickActionMenu = new QuestionNavigationQuickAction(findViewById(R.id.exam_titleBar_question_navigation_container));
-		quickActionMenu.setAnimStyle(QuestionNavigationQuickAction.ANIM_AUTO);
 		
 		// clicking on navigation container will show a quick action dialog, to choose question to goto
 		findViewById(R.id.exam_titleBar_question_navigation_container).setOnClickListener(new View.OnClickListener() {
@@ -178,30 +177,21 @@ public class ExamActivity extends BaseActivity {
 	 * Add 30 question navigation buttons to the status bar on top
 	 */
 	private void addQuestionNavigationButtons() {
-		for(int x = 1; x <= 3; x++) {
-			addQuestionNavigationButtonsForALine(x);
+		LinearLayout container = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_container);
+		int count = container.getChildCount();
+		for(int x = 0; x < count; x++) {
+			addQuestionNavigationButtonsForALine((LinearLayout)container.getChildAt(x), x);
 		}
 	}
 	
 	/**
 	 * Add 10 questions navigation buttons to a line, which is a LinearLayout
-	 * @param questionLine number of question line, aka row, for example: 1, 2 or 3
+	 * @param line A buttons container to add button to
+	 * @param lineIndex Index of line
 	 */
-	private void addQuestionNavigationButtonsForALine(int questionLine) {
-		LinearLayout line;
-		switch (questionLine) {
-		case 1:
-			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
-			break;
-		case 2:
-			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
-			break;
-		default:
-			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
-			break;
-		}
+	private void addQuestionNavigationButtonsForALine(LinearLayout line, int lineIndex) {
 		Button button;
-		int start = (questionLine - 1) * 10;
+		int start = lineIndex * 10;
 		int end = start + 10;
 		for(int x = start; x < end; x++) {
 			final int index = x;

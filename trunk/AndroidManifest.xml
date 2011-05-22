@@ -15,6 +15,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".HomeActivity" android:configChanges="keyboard|keyboardHidden|orientation" />
         <activity android:name="com.google.ads.AdActivity" android:configChanges="keyboard|keyboardHidden|orientation"/>
 		<activity android:name=".ExamActivity" />
 		<activity android:name=".Preferences" />
