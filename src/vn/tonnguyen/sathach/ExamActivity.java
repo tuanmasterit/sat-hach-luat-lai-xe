@@ -330,29 +330,29 @@ public class ExamActivity extends BaseActivity {
 		restartRemainingTimeUpdater();
 	}
 	
-//	@Override
-//	public void onPause() {
-//		Log.d("ExamScreen onPause", "onPause");
-//		super.onPause();
-//	}
-//	
-//	@Override
-//	public void onStop() {
-//		Log.d("ExamScreen onStop", "onStop");
-//		super.onStop();
-//	}
-//	
-//	@Override
-//	public void onDestroy() {
-//		Log.d("ExamScreen onDestroy", "onDestroy");
-//		super.onDestroy();
-//	}
-//	
-//	@Override
-//	public void onRestart() {
-//		Log.d("ExamScreen onRestart", "onRestart");
-//		super.onRestart();
-//	}
+	@Override
+	public void onPause() {
+		Log.d("ExamScreen onPause", "onPause");
+		super.onPause();
+	}
+	
+	@Override
+	public void onStop() {
+		Log.d("ExamScreen onStop", "onStop");
+		super.onStop();
+	}
+	
+	@Override
+	public void onDestroy() {
+		Log.d("ExamScreen onDestroy", "onDestroy");
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onRestart() {
+		Log.d("ExamScreen onRestart", "onRestart");
+		super.onRestart();
+	}
 	
 	@Override
 	protected void onRestoreInstanceState(Bundle state) {
@@ -371,8 +371,8 @@ public class ExamActivity extends BaseActivity {
 				updateQuestionNagivationState(x, examQuestions[x].getUserChoice() > 0 ? QuestionState.ANSWERED : QuestionState.UNANSWERED);
 			}
 			showQuestion(currentQuestionIndex); // display the last viewed question
-			// start the remaining time updater thread
-			restartRemainingTimeUpdater();
+			//// start the remaining time updater thread -> No, this will be invoked on onResume
+			//restartRemainingTimeUpdater();
 		}
 		super.onRestoreInstanceState(state);
 	}
@@ -584,7 +584,7 @@ public class ExamActivity extends BaseActivity {
 		// process incoming messages here
 		switch(msg.what) {
 		case WHAT_UPDATE_REMAINING_TIME:
-			Log.d("ExamScreen", "Updating remaining time...");
+			//Log.d("ExamScreen", "Updating remaining time...");
 			remainingTimeTextView.setText(getRemainingTimeString(remainingTime));
 			break;
 		case WHAT_TIME_IS_UP:
@@ -657,7 +657,9 @@ public class ExamActivity extends BaseActivity {
 					lastMoment = System.currentTimeMillis();
 					sendMessageToHandler(WHAT_UPDATE_REMAINING_TIME);
 					try {
-						sleep(ONE_SECOND);
+						if(isInExam) {
+							sleep(ONE_SECOND);
+						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

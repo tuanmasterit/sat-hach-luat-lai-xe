@@ -169,7 +169,13 @@ public class StartupActivity extends BaseActivity {
 	 */
 	private void showHomeScreen() {
 		Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), HomeActivity.class);
-		startActivity(settingsActivity);
+		startActivityForResult(settingsActivity, 0); // since we only have 1 home screen, we can pass anything  for requestCode
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// got exit request from Home screen, let's close this activity
+		finish();
 	}
 
 	/**

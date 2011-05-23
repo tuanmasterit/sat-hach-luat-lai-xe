@@ -4,6 +4,7 @@
     <string name="app_name">Lý thuyết lái xe</string>
     <string name="ok_button">Đồng ý</string>
     <string name="cancel_button">Bỏ qua</string>
+    <string name="see_you_again">Chúc bạn thi tốt và lái xe an toàn</string>
     
     <string name="download_Resource_Title">Tải dữ liệu</string>
     <string name="download_Resource_Message">Chương trình cần tải dữ liệu câu hỏi từ Internet(~10MB), sẽ mất phí nếu sử dụng 3G. Khuyến cáo nên sử dụng Wifi.</string>

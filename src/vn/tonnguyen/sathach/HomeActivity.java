@@ -1,6 +1,8 @@
 package vn.tonnguyen.sathach;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import vn.tonnguyen.sathach.bean.Level;
 import android.app.AlertDialog;
@@ -28,36 +30,48 @@ public class HomeActivity extends BaseActivity {
 		Log.d("HomeActivity onCreate", "Displaying Home screen");
 		
 		setContentView(R.layout.activity_home);
-
-		initAdMob();
-
 		context = (MyApplication)getApplicationContext();
 		initComponents();
+		initAdMob();
 	}
 	
 	private void initAdMob() {
 		// Look up the AdView as a resource and load a request.
 		if(adView == null) {
-			adView = (AdView)this.findViewById(R.id.adViewComponent);
+			adView = (AdView)findViewById(R.id.adViewComponent);
 		}
-	    adView.loadAd(createAdRequest());
+		if(!adView.isRefreshing()) {
+			adView.loadAd(createAdRequest());
+		}
 	}
 	
 	private AdRequest createAdRequest() {
 		AdRequest re = new AdRequest();
 	    re.setTesting(true);
 	    re.setGender(AdRequest.Gender.MALE);
+	    re.setKeywords(createKeywords());
 	    return re;
+	}
+	
+	private Set<String> createKeywords() {
+		Set<String> set = new HashSet<String>();
+		set.add("bảo hiểm");
+		set.add("xe hơi");
+		set.add("oto");
+		set.add("auto");
+		set.add("nội thất");
+		return set;
 	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		
 		setContentView(R.layout.activity_home);
 
-		initAdMob();
 		context = (MyApplication) getApplicationContext();
 		initComponents();
+		initAdMob();
 	}
 
 	
@@ -116,8 +130,10 @@ public class HomeActivity extends BaseActivity {
 			
 			@Override
 			public void onClick(View v) {
+				Toast.makeText(context, context.getString(R.string.see_you_again), Toast.LENGTH_LONG).show();
 				context.vibrateIfEnabled();
 				// exit
+				setResult(RESULT_OK, new Intent());
 				finish();
 			}
 		});
