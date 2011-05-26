@@ -1,5 +1,6 @@
 package vn.tonnguyen.sathach;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -138,6 +139,7 @@ public class ExamActivity extends BaseActivity {
 			public void onClick(View v) {
 				context.vibrateIfEnabled();
 				quickActionMenu.show();
+				quickActionMenu.setSelectedQuestion(currentQuestionIndex);
 			}
 		});
 		// add question navigation buttons
@@ -205,6 +207,7 @@ public class ExamActivity extends BaseActivity {
 				public void onClick(View v) {
 					context.vibrateIfEnabled();
 					quickActionMenu.show();
+					quickActionMenu.setSelectedQuestion(currentQuestionIndex);
 				}
 			});
 			
@@ -463,23 +466,48 @@ public class ExamActivity extends BaseActivity {
 	 */
 	private void updateChoice(int choice) {
 		Question currentQuestion = examQuestions[currentQuestionIndex];
-		Log.d("User answer", "Question " + currentQuestion.getPictureName() + 
+		Log.d("User answer", "Question " + currentQuestion.getQuestionFileName() + 
 								" - User choice: " + choice + 
 								" - Answer: " + currentQuestion.getAnswer());
 		currentQuestion.setUserChoice(choice);
 		updateQuestionNagivationState(currentQuestionIndex, QuestionState.ANSWERED);
 	}
 	
-	private void displayQuestion(Question questionToShow) {
+	private void displayQuestion(Question questionToShow) throws IOException {
 		/* Create a new Html that contains the full-screen image */
 		Log.d("Displaying question", questionToShow.toString());
-		String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
+		//String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
+		//String html = readFileAsText(MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
 		/* Finally, display the content using WebView */
 		int scale = (int)(100 * questionView.getScale()); // keep the last zoom ratio
 		context.setRecentlyZoom(scale);
-		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		//questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		questionView.loadUrl("file:///" + MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
 		questionView.setInitialScale(scale);
 	}
+	
+//	/**
+//	 * Read an input text file, and return as text
+//	 * @param filePath path to file to read
+//	 * @return A String array, which represents every lines of input file
+//	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
+//	 */
+//	private String readFileAsText(String filePath) throws IOException {
+//		//Get the text file
+//		File file = new File(filePath);
+//		if(!file.exists()) {
+//			throw new FileNotFoundException("File not found: " + filePath);
+//		}
+//
+//		String content = "";
+//		//Read text from file
+//	    BufferedReader br = new BufferedReader(new FileReader(file));
+//	    String line;
+//	    while ((line = br.readLine()) != null) {
+//	    	content += line;
+//	    }
+//	    return content;
+//	}
 	
 	/**
 	 * Display the question to UI
@@ -487,7 +515,12 @@ public class ExamActivity extends BaseActivity {
 	 */
 	private void showQuestion(int questionIndex) {
 		Question questionToShow = examQuestions[questionIndex];
-		displayQuestion(questionToShow);
+		try {
+			displayQuestion(questionToShow);
+		} catch (IOException e) {
+			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+			Log.e("Exam screen", e.getMessage());
+		}
 		
 		// update text to show current question in total:
 		questionNavigation.setText(String.format("%02d", questionIndex + 1) + "/" + examQuestions.length);

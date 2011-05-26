@@ -47,8 +47,8 @@ public class HomeActivity extends BaseActivity {
 	
 	private AdRequest createAdRequest() {
 		AdRequest re = new AdRequest();
-	    re.setTesting(true);
-	    re.setGender(AdRequest.Gender.MALE);
+	    //re.setTesting(true);
+	    //re.setGender(AdRequest.Gender.MALE);
 	    re.setKeywords(createKeywords());
 	    return re;
 	}
@@ -81,8 +81,10 @@ public class HomeActivity extends BaseActivity {
 	private void initComponents() {
 		ArrayList<Level> levels = context.getLevels();
 		if(levels == null || levels.size() < 1) {
-			Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG)
-				.show();
+			//Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG).show();
+			// back to startup screen to init data
+			setResult(RESULT_CANCELED, new Intent());
+			finish();
 			return;
 		}
 		final String[] menuItems = new String[levels.size()];

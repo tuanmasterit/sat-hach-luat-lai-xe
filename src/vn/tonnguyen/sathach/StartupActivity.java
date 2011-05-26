@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,12 +25,20 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 
 public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
@@ -42,6 +52,7 @@ public class StartupActivity extends BaseActivity {
 	private ProgressDialog progressDialog;
 	private Handler threadHandler;
 	private MyApplication context;
+	private AdView adView;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -53,6 +64,10 @@ public class StartupActivity extends BaseActivity {
 		setContentView(R.layout.activity_startup);
 
 		context = (MyApplication)getApplicationContext();
+		loadResource();
+	}
+	
+	private void loadResource() {
 		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
 			threadHandler = new Handler() {
 				@Override
@@ -139,19 +154,24 @@ public class StartupActivity extends BaseActivity {
 		switch(msg.what) {
 		case WHAT_LOADING_RESOURCE_SUCCEED:
 			Log.d("Loading resource Suceed", String.valueOf(msg.obj));
-			progressDialog.cancel();
-			progressDialog = null;
+			safeCloseDialog();
 			showHomeScreen();
 			break;
 		default: // error occurred
 			// display error message
 			Log.d("Error occurred", (String)msg.obj);
-			progressDialog.cancel();
-			progressDialog = null;
+			safeCloseDialog();
 			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 			toast.show();
 			Log.d("Startup screen", "Closing startup activity");
 			finish();
+		}
+	}
+	
+	private void safeCloseDialog() {
+		if(progressDialog != null) {
+			progressDialog.cancel();
+			progressDialog = null;
 		}
 	}
 	
@@ -168,15 +188,149 @@ public class StartupActivity extends BaseActivity {
 	 * Display home screen, after data has been loaded
 	 */
 	private void showHomeScreen() {
-		Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), HomeActivity.class);
-		startActivityForResult(settingsActivity, 0); // since we only have 1 home screen, we can pass anything  for requestCode
+		//Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), HomeActivity.class);
+		//startActivityForResult(settingsActivity, 0); // since we only have 1 home screen, we can pass anything  for requestCode
+		
+		Log.d("HomeActivity onCreate", "Displaying Home screen");
+		
+		setContentView(R.layout.activity_home);
+		context = (MyApplication)getApplicationContext();
+		initComponents();
+		initAdMob();
+	}
+	
+	private void initAdMob() {
+		// Look up the AdView as a resource and load a request.
+		if(adView == null) {
+			adView = (AdView)findViewById(R.id.adViewComponent);
+			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
+            animation.setDuration( 400 );
+            animation.setFillAfter( true );
+            animation.setInterpolator( new AccelerateInterpolator() );
+			adView.setAnimation(animation);
+		}
+		if(!adView.isRefreshing()) {
+			adView.loadAd(createAdRequest());
+		}
+	}
+	
+	private AdRequest createAdRequest() {
+		AdRequest re = new AdRequest();
+	    //re.setTesting(true);
+	    //re.setGender(AdRequest.Gender.MALE);
+	    re.setKeywords(createKeywords());
+	    return re;
+	}
+	
+	private Set<String> createKeywords() {
+		Set<String> set = new HashSet<String>();
+		set.add("bảo hiểm");
+		set.add("xe hơi");
+		set.add("oto");
+		set.add("auto");
+		set.add("nội thất");
+		return set;
 	}
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// got exit request from Home screen, let's close this activity
-		finish();
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		
+		setContentView(R.layout.activity_home);
+
+		context = (MyApplication) getApplicationContext();
+		initComponents();
+		//initAdMob(); // since we have bug with admob on rotation changed
 	}
+
+	
+	/**
+	 * Init data, bind event for buttons
+	 */
+	private void initComponents() {
+		ArrayList<Level> levels = context.getLevels();
+		if(levels == null || levels.size() < 1) {
+			//Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG).show();
+			// back to startup screen to init data
+			setResult(RESULT_CANCELED, new Intent());
+			finish();
+			return;
+		}
+		final String[] menuItems = new String[levels.size()];
+		for(int i = 0; i < levels.size(); i++) {
+			menuItems[i] = levels.get(i).getName();
+		}
+	    // Register the onClick listener with the implementation above
+		((Button)findViewById(R.id.startup_btn_startexam)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				context.vibrateIfEnabled();
+				AlertDialog.Builder selectLevelDialog = new AlertDialog.Builder(StartupActivity.this);
+				selectLevelDialog.setTitle(R.string.home_SelectlLevel_Title);
+				selectLevelDialog.setSingleChoiceItems(menuItems, context.getRecentlyLevel(), new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// onClick Action
+						// the level list has been ordered by index, so whichButton will be the selected index
+						context.setRecentlyLevel(whichButton);
+					}
+				}).setPositiveButton(R.string.ok_button, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// on Ok button action
+						context.vibrateIfEnabled();
+						Log.d("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
+						if(context.getRecentlyLevel() >= 0) {
+							startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
+						} else {
+							Toast.makeText(context, context.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
+								.show();
+						}
+					}
+				}).setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// on cancel button action
+						context.vibrateIfEnabled();
+						dialog.cancel();
+					}
+				});
+				selectLevelDialog.show();
+			}
+		});
+
+	    // Register the onClick listener with the implementation above
+		((Button)findViewById(R.id.startup_btn_exit)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(context, context.getString(R.string.see_you_again), Toast.LENGTH_LONG).show();
+				context.vibrateIfEnabled();
+				// exit
+				setResult(RESULT_OK, new Intent());
+				finish();
+			}
+		});
+		
+		// show preference screen when clicking on preference button
+		((Button)findViewById(R.id.startup_btn_config)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				context.vibrateIfEnabled();
+				Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), Preferences.class);
+				startActivity(settingsActivity);
+			}
+		});
+	}
+	
+//	@Override
+//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//		if(resultCode == RESULT_CANCELED) {
+//			// data was corrupted, let's re-load it
+//			loadResource();
+//		} else if(resultCode == RESULT_OK) {
+//			// got exit request from Home screen, let's close this activity
+//			finish();
+//		}
+//	}
 
 	/**
 	 * Check if resources are available
@@ -185,7 +339,11 @@ public class StartupActivity extends BaseActivity {
 	 */
 	private boolean isResourcesAvailable() {
 		return isFileExist(MyApplication.APPLICATION_INDEX_FILE_PATH)
-				&& isFileExist(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH);
+				&& isFileExist(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH)
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "001.html")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.html")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "images/ch144.jpg")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "images/ch405.jpg");
 	}
 
 	/**
@@ -474,7 +632,7 @@ public class StartupActivity extends BaseActivity {
 				int questionIndex, questionList, answer, numberOfAnswer = 0;
 				String questionRawData = "";
 				for (int i = 1; i <= MyApplication.NUMBER_OF_QUESTIONS; i++) {
-					String pictureName = String.format("%03d.JPG", i);
+					String questionFileName = String.format("%03d.html", i);
 					questionIndex = (i - 1) % 25;
 					questionList = (i - 1) / 25;
 					questionRawData = questionsAndAnswers[questionList];
@@ -483,7 +641,7 @@ public class StartupActivity extends BaseActivity {
 					numberOfAnswer = Integer.parseInt(questionRawData.substring(
 							2 * questionIndex + 1, 2 * questionIndex + 2));
 
-					question = new Question(pictureName, numberOfAnswer, answer);
+					question = new Question(questionFileName, numberOfAnswer, answer);
 					questions.put(i, question);
 					
 					progressDialog.setProgress(80 * i / MyApplication.NUMBER_OF_QUESTIONS);
