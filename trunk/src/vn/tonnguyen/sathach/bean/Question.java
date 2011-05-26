@@ -8,23 +8,23 @@ public class Question implements Serializable {
 	 */
 	private static final long serialVersionUID = -4160490554549912221L;
 	
-	private String pictureName;
+	private String questionFileName;
 	private int numberOfAnswers;
 	private int answer;
 	private int userChoice; // which answer user has chosen. <= 0 means no answer
 
-	public Question(String pictureName, int numberOfAnswers, int answer) {
-		this.pictureName = pictureName;
+	public Question(String questionFileName, int numberOfAnswers, int answer) {
+		this.questionFileName = questionFileName;
 		this.numberOfAnswers = numberOfAnswers;
 		this.answer = answer;
 	}
 
-	public String getPictureName() {
-		return pictureName;
+	public String getQuestionFileName() {
+		return questionFileName;
 	}
 
-	public void setPictureName(String pictureName) {
-		this.pictureName = pictureName;
+	public void setQuestionFileName(String questionFileName) {
+		this.questionFileName = questionFileName;
 	}
 
 	public int getNumberOfAnswers() {
@@ -62,13 +62,13 @@ public class Question implements Serializable {
 	@Override
 	public String toString() {
 		return String.format("Question %s, number of answer : %d, answer: %d user choice: %d",
-				getPictureName(), getNumberOfAnswers(), getAnswer(), getUserChoice());
+				getQuestionFileName(), getNumberOfAnswers(), getAnswer(), getUserChoice());
 	}
 	
 	/**
 	 * Return a copy of this
 	 */
 	public Question clone() {
-		return new Question(pictureName, numberOfAnswers, answer);
+		return new Question(questionFileName, numberOfAnswers, answer);
 	}
 }

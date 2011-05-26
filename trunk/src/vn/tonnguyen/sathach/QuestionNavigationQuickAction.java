@@ -168,12 +168,7 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 		}
 	}
 	
-	/**
-	 * Update quick action button, according to the state of question
-	 * @param questionIndex Index of the question, which will be used to look up the TextView control
-	 * @param state State of the question
-	 */
-	public void updateQuestionState(int questionIndex, QuestionState state) {
+	private TextView getButton(int questionIndex) {
 		if(!isActionListCreated) { // make sure all items have been added
 			createActionList();
 		}
@@ -184,6 +179,21 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 		
 		LinearLayout row = (LinearLayout)mTrack.getChildAt(rowIndex);
 		LinearLayout buttonContainer = (LinearLayout)row.getChildAt(buttonIndex);
-		setButtonState((TextView)buttonContainer.getChildAt(1), state);
+		return (TextView)buttonContainer.getChildAt(1);
+	}
+	
+	public void setSelectedQuestion(int questionIndex) {
+		TextView button = getButton(questionIndex);
+		button.setSelected(true);
+		button.requestFocusFromTouch();
+	}
+	
+	/**
+	 * Update quick action button, according to the state of question
+	 * @param questionIndex Index of the question, which will be used to look up the TextView control
+	 * @param state State of the question
+	 */
+	public void updateQuestionState(int questionIndex, QuestionState state) {
+		setButtonState(getButton(questionIndex), state);
 	}
 }
