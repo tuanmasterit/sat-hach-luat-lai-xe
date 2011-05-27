@@ -478,6 +478,7 @@ public class ExamActivity extends BaseActivity {
 		Log.d("Displaying question", questionToShow.toString());
 		//String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
 		//String html = readFileAsText(MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
+		//html = "<html><head><STYLE type=\"text/css\">ol {padding-left: 20px;} p, body, html { padding: 0; margin: 2px;}</STYLE><head>" + html + "</html>";
 		/* Finally, display the content using WebView */
 		int scale = (int)(100 * questionView.getScale()); // keep the last zoom ratio
 		context.setRecentlyZoom(scale);
