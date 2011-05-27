@@ -342,8 +342,8 @@ public class StartupActivity extends BaseActivity {
 				&& isFileExist(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH)
 				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "001.html")
 				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.html")
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "images/ch144.jpg")
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "images/ch405.jpg");
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "ch144.jpg")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "ch405.jpg");
 	}
 
 	/**
