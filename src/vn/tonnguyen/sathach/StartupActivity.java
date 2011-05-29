@@ -3,17 +3,14 @@ package vn.tonnguyen.sathach;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,6 +27,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -90,7 +88,7 @@ public class StartupActivity extends BaseActivity {
 										context.vibrateIfEnabled();
 										// Start the download process and showing the process dialog
 										Log.d("Statup", "Displaying download dialog");
-										new DownloadFilesTask().execute(MyApplication.ONLINE_DATA_FILE_URL, MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
+										new DownloadFilesTask().execute(getOnlineDataFileUrl(), MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
 									}
 								})
 						.setNegativeButton(R.string.download_Resource_Button_No,
@@ -110,6 +108,22 @@ public class StartupActivity extends BaseActivity {
 		} else {
 			showHomeScreen();
 		}
+	}
+	
+	private String getOnlineDataFileUrl() {
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		float dpi = metrics.density;
+		Log.d("Startup screnn", "dpi: " + String.valueOf(dpi));
+		String fileName = null;
+		if(dpi >= 300) { // xhpdi
+			fileName = "xhpdi.zip";
+		} else if (dpi >= 1.5) { // hpdi
+			fileName = "hpdi.zip";
+		} else { // mpdi or lpdi
+			fileName = "mpdi.zip";
+		}
+		return MyApplication.ONLINE_DATA_ROOT_URL + fileName;
 	}
 	
 	/**
@@ -216,21 +230,21 @@ public class StartupActivity extends BaseActivity {
 	
 	private AdRequest createAdRequest() {
 		AdRequest re = new AdRequest();
-	    //re.setTesting(true);
+	    re.setTesting(false);
 	    //re.setGender(AdRequest.Gender.MALE);
-	    re.setKeywords(createKeywords());
+	    //re.setKeywords(createKeywords());
 	    return re;
 	}
 	
-	private Set<String> createKeywords() {
-		Set<String> set = new HashSet<String>();
-		set.add("bảo hiểm");
-		set.add("xe hơi");
-		set.add("oto");
-		set.add("auto");
-		set.add("nội thất");
-		return set;
-	}
+//	private Set<String> createKeywords() {
+//		Set<String> set = new HashSet<String>();
+//		set.add("bảo hiểm");
+//		set.add("xe hơi");
+//		set.add("oto");
+//		set.add("auto");
+//		set.add("nội thất");
+//		return set;
+//	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -338,12 +352,8 @@ public class StartupActivity extends BaseActivity {
 	 * @return true if resources exist, false otherwise.
 	 */
 	private boolean isResourcesAvailable() {
-		return isFileExist(MyApplication.APPLICATION_INDEX_FILE_PATH)
-				&& isFileExist(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH)
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "001.html")
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.html")
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "ch144.jpg")
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "ch405.jpg");
+		return isFileExist(MyApplication.APPLICATION_DATA_PATH + "161.png")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.png");
 	}
 
 	/**
@@ -391,7 +401,7 @@ public class StartupActivity extends BaseActivity {
 	     * Will be invoked when calling execute(). Everything the task need to do, will be implement here
 	     */
 		protected String doInBackground(String... params) {
-			Log.d("Download resource", "Start downloading");
+			Log.d("Download resource", "Start downloading " + params[0]);
 			InputStream inputStream = null;
 			FileOutputStream fileOutput = null;
 			try {
@@ -521,6 +531,7 @@ public class StartupActivity extends BaseActivity {
 			try {
 				byte[] buf = new byte[1024];
 				
+				// open input zip file to extract
 				FileInputStream inputStream = new FileInputStream(params[0]);
 				// total compressed size, to calculate extract process percent
 				int totalSize = inputStream.available();
@@ -547,6 +558,7 @@ public class StartupActivity extends BaseActivity {
 						}
 					}
 
+					// save file to output folder, which has been defined in params[1]
 					fileoutputstream = new FileOutputStream(params[1] + entryName);
 
 					while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
@@ -626,7 +638,7 @@ public class StartupActivity extends BaseActivity {
 		private void loadResources() {
 			try {
 				// read question.dat to get question data
-				String[] questionsAndAnswers = readFileAsStringArray(MyApplication.APPLICATION_QUESTIONS_DATA_FILE_PATH);
+				String[] questionsAndAnswers = readFileAsStringArray(context.getResources().openRawResource(R.raw.questions));
 				Hashtable<Integer, Question> questions = new Hashtable<Integer, Question>();
 				Question question = null;
 				int questionIndex, questionList, answer, numberOfAnswer = 0;
@@ -650,11 +662,11 @@ public class StartupActivity extends BaseActivity {
 
 				// then read index.dat, to get level and question format data
 				ArrayList<Level> levels = new ArrayList<Level>();
-				String[] indexData = readFileAsStringArray(MyApplication.APPLICATION_INDEX_FILE_PATH);
+				String[] indexData = readFileAsStringArray(context.getResources().openRawResource(R.raw.index));
 				for (String line : indexData) {
 					String[] data = line.split(";");
 					levels.add(new Level(toInt(data[0]), data[1], MyApplication.APPLICATION_DATA_PATH + data[2],
-											getExamFormats(MyApplication.APPLICATION_DATA_PATH + data[2]),
+											getExamFormats(getAssets().open(data[2])),
 											toInt(data[3]), toLong(data[4])));
 				}
 				context.setLevels(levels);
@@ -672,9 +684,9 @@ public class StartupActivity extends BaseActivity {
 		 * @return An ArrayList of ExamFormat
 		 * @throws IOException if data file cannot be found, or read
 		 */
-		private ArrayList<ExamFormat> getExamFormats(String dataFilePath) throws IOException {
+		private ArrayList<ExamFormat> getExamFormats(InputStream inputStream) throws IOException {
 			ArrayList<ExamFormat> examsFormatList = new ArrayList<ExamFormat>();
-			String[] examsFormat = readFileAsStringArray(dataFilePath);
+			String[] examsFormat = readFileAsStringArray(inputStream);
 			String[] examFormatData = null;
 			for(String examFormatLine : examsFormat) {
 				examFormatData = examFormatLine.split(";");
@@ -707,16 +719,16 @@ public class StartupActivity extends BaseActivity {
 		 * @return A String array, which represents every lines of input file
 		 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
 		 */
-		private String[] readFileAsStringArray(String filePath) throws IOException {
-			//Get the text file
-			File file = new File(filePath);
-			if(!file.exists()) {
-				throw new FileNotFoundException("File not found: " + filePath);
-			}
+		private String[] readFileAsStringArray(InputStream inputStream) throws IOException {
+//			//Get the text file
+//			File file = new File(filePath);
+//			if(!file.exists()) {
+//				throw new FileNotFoundException("File not found: " + filePath);
+//			}
 
 			ArrayList<String> stringArray = new ArrayList<String>();
 			//Read text from file
-		    BufferedReader br = new BufferedReader(new FileReader(file));
+		    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 		    String line;
 		    while ((line = br.readLine()) != null) {
 		    	stringArray.add(line);
