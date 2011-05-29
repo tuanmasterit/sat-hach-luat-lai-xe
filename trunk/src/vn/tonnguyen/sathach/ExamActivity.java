@@ -1,6 +1,9 @@
 package vn.tonnguyen.sathach;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -476,39 +479,38 @@ public class ExamActivity extends BaseActivity {
 	private void displayQuestion(Question questionToShow) throws IOException {
 		/* Create a new Html that contains the full-screen image */
 		Log.d("Displaying question", questionToShow.toString());
-		//String html = "<html><img src=\"" + questionToShow.getPictureName() + "\"></html>";
-		//String html = readFileAsText(MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
-		//html = "<html><head><STYLE type=\"text/css\">ol {padding-left: 20px;} p, body, html { padding: 0; margin: 2px;}</STYLE><head>" + html + "</html>";
+		String html = readFileAsText(getAssets().open(questionToShow.getQuestionFileName()));
 		/* Finally, display the content using WebView */
 		int scale = (int)(100 * questionView.getScale()); // keep the last zoom ratio
 		context.setRecentlyZoom(scale);
-		//questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
-		questionView.loadUrl("file:///" + MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
+		// base URL will point to the data folder, which includes images and css files
+		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
+		//questionView.loadUrl("file:///" + MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
 		questionView.setInitialScale(scale);
 	}
 	
-//	/**
-//	 * Read an input text file, and return as text
-//	 * @param filePath path to file to read
-//	 * @return A String array, which represents every lines of input file
-//	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
-//	 */
-//	private String readFileAsText(String filePath) throws IOException {
+	/**
+	 * Read an input text file, and return as text
+	 * @param filePath path to file to read
+	 * @return A String array, which represents every lines of input file
+	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
+	 */
+	private String readFileAsText(InputStream inputStream) throws IOException {
 //		//Get the text file
 //		File file = new File(filePath);
 //		if(!file.exists()) {
 //			throw new FileNotFoundException("File not found: " + filePath);
 //		}
-//
-//		String content = "";
-//		//Read text from file
-//	    BufferedReader br = new BufferedReader(new FileReader(file));
-//	    String line;
-//	    while ((line = br.readLine()) != null) {
-//	    	content += line;
-//	    }
-//	    return content;
-//	}
+
+		String content = "";
+		//Read text from file
+	    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+	    String line;
+	    while ((line = br.readLine()) != null) {
+	    	content += line;
+	    }
+	    return content;
+	}
 	
 	/**
 	 * Display the question to UI
