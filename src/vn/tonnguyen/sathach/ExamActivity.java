@@ -14,6 +14,7 @@ import java.util.Random;
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
+import vn.tonnguyen.sathach.bean.QuestionReviewSession;
 import vn.tonnguyen.sathach.bean.QuestionState;
 import vn.tonnguyen.sathach.bean.Session;
 import android.app.AlertDialog;
@@ -37,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExamActivity extends BaseActivity {
+	private static final String SESSION_KEY = "CurrentSession";
 	
 	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
@@ -317,17 +319,10 @@ public class ExamActivity extends BaseActivity {
 		isInExam = false;
 		// save the current session, so next time when user come back, we will load it
 		if(examQuestions != null) {
-			state.putSerializable("CurrentSession", new Session(examQuestions, currentQuestionIndex, remainingTime, selectedLevel));
-			state.putInt("currentQuestionIndex", currentQuestionIndex);
+			state.putSerializable(SESSION_KEY, new Session(examQuestions, currentQuestionIndex, remainingTime, selectedLevel));
 		}
 		super.onSaveInstanceState(state);
 	}
-	
-//	@Override
-//	public void onStart() {
-//		Log.d("ExamScreen onStart", "onStart");
-//		super.onStart();
-//	}
 	
 	@Override
 	public void onResume() {
@@ -337,35 +332,11 @@ public class ExamActivity extends BaseActivity {
 	}
 	
 	@Override
-	public void onPause() {
-		Log.d("ExamScreen onPause", "onPause");
-		super.onPause();
-	}
-	
-	@Override
-	public void onStop() {
-		Log.d("ExamScreen onStop", "onStop");
-		super.onStop();
-	}
-	
-	@Override
-	public void onDestroy() {
-		Log.d("ExamScreen onDestroy", "onDestroy");
-		super.onDestroy();
-	}
-	
-	@Override
-	public void onRestart() {
-		Log.d("ExamScreen onRestart", "onRestart");
-		super.onRestart();
-	}
-	
-	@Override
 	protected void onRestoreInstanceState(Bundle state) {
 		Log.d("ExamScreen", "onRestoreInstanceState " + state.toString());
 		Log.d("Get question from saved state", "onRestore");
 		// restore the last session of user
-		Serializable obj = state.getSerializable("CurrentSession");
+		Serializable obj = state.getSerializable(SESSION_KEY);
 		if(obj != null) {
 			Session session = (Session)obj;
 			examQuestions = session.getQuestions();
@@ -439,14 +410,22 @@ public class ExamActivity extends BaseActivity {
 		int rightChoice = 0;
 		for(Question question : examQuestions) {
 			if(question.getAnswer() == question.getUserChoice()) {
+				question.setCorrect(true);
 				rightChoice++;
+			} else {
+				question.setCorrect(false);
 			}
 		}
 		
-		boolean isPass = rightChoice >= selectedLevel.getPassPoint();
+		//boolean isPass = rightChoice >= selectedLevel.getPassPoint();
 		
-		Toast toast = Toast.makeText(context, rightChoice + "/" + examQuestions.length + " - Pass : " + isPass, Toast.LENGTH_LONG);
-		toast.show();
+//		Toast toast = Toast.makeText(context, rightChoice + "/" + examQuestions.length + " - Pass : " + isPass, Toast.LENGTH_LONG);
+//		toast.show();
+		
+		QuestionReviewSession session = new QuestionReviewSession(examQuestions, 0, selectedLevel.getExamTime() - remainingTime, rightChoice, selectedLevel);
+		Intent data = new Intent();
+		data.putExtra(QuestionReviewActivity.PARAM_KEY, session);
+		setResult(RESULT_OK, data);
 	}
 	
 	private void next() {
@@ -496,12 +475,6 @@ public class ExamActivity extends BaseActivity {
 	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
 	 */
 	private String readFileAsText(InputStream inputStream) throws IOException {
-//		//Get the text file
-//		File file = new File(filePath);
-//		if(!file.exists()) {
-//			throw new FileNotFoundException("File not found: " + filePath);
-//		}
-
 		String content = "";
 		//Read text from file
 	    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));

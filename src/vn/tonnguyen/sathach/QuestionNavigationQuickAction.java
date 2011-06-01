@@ -4,12 +4,14 @@ import vn.tonnguyen.sathach.bean.QuestionState;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -97,6 +99,7 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 	private void createActionList() {
 		View view;
 		String title;
+		Drawable icon;
 		OnClickListener listener;
 		
 		// create numberOfRow rows, each row has numberOfQuestionInRow buttons
@@ -106,9 +109,10 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 			row = (LinearLayout) inflater.inflate(R.layout.quickaction_row, mTrack, false);
 			for(int item = 0; item < numberOfQuestionInRow; item++) {
 				title 		= actionList.get(i).getTitle();
+				icon 		= actionList.get(i).getIcon();
 				listener	= actionList.get(i).getListener();
 		
-				view 		= getActionItem(title, row, listener);
+				view 		= getActionItem(title, row, icon, listener);
 			
 				view.setFocusable(true);
 				view.setClickable(true);
@@ -130,9 +134,16 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 	 * @param listener {@link View.OnClickListener} action item listener
 	 * @return action item {@link View}
 	 */
-	private View getActionItem(String title, ViewGroup root, OnClickListener listener) {
+	private View getActionItem(String title, ViewGroup root, Drawable icon, OnClickListener listener) {
 		LinearLayout container	= (LinearLayout) inflater.inflate(R.layout.action_item, root, false);
+		ImageView img 			= (ImageView) container.findViewById(R.id.icon);
 		TextView text 			= (TextView) container.findViewById(R.id.title);
+		
+		if (icon != null) {
+			img.setImageDrawable(icon);
+		} else {
+			img.setVisibility(View.GONE);
+		}
 		
 		if (title != null) {
 			text.setText(title);

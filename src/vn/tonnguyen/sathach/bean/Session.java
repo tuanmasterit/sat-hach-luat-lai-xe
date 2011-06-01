@@ -10,7 +10,7 @@ public class Session implements Serializable {
 	private Question[] questions;
 	private int currentQuestionIndex;
 	private long remainingTime;
-	private Level selectedLevel;
+	protected Level selectedLevel;
 	
 	public Session() {
 		
