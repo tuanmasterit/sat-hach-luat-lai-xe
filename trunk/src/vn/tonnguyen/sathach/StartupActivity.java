@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
 import vn.tonnguyen.sathach.bean.ExamFormat;
 import vn.tonnguyen.sathach.bean.Level;
 import vn.tonnguyen.sathach.bean.Question;
+import vn.tonnguyen.sathach.bean.QuestionReviewSession;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -30,13 +31,8 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
 
 public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
@@ -47,10 +43,12 @@ public class StartupActivity extends BaseActivity {
 	public static final int DIALOG_EXTRACT_PROGRESS = 6;
 	public static final int DIALOG_LOADING_PROGRESS = 7;
 	
+	public static final int REQUEST_CODE_START_EXAM = 1;
+	public static final int REQUEST_CODE_VIEW_RESULT = 2;
+	
 	private ProgressDialog progressDialog;
 	private Handler threadHandler;
 	private MyApplication context;
-	private AdView adView;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -59,8 +57,6 @@ public class StartupActivity extends BaseActivity {
 		
 		Log.d("Statup onCreate", "Displaying startup dialog");
 		
-		setContentView(R.layout.activity_startup);
-
 		context = (MyApplication)getApplicationContext();
 		loadResource();
 	}
@@ -202,9 +198,6 @@ public class StartupActivity extends BaseActivity {
 	 * Display home screen, after data has been loaded
 	 */
 	private void showHomeScreen() {
-		//Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), HomeActivity.class);
-		//startActivityForResult(settingsActivity, 0); // since we only have 1 home screen, we can pass anything  for requestCode
-		
 		Log.d("HomeActivity onCreate", "Displaying Home screen");
 		
 		setContentView(R.layout.activity_home);
@@ -212,39 +205,6 @@ public class StartupActivity extends BaseActivity {
 		initComponents();
 		initAdMob();
 	}
-	
-	private void initAdMob() {
-		// Look up the AdView as a resource and load a request.
-		if(adView == null) {
-			adView = (AdView)findViewById(R.id.adViewComponent);
-			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
-            animation.setDuration( 400 );
-            animation.setFillAfter( true );
-            animation.setInterpolator( new AccelerateInterpolator() );
-			adView.setAnimation(animation);
-		}
-		if(!adView.isRefreshing()) {
-			adView.loadAd(createAdRequest());
-		}
-	}
-	
-	private AdRequest createAdRequest() {
-		AdRequest re = new AdRequest();
-	    re.setTesting(false);
-	    //re.setGender(AdRequest.Gender.MALE);
-	    //re.setKeywords(createKeywords());
-	    return re;
-	}
-	
-//	private Set<String> createKeywords() {
-//		Set<String> set = new HashSet<String>();
-//		set.add("bảo hiểm");
-//		set.add("xe hơi");
-//		set.add("oto");
-//		set.add("auto");
-//		set.add("nội thất");
-//		return set;
-//	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -264,9 +224,7 @@ public class StartupActivity extends BaseActivity {
 	private void initComponents() {
 		ArrayList<Level> levels = context.getLevels();
 		if(levels == null || levels.size() < 1) {
-			//Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG).show();
-			// back to startup screen to init data
-			setResult(RESULT_CANCELED, new Intent());
+			// resource loading problem
 			finish();
 			return;
 		}
@@ -293,7 +251,9 @@ public class StartupActivity extends BaseActivity {
 						context.vibrateIfEnabled();
 						Log.d("Selected level index to create new exam", String.valueOf(context.getRecentlyLevel()));
 						if(context.getRecentlyLevel() >= 0) {
-							startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
+							//startActivity(new Intent((MyApplication)getApplicationContext(), ExamActivity.class));
+							Intent i = new Intent((MyApplication)getApplicationContext(), ExamActivity.class);      
+					        startActivityForResult(i, REQUEST_CODE_START_EXAM);
 						} else {
 							Toast.makeText(context, context.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)
 								.show();
@@ -315,10 +275,10 @@ public class StartupActivity extends BaseActivity {
 			
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(context, context.getString(R.string.see_you_again), Toast.LENGTH_LONG).show();
+				//Toast.makeText(context, context.getString(R.string.see_you_again), Toast.LENGTH_LONG).show();
 				context.vibrateIfEnabled();
 				// exit
-				setResult(RESULT_OK, new Intent());
+				//setResult(RESULT_OK, new Intent());
 				finish();
 			}
 		});
@@ -335,16 +295,34 @@ public class StartupActivity extends BaseActivity {
 		});
 	}
 	
-//	@Override
-//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//		if(resultCode == RESULT_CANCELED) {
-//			// data was corrupted, let's re-load it
-//			loadResource();
-//		} else if(resultCode == RESULT_OK) {
-//			// got exit request from Home screen, let's close this activity
-//			finish();
-//		}
-//	}
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+		case REQUEST_CODE_START_EXAM: // back from exam screen
+	        if(resultCode == RESULT_CANCELED) { // seems like we never have this case
+	            // do nothing
+	        } else if(resultCode == RESULT_OK) { // user has completed the test, show the result screen
+	        	Intent intent = new Intent((MyApplication)getApplicationContext(), ResultActivity.class);
+	        	intent.putExtra(QuestionReviewActivity.PARAM_KEY, (QuestionReviewSession)data.getSerializableExtra(QuestionReviewActivity.PARAM_KEY));
+	        	startActivityForResult(intent, REQUEST_CODE_VIEW_RESULT);
+	        }
+			break;
+		case REQUEST_CODE_VIEW_RESULT: // back from result screen
+			// check if user want to see questions review
+			if(resultCode == RESULT_CANCELED) {
+				// they dont want to check questions review, do nothing
+			} else {
+				// display question review screen
+	        	Intent intent = new Intent((MyApplication)getApplicationContext(), QuestionReviewActivity.class);
+	        	intent.putExtra(QuestionReviewActivity.PARAM_KEY, (QuestionReviewSession)data.getSerializableExtra(QuestionReviewActivity.PARAM_KEY));
+	        	startActivity(intent);
+			}
+			break;
+		default:
+			break;
+		}
+    }
 
 	/**
 	 * Check if resources are available

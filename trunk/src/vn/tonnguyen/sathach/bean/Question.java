@@ -12,6 +12,7 @@ public class Question implements Serializable {
 	private int numberOfAnswers;
 	private int answer;
 	private int userChoice; // which answer user has chosen. <= 0 means no answer
+	private boolean isCorrect;
 
 	public Question(String questionFileName, int numberOfAnswers, int answer) {
 		this.questionFileName = questionFileName;
@@ -70,5 +71,13 @@ public class Question implements Serializable {
 	 */
 	public Question clone() {
 		return new Question(questionFileName, numberOfAnswers, answer);
+	}
+
+	public boolean isCorrect() {
+		return isCorrect;
+	}
+
+	public void setCorrect(boolean isCorrect) {
+		this.isCorrect = isCorrect;
 	}
 }

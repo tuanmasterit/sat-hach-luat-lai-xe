@@ -1,8 +1,16 @@
 package vn.tonnguyen.sathach;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 
 /**
  * Provides a base class for all activity
@@ -10,6 +18,8 @@ import android.view.Window;
  *
  */
 public class BaseActivity extends Activity {
+	protected AdView adView;
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -23,5 +33,41 @@ public class BaseActivity extends Activity {
 //		// and set WindowManager.LayoutParams.FLAG_FULLSCREEN flag for main window.
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	}
+	
+	public void initAdMob() {
+		if(findViewById(R.id.adViewComponent) == null) {
+			return;
+		}
+		// Look up the AdView as a resource and load a request.
+		if(adView == null) {
+			adView = (AdView)findViewById(R.id.adViewComponent);
+			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
+            animation.setDuration( 400 );
+            animation.setFillAfter( true );
+            animation.setInterpolator( new AccelerateInterpolator() );
+			adView.setAnimation(animation);
+		}
+		if(!adView.isRefreshing()) {
+			adView.loadAd(createAdRequest());
+		}
+	}
+	
+	private AdRequest createAdRequest() {
+		AdRequest re = new AdRequest();
+	    re.setTesting(false);
+	    re.setKeywords(createKeywords());
+	    return re;
+	}
+	
+	private Set<String> createKeywords() {
+		Set<String> set = new HashSet<String>();
+		set.add("bảo hiểm");
+		set.add("xe hơi");
+		set.add("oto");
+		set.add("ô tô");
+		set.add("auto");
+		set.add("nội thất");
+		return set;
 	}
 }
