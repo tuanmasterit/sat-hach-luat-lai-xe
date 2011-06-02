@@ -8,5 +8,5 @@ package vn.tonnguyen.sathach.bean;
  *
  */
 public enum QuestionState {
-	ANSWERED, UNANSWERED
+	ANSWERED, UNANSWERED, CORRECT, INCORRECT
 }

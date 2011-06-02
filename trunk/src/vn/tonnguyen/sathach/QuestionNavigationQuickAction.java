@@ -171,7 +171,7 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 			text.setTextColor(R.color.titleBar_unanswered_question);
 			text.setTypeface(Typeface.DEFAULT_BOLD);
 			text.setTextSize(15);
-		} else {
+		} else if(state == QuestionState.ANSWERED) {
 			//text.setBackgroundColor(R.color.question_action_menu_answered_question_background_color);
 			text.setTextColor(R.color.question_action_menu_answered_question_color);
 			text.setTypeface(Typeface.DEFAULT);

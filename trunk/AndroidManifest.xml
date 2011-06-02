@@ -9,7 +9,7 @@
 	<uses-sdk android:minSdkVersion="4"></uses-sdk>
 	
     <application android:name=".MyApplication" android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".StartupActivity" android:label="@string/app_name" android:configChanges="keyboard|keyboardHidden|orientation">
+        <activity android:name=".StartupActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -17,7 +17,7 @@
         </activity>
         <activity android:name="com.google.ads.AdActivity" android:configChanges="keyboard|keyboardHidden|orientation" />
 		<activity android:name=".ExamActivity" />
-		<activity android:name=".ResultActivity" android:configChanges="keyboard|keyboardHidden|orientation" />
+		<activity android:name=".ResultActivity" />
 		<activity android:name=".QuestionReviewActivity" />
 		<activity android:name=".Preferences" />
     </application>
