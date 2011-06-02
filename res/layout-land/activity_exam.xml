@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
 	android:orientation="horizontal"
 	android:layout_width="fill_parent" 
 	android:layout_height="fill_parent">
@@ -72,9 +73,26 @@
 			<TextView android:id="@+id/exam_titleBar_RemainingTime" 
 						style="@style/TitleBar_RemainingTime" />
 		</LinearLayout>
-		<WebView android:id="@+id/exam_QuestionView" 
-						android:layout_width="fill_parent"
-						android:layout_height="fill_parent" />
+		<FrameLayout android:layout_width="fill_parent" 
+						android:layout_height="fill_parent">
+			<WebView android:id="@+id/exam_QuestionView"
+					android:layout_width="fill_parent"
+					android:layout_height="fill_parent" />
+		    <LinearLayout
+			        android:id="@+id/adViewContainer"
+			        android:layout_width="fill_parent"
+			        android:layout_height="wrap_content"
+			        android:orientation="horizontal"
+			        android:layout_gravity="bottom" 
+			        android:gravity="center">
+		        <com.google.ads.AdView android:id="@+id/adViewComponent"
+					android:layout_width="wrap_content"
+					android:layout_height="fill_parent"
+					ads:adUnitId="a14dc8aa6b933d0"
+					ads:adSize="BANNER" />
+		    </LinearLayout>
+		</FrameLayout>
+
 	</LinearLayout>
 
 	<!-- Right column: Buttons container -->
@@ -124,4 +142,6 @@
 				android:drawableTop="@drawable/exam_next_button" />
 		</LinearLayout>
 	</LinearLayout>
+    
+
 </LinearLayout>

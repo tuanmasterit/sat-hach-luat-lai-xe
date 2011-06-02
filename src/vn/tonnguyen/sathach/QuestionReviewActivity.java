@@ -28,11 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class QuestionReviewActivity extends BaseActivity {
-	
-	public static final String PARAM_KEY = "InputQuestionReviewData";
-	private static final String SESSION_KEY = "CurrentQuestionReviewSession";
-	
-	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
 	private QuestionReviewSession session;
@@ -68,6 +63,7 @@ public class QuestionReviewActivity extends BaseActivity {
 		
 		context = (MyApplication)getApplicationContext();
 		setContentView(R.layout.activity_exam);
+		initAdMob();
 		questionView = (WebView)findViewById(R.id.exam_QuestionView);
         //Make sure links in the webview is handled by the webview and not sent to a full browser
 		questionView.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
@@ -126,7 +122,7 @@ public class QuestionReviewActivity extends BaseActivity {
 	
 	private void updateQuestionStates(Question[] examQuestions) {
 		for(int x = 0; x < examQuestions.length; x++) {
-			updateQuestionNagivationState(x, examQuestions[x].getUserChoice() > 0 ? QuestionState.ANSWERED : QuestionState.UNANSWERED);
+			updateQuestionNagivationState(x, examQuestions[x].isCorrect() ? QuestionState.CORRECT : QuestionState.INCORRECT);
 		}
 	}
 	
@@ -164,8 +160,12 @@ public class QuestionReviewActivity extends BaseActivity {
 	private void updateQuestionNagivationState(Button button, QuestionState state) {
 		if(state == QuestionState.ANSWERED) {
 			button.setBackgroundResource(R.color.titleBar_answered_question);
-		} else {
+		} else if(state == QuestionState.UNANSWERED) {
 			button.setBackgroundResource(R.color.titleBar_unanswered_question);
+		} else if(state == QuestionState.CORRECT) {
+			button.setBackgroundResource(R.color.titleBar_correct_question);
+		} else if(state == QuestionState.INCORRECT) {
+			button.setBackgroundResource(R.color.titleBar_incorrect_question);
 		}
 	}
 	
@@ -207,7 +207,7 @@ public class QuestionReviewActivity extends BaseActivity {
 			
 			// add another button to quick action menu
 			QuestionActionItem questionButton = new QuestionActionItem();
-			questionButton.setTitle(String.valueOf(index + 1));
+			//questionButton.setTitle(String.valueOf(index + 1));
 			questionButton.setIcon(examQuestions[index].isCorrect() ? getResources().getDrawable(R.drawable.correct) : getResources().getDrawable(R.drawable.incorrect));
 			//chart.setIcon(getResources().getDrawable(R.drawable.chart));
 			questionButton.setOnClickListener(new View.OnClickListener() {

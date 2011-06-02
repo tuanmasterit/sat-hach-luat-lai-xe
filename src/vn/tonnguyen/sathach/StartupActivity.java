@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,8 +35,6 @@ import android.widget.Toast;
 
 public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
-	public static final int WHAT_LOADING_RESOURCE = 2;
-	public static final int WHAT_LOADING_RESOURCE_SUCCEED = 4;
 	
 	public static final int DIALOG_DOWNLOAD_PROGRESS = 5;
 	public static final int DIALOG_EXTRACT_PROGRESS = 6;
@@ -48,7 +45,6 @@ public class StartupActivity extends BaseActivity {
 	
 	private ProgressDialog progressDialog;
 	private Handler threadHandler;
-	private MyApplication context;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -58,10 +54,23 @@ public class StartupActivity extends BaseActivity {
 		Log.d("Statup onCreate", "Displaying startup dialog");
 		
 		context = (MyApplication)getApplicationContext();
+		showHomeScreen();
 		loadResource();
 	}
 	
+	/**
+	 * Display home screen, after data has been loaded
+	 */
+	private void showHomeScreen() {
+		Log.d("HomeActivity onCreate", "Displaying Home screen");
+		setContentView(R.layout.activity_home);
+		initAdMob();
+	}
+	
 	private void loadResource() {
+		Log.d("Statup loadResource", "loadResource");
+		Log.d("context.getQuestions()", String.valueOf(context.getQuestions() == null));
+		Log.d("context.getLevels()", String.valueOf(context.getLevels() == null));
 		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
 			threadHandler = new Handler() {
 				@Override
@@ -102,7 +111,7 @@ public class StartupActivity extends BaseActivity {
 				startLoadingResource();
 			}
 		} else {
-			showHomeScreen();
+			initComponents();
 		}
 	}
 	
@@ -128,49 +137,37 @@ public class StartupActivity extends BaseActivity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		Log.d("Statup onCreateDialog", "onCreateDialog " + id);
-		if(progressDialog != null && progressDialog.isShowing()) {
-			progressDialog.cancel();
-			progressDialog = null;
-		}
 	    switch (id) {
 	        case DIALOG_DOWNLOAD_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Downloading));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        	progressDialog.setCancelable(true);
-	        	progressDialog.show();
-	            return progressDialog;
+	        	break;
 	        case DIALOG_EXTRACT_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Extracting));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        	progressDialog.setCancelable(true);
-	        	progressDialog.show();
-	            return progressDialog;
+	        	break;
 	        case DIALOG_LOADING_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.loading_Data));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 	        	progressDialog.setCancelable(true);
-	        	progressDialog.show();
-	            return progressDialog;
+	        	break;
 	        default:
-	            return null;
+	            break;
 	    }
+	    return progressDialog;
 	}
 	
 	private void processMessage(Message msg, MyApplication application) {
 		// process incoming messages here
 		switch(msg.what) {
-		case WHAT_LOADING_RESOURCE_SUCCEED:
-			Log.d("Loading resource Suceed", String.valueOf(msg.obj));
-			safeCloseDialog();
-			showHomeScreen();
-			break;
 		default: // error occurred
 			// display error message
 			Log.d("Error occurred", (String)msg.obj);
-			safeCloseDialog();
 			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
 			toast.show();
 			Log.d("Startup screen", "Closing startup activity");
@@ -178,45 +175,12 @@ public class StartupActivity extends BaseActivity {
 		}
 	}
 	
-	private void safeCloseDialog() {
-		if(progressDialog != null) {
-			progressDialog.cancel();
-			progressDialog = null;
-		}
-	}
-	
 	/**
 	 * Start the thread to load resource into memory
 	 */
 	private void startLoadingResource() {
-		showDialog(DIALOG_LOADING_PROGRESS);
-		ResourceLoaderThread thread = new ResourceLoaderThread();
-		thread.start();
+		new ResourceLoaderThread().execute(new String[0]);
 	}
-
-	/**
-	 * Display home screen, after data has been loaded
-	 */
-	private void showHomeScreen() {
-		Log.d("HomeActivity onCreate", "Displaying Home screen");
-		
-		setContentView(R.layout.activity_home);
-		context = (MyApplication)getApplicationContext();
-		initComponents();
-		initAdMob();
-	}
-	
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		
-		setContentView(R.layout.activity_home);
-
-		context = (MyApplication) getApplicationContext();
-		initComponents();
-		//initAdMob(); // since we have bug with admob on rotation changed
-	}
-
 	
 	/**
 	 * Init data, bind event for buttons
@@ -225,6 +189,7 @@ public class StartupActivity extends BaseActivity {
 		ArrayList<Level> levels = context.getLevels();
 		if(levels == null || levels.size() < 1) {
 			// resource loading problem
+			Toast.makeText(context, context.getString(R.string.error_data_corrupted), Toast.LENGTH_LONG).show();
 			finish();
 			return;
 		}
@@ -263,7 +228,7 @@ public class StartupActivity extends BaseActivity {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// on cancel button action
 						context.vibrateIfEnabled();
-						dialog.cancel();
+						dialog.dismiss();
 					}
 				});
 				selectLevelDialog.show();
@@ -278,7 +243,6 @@ public class StartupActivity extends BaseActivity {
 				//Toast.makeText(context, context.getString(R.string.see_you_again), Toast.LENGTH_LONG).show();
 				context.vibrateIfEnabled();
 				// exit
-				//setResult(RESULT_OK, new Intent());
 				finish();
 			}
 		});
@@ -304,7 +268,7 @@ public class StartupActivity extends BaseActivity {
 	            // do nothing
 	        } else if(resultCode == RESULT_OK) { // user has completed the test, show the result screen
 	        	Intent intent = new Intent((MyApplication)getApplicationContext(), ResultActivity.class);
-	        	intent.putExtra(QuestionReviewActivity.PARAM_KEY, (QuestionReviewSession)data.getSerializableExtra(QuestionReviewActivity.PARAM_KEY));
+	        	intent.putExtra(PARAM_KEY, (QuestionReviewSession)data.getSerializableExtra(PARAM_KEY));
 	        	startActivityForResult(intent, REQUEST_CODE_VIEW_RESULT);
 	        }
 			break;
@@ -472,6 +436,7 @@ public class StartupActivity extends BaseActivity {
 		 * After doInBackground has been completed, this method will be called, by UI thread
 		 */
 		protected void onPostExecute(String unused) {
+			dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
 			if(isSucceed) {
 				// start extracting downloaded file
 				new ExtractFilesTask().execute(MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH, MyApplication.APPLICATION_DATA_PATH);
@@ -583,6 +548,7 @@ public class StartupActivity extends BaseActivity {
 		 * After doInBackground has been completed, this method will be called, by UI thread
 		 */
 		protected void onPostExecute(String unused) {
+			dismissDialog(DIALOG_EXTRACT_PROGRESS);
 			if(isSucceed) {
 				// start loading resource
 				startLoadingResource();
@@ -598,22 +564,21 @@ public class StartupActivity extends BaseActivity {
 	 * @author Ton Nguyen
 	 *
 	 */
-	private class ResourceLoaderThread extends Thread {
-		
-		public ResourceLoaderThread() {
-		}
+	private class ResourceLoaderThread extends AsyncTask<String, Integer, String> {
+		private String errorMessage = "";
 		
 		/**
-		 * Thread's start point
+		 * Android will invoke this method when this async task was started, or when user came back to our application.
 		 */
-		public void run() {
-			loadResources();
-		}
-
-		/**
-		 * Load resources from data files to memory
-		 */
-		private void loadResources() {
+	    protected void onPreExecute() {
+	        super.onPreExecute();
+	        showDialog(DIALOG_LOADING_PROGRESS);
+	    }
+		
+	    /**
+	     * Will be invoked when calling execute(). Everything the task need to do, will be implement here
+	     */
+		protected String doInBackground(String... params) {
 			try {
 				// read question.dat to get question data
 				String[] questionsAndAnswers = readFileAsStringArray(context.getResources().openRawResource(R.raw.questions));
@@ -648,12 +613,32 @@ public class StartupActivity extends BaseActivity {
 											toInt(data[3]), toLong(data[4])));
 				}
 				context.setLevels(levels);
-				sendMessageToHandler(StartupActivity.WHAT_LOADING_RESOURCE_SUCCEED, context.getString(R.string.download_Resource_Message_Loaded));
+				Log.d("Statup loading thread", "loading thread");
+				Log.d("context.getQuestions()", String.valueOf(context.getQuestions() == null));
+				Log.d("context.getLevels()", String.valueOf(context.getLevels() == null));
+				return null;
 			} catch (IOException e) {
-				Log.e("Loading resource", e.getMessage());
+				errorMessage = e.getMessage();
+				Log.e("Loading resource", errorMessage);
 				// send message to notify the error
-				sendMessageToHandler(StartupActivity.WHAT_ERROR, e.getMessage());
+				sendMessageToHandler(StartupActivity.WHAT_ERROR, errorMessage);
+				return null;
 			}
+		}
+		
+		/**
+		 * This method will be invoke be UI thread. The purpose is to update UI
+		 */
+		protected void onProgressUpdate(Integer... args) {
+			progressDialog.setProgress(args[0]);
+		}
+		
+		/**
+		 * After doInBackground has been completed, this method will be called, by UI thread
+		 */
+		protected void onPostExecute(String unused) {
+			dismissDialog(DIALOG_LOADING_PROGRESS);
+			initComponents();
 		}
 		
 		/**

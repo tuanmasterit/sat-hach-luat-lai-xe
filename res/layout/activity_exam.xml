@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
     android:id="@+id/exam_root"
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -137,5 +138,17 @@
 					android:drawableTop="@drawable/exam_next_button" />
 			</LinearLayout>
 		</LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+	        android:id="@+id/adViewContainer"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:gravity="center">
+        <com.google.ads.AdView android:id="@+id/adViewComponent"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			ads:adUnitId="a14dc8aa6b933d0"
+			ads:adSize="BANNER" />
     </LinearLayout>
 </LinearLayout>

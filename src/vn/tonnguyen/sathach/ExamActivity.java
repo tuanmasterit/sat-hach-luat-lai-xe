@@ -38,9 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExamActivity extends BaseActivity {
-	private static final String SESSION_KEY = "CurrentSession";
-	
-	private MyApplication context;
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private long remainingTime;// = EXAM_TIME; // the remaining exam time that user has(they have 20 minutes for each exam)
 	private Question[] examQuestions; // hold the list of random questions
@@ -424,7 +421,7 @@ public class ExamActivity extends BaseActivity {
 		
 		QuestionReviewSession session = new QuestionReviewSession(examQuestions, 0, selectedLevel.getExamTime() - remainingTime, rightChoice, selectedLevel);
 		Intent data = new Intent();
-		data.putExtra(QuestionReviewActivity.PARAM_KEY, session);
+		data.putExtra(PARAM_KEY, session);
 		setResult(RESULT_OK, data);
 	}
 	

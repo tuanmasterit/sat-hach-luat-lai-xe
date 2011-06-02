@@ -1,16 +1,13 @@
 package vn.tonnguyen.sathach;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 
 /**
  * Provides a base class for all activity
@@ -18,7 +15,11 @@ import android.view.animation.AlphaAnimation;
  *
  */
 public class BaseActivity extends Activity {
+	public static final String PARAM_KEY = "InputQuestionReviewData";
+	public static final String SESSION_KEY = "CurrentQuestionReviewSession";
+	
 	protected AdView adView;
+	protected MyApplication context;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -40,14 +41,14 @@ public class BaseActivity extends Activity {
 			return;
 		}
 		// Look up the AdView as a resource and load a request.
-		if(adView == null) {
+		//if(adView == null) {
 			adView = (AdView)findViewById(R.id.adViewComponent);
 			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
             animation.setDuration( 400 );
             animation.setFillAfter( true );
             animation.setInterpolator( new AccelerateInterpolator() );
 			adView.setAnimation(animation);
-		}
+		//}
 		if(!adView.isRefreshing()) {
 			adView.loadAd(createAdRequest());
 		}
@@ -56,18 +57,18 @@ public class BaseActivity extends Activity {
 	private AdRequest createAdRequest() {
 		AdRequest re = new AdRequest();
 	    re.setTesting(false);
-	    re.setKeywords(createKeywords());
+	    //re.setKeywords(createKeywords());
 	    return re;
 	}
 	
-	private Set<String> createKeywords() {
-		Set<String> set = new HashSet<String>();
-		set.add("bảo hiểm");
-		set.add("xe hơi");
-		set.add("oto");
-		set.add("ô tô");
-		set.add("auto");
-		set.add("nội thất");
-		return set;
-	}
+//	private Set<String> createKeywords() {
+//		Set<String> set = new HashSet<String>();
+//		set.add("bảo hiểm");
+//		set.add("xe hơi");
+//		set.add("oto");
+//		set.add("ô tô");
+//		set.add("auto");
+//		set.add("nội thất");
+//		return set;
+//	}
 }
