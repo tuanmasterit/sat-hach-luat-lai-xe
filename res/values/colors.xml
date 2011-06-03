@@ -6,7 +6,7 @@
 	<color name="titleBar_answered_question">#98EF4A</color>
 	<color name="titleBar_unanswered_question">#FF0000</color>
 	
-	<color name="titleBar_correct_question">#6E6EF0</color>
+	<color name="titleBar_correct_question">#AF88FF</color>
 	<color name="titleBar_incorrect_question">#FF0000</color>
 	
 	<color name="white">#FFFFFF</color>

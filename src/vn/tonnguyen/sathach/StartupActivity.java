@@ -64,7 +64,6 @@ public class StartupActivity extends BaseActivity {
 	private void showHomeScreen() {
 		Log.d("HomeActivity onCreate", "Displaying Home screen");
 		setContentView(R.layout.activity_home);
-		initAdMob();
 	}
 	
 	private void loadResource() {
@@ -118,16 +117,21 @@ public class StartupActivity extends BaseActivity {
 	private String getOnlineDataFileUrl() {
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		float dpi = metrics.density;
-		Log.d("Startup screnn", "dpi: " + String.valueOf(dpi));
+		int dpi = metrics.densityDpi;
+		Log.d("Startup screen", "dpi: " + String.valueOf(dpi));
+		Log.d("Startup screen", "isSmallScreen: " + String.valueOf(isSmallScreen()));
+		Log.d("Startup screen", "isNormalScreen: " + String.valueOf(isNormalScreen()));
+		Log.d("Startup screen", "isLargeScreen: " + String.valueOf(isLargeScreen()));
+		
 		String fileName = null;
-		if(dpi >= 300) { // xhpdi
-			fileName = "xhpdi.zip";
-		} else if (dpi >= 1.5) { // hpdi
-			fileName = "hpdi.zip";
-		} else { // mpdi or lpdi
+		if(isSmallScreen() || (isNormalScreen() && dpi <= 160)) {
 			fileName = "mpdi.zip";
+		} else if(isNormalScreen() || (isLargeScreen() && dpi <= 160)) {
+			fileName = "hpdi.zip";
+		} else {
+			fileName = "xhpdi.zip";
 		}
+		Log.d("Startup screen", "fileName: " + fileName);
 		return MyApplication.ONLINE_DATA_ROOT_URL + fileName;
 	}
 	
@@ -137,6 +141,10 @@ public class StartupActivity extends BaseActivity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		Log.d("Statup onCreateDialog", "onCreateDialog " + id);
+		if(progressDialog != null && progressDialog.isShowing()) {
+			progressDialog.dismiss();
+			progressDialog = null;
+		}
 	    switch (id) {
 	        case DIALOG_DOWNLOAD_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
@@ -186,6 +194,7 @@ public class StartupActivity extends BaseActivity {
 	 * Init data, bind event for buttons
 	 */
 	private void initComponents() {
+		initAdMob();
 		ArrayList<Level> levels = context.getLevels();
 		if(levels == null || levels.size() < 1) {
 			// resource loading problem

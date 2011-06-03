@@ -1,6 +1,7 @@
 package vn.tonnguyen.sathach;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
@@ -71,4 +72,30 @@ public class BaseActivity extends Activity {
 //		set.add("nội thất");
 //		return set;
 //	}
+	
+	public String getTimeAsString(long timeLeft) {
+		// make sure we don't have negative number
+		if(timeLeft < 0) {
+			timeLeft = 0;
+		}
+		return String.format("%02d:%02d", 
+					(int)((timeLeft / 1000) / 60),
+					(int)((timeLeft / 1000) % 60));
+	}
+	
+	public boolean isLargeScreen() {
+		return checkScreenSize(Configuration.SCREENLAYOUT_SIZE_LARGE);
+	}
+	
+	public boolean isSmallScreen() {
+		return checkScreenSize(Configuration.SCREENLAYOUT_SIZE_SMALL);
+	}
+	
+	public boolean isNormalScreen() {
+		return checkScreenSize(Configuration.SCREENLAYOUT_SIZE_NORMAL);
+	}
+	
+	private boolean checkScreenSize(int targetScreenSize) {
+		return (getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == targetScreenSize;
+	}
 }

@@ -38,6 +38,7 @@
     <string name="result_title">Kết quả:</string>
     <string name="result_h1">Bạn đã trả lời đúng {0} trên {1} câu.</string>
     <string name="result_h2">Số câu tối thiểu cần trả lời đùng là {0}.</string>
+    <string name="result_h4">Thời gian làm bài: {0}.</string>
     <string name="result_h3">Kết quả: {0}</string>
     <string name="result_view_questions_review">Xem đáp án</string>
     <string name="result_exit">Đóng</string>

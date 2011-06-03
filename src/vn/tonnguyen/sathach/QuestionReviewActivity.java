@@ -207,7 +207,7 @@ public class QuestionReviewActivity extends BaseActivity {
 			
 			// add another button to quick action menu
 			QuestionActionItem questionButton = new QuestionActionItem();
-			//questionButton.setTitle(String.valueOf(index + 1));
+			questionButton.setTitle(null);
 			questionButton.setIcon(examQuestions[index].isCorrect() ? getResources().getDrawable(R.drawable.correct) : getResources().getDrawable(R.drawable.incorrect));
 			//chart.setIcon(getResources().getDrawable(R.drawable.chart));
 			questionButton.setOnClickListener(new View.OnClickListener() {
@@ -259,6 +259,7 @@ public class QuestionReviewActivity extends BaseActivity {
 		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
 		// save the current session, so next time when user come back, we will load it
 		if(examQuestions != null) {
+			session.setCurrentQuestionIndex(currentQuestionIndex);
 			state.putSerializable(SESSION_KEY, session);
 		}
 		super.onSaveInstanceState(state);
@@ -429,15 +430,5 @@ public class QuestionReviewActivity extends BaseActivity {
 			}
 		}
 		
-	}
-	
-	private String getTimeAsString(long timeLeft) {
-		// make sure we don't have negative number
-		if(timeLeft < 0) {
-			timeLeft = 0;
-		}
-		return String.format("%02d:%02d", 
-					(int)((timeLeft / 1000) / 60),
-					(int)((timeLeft / 1000) % 60));
 	}
 }

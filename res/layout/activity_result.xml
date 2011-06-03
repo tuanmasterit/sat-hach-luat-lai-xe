@@ -41,6 +41,11 @@
 	        android:layout_height="wrap_content"
 	        android:text="@string/result_h2"
 	        android:textColor="@color/startup_btn_text" />
+		<TextView android:id="@+id/result_h4"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/result_h4"
+	        android:textColor="@color/startup_btn_text" />
 		<TextView android:id="@+id/result_h3"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
