@@ -24,15 +24,18 @@ public class ResultActivity extends BaseActivity {
 			TextView h1 = ((TextView)findViewById(R.id.result_h1));
 			TextView h2 = ((TextView)findViewById(R.id.result_h2));
 			TextView h3 = ((TextView)findViewById(R.id.result_h3));
+			TextView h4 = ((TextView)findViewById(R.id.result_h4));
 			String h1Text = getResources().getString(R.string.result_h1).replace("{0}", String.valueOf(session.getCorrectAnswer()))
 																		.replace("{1}", String.valueOf(session.getQuestions().length));
 			String h2Text = getResources().getString(R.string.result_h2).replace("{0}", String.valueOf(session.getSelectedLevel().getPassPoint()));
 			String h3Text = getResources().getString(R.string.result_h3).replace("{0}", session.isPasses() ? getResources().getString(R.string.result_passed1) 
 																										: getResources().getString(R.string.result_failed1));
+			String h4Text = getResources().getString(R.string.result_h4).replace("{0}", getTimeAsString(session.getTotalTime()));
 			
 			h1.setText(h1Text);
 			h2.setText(h2Text);
 			h3.setText(h3Text);
+			h4.setText(h4Text);
 		}
 		
 		initAdMob();

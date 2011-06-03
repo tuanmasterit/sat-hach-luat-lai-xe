@@ -591,7 +591,7 @@ public class ExamActivity extends BaseActivity {
 		switch(msg.what) {
 		case WHAT_UPDATE_REMAINING_TIME:
 			//Log.d("ExamScreen", "Updating remaining time...");
-			remainingTimeTextView.setText(getRemainingTimeString(remainingTime));
+			remainingTimeTextView.setText(getTimeAsString(remainingTime));
 			break;
 		case WHAT_TIME_IS_UP:
 			Log.d("ExamScreen", "Time is up!");
@@ -616,15 +616,7 @@ public class ExamActivity extends BaseActivity {
 		}
 	}
 	
-	private String getRemainingTimeString(long timeLeft) {
-		// make sure we don't have negative number
-		if(timeLeft < 0) {
-			timeLeft = 0;
-		}
-		return String.format("%02d:%02d", 
-					(int)((timeLeft / 1000) / 60),
-					(int)((timeLeft / 1000) % 60));
-	}
+	
 	
 	/**
 	 * A thread to update remaining time of Exam screen

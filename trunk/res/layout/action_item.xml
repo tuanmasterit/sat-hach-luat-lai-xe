@@ -6,7 +6,7 @@
 	<ImageView
 		android:id="@+id/icon" 
 		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"/>
+		android:layout_height="wrap_content" />
 
 	<TextView 
 		android:id="@+id/title"
@@ -14,6 +14,5 @@
 		android:layout_height="fill_parent" 
 		android:gravity="center"
 		android:textSize="11sp"
-		android:text="1"
 		android:textColor="@color/question_action_menu_answered_question_color"/>
 </LinearLayout>
