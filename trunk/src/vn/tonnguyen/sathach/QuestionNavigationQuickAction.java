@@ -145,13 +145,12 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 			img.setVisibility(View.GONE);
 		}
 		
-		if (title != null) {
+		if (title != null && title != "") {
 			text.setText(title);
+			setButtonState(text, QuestionState.UNANSWERED);
 		} else {
 			text.setVisibility(View.GONE);
 		}
-		
-		setButtonState(text, QuestionState.UNANSWERED);
 		
 		if (listener != null) {
 			container.setOnClickListener(listener);
