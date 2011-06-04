@@ -1,5 +1,11 @@
 package vn.tonnguyen.sathach;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -97,5 +103,39 @@ public class BaseActivity extends Activity {
 	
 	private boolean checkScreenSize(int targetScreenSize) {
 		return (getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == targetScreenSize;
+	}
+	
+	/**
+	 * Read an input text file, and return as text lines
+	 * @param filePath path to file to read
+	 * @return A String array, which represents every lines of input file
+	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
+	 */
+	public String[] readFileAsStringArray(InputStream inputStream) throws IOException {
+		ArrayList<String> stringArray = new ArrayList<String>();
+		//Read text from file
+	    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream), 8 * 1024);
+	    String line;
+	    while ((line = br.readLine()) != null) {
+	    	stringArray.add(line);
+	    }
+	    return stringArray.toArray(new String[stringArray.size()]);
+	}
+	
+	/**
+	 * Read an input text file, and return as text
+	 * @param filePath path to file to read
+	 * @return A String array, which represents every lines of input file
+	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
+	 */
+	public String readFileAsText(InputStream inputStream) throws IOException {
+		String content = "";
+		//Read text from file
+	    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream), 8 * 1024);
+	    String line;
+	    while ((line = br.readLine()) != null) {
+	    	content += line;
+	    }
+	    return content;
 	}
 }

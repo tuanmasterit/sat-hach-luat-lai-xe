@@ -1,9 +1,6 @@
 package vn.tonnguyen.sathach;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -405,6 +402,8 @@ public class ExamActivity extends BaseActivity {
 	private void showResult() {
 		// get the number of right answers
 		int rightChoice = 0;
+		QuestionDbAdapter dbHelper = new QuestionDbAdapter(this);
+		dbHelper.open();
 		for(Question question : examQuestions) {
 			if(question.getAnswer() == question.getUserChoice()) {
 				question.setCorrect(true);
@@ -412,13 +411,10 @@ public class ExamActivity extends BaseActivity {
 			} else {
 				question.setCorrect(false);
 			}
+			// store the result to DB, then we can list most incorrect answer later
+			dbHelper.increaseResult(question.getQuestionFileName(), question.isCorrect());
 		}
-		
-		//boolean isPass = rightChoice >= selectedLevel.getPassPoint();
-		
-//		Toast toast = Toast.makeText(context, rightChoice + "/" + examQuestions.length + " - Pass : " + isPass, Toast.LENGTH_LONG);
-//		toast.show();
-		
+		dbHelper.close();
 		QuestionReviewSession session = new QuestionReviewSession(examQuestions, 0, selectedLevel.getExamTime() - remainingTime, rightChoice, selectedLevel);
 		Intent data = new Intent();
 		data.putExtra(PARAM_KEY, session);
@@ -463,23 +459,6 @@ public class ExamActivity extends BaseActivity {
 		questionView.loadDataWithBaseURL("file:///" + MyApplication.APPLICATION_DATA_PATH, html, "text/html", "utf-8", "");
 		//questionView.loadUrl("file:///" + MyApplication.APPLICATION_DATA_PATH + questionToShow.getQuestionFileName());
 		questionView.setInitialScale(scale);
-	}
-	
-	/**
-	 * Read an input text file, and return as text
-	 * @param filePath path to file to read
-	 * @return A String array, which represents every lines of input file
-	 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
-	 */
-	private String readFileAsText(InputStream inputStream) throws IOException {
-		String content = "";
-		//Read text from file
-	    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-	    String line;
-	    while ((line = br.readLine()) != null) {
-	    	content += line;
-	    }
-	    return content;
 	}
 	
 	/**

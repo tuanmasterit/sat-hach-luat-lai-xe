@@ -1,12 +1,10 @@
 package vn.tonnguyen.sathach;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -263,6 +261,17 @@ public class StartupActivity extends BaseActivity {
 			public void onClick(View v) {
 				context.vibrateIfEnabled();
 				Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), Preferences.class);
+				startActivity(settingsActivity);
+			}
+		});
+		
+		// show 30 most incorrect question screen when clicking on most incorrect button
+		((Button)findViewById(R.id.startup_btn_mostincorrect)).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				context.vibrateIfEnabled();
+				Intent settingsActivity = new Intent((MyApplication)getApplicationContext(), MostIncorrectQuestionActivity.class);
 				startActivity(settingsActivity);
 			}
 		});
@@ -683,29 +692,6 @@ public class StartupActivity extends BaseActivity {
 		 */
 		private long toLong(String value) {
 			return Long.parseLong(value);
-		}
-		
-		/**
-		 * Read an input text file, and return as text lines
-		 * @param filePath path to file to read
-		 * @return A String array, which represents every lines of input file
-		 * @throws IOException If file not found, or cannot execute BufferedReader.readLine()
-		 */
-		private String[] readFileAsStringArray(InputStream inputStream) throws IOException {
-//			//Get the text file
-//			File file = new File(filePath);
-//			if(!file.exists()) {
-//				throw new FileNotFoundException("File not found: " + filePath);
-//			}
-
-			ArrayList<String> stringArray = new ArrayList<String>();
-			//Read text from file
-		    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-		    String line;
-		    while ((line = br.readLine()) != null) {
-		    	stringArray.add(line);
-		    }
-		    return stringArray.toArray(new String[stringArray.size()]);
 		}
 	}
 }

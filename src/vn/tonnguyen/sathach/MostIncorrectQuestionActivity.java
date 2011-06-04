@@ -2,37 +2,27 @@ package vn.tonnguyen.sathach;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import vn.tonnguyen.sathach.bean.Question;
 import vn.tonnguyen.sathach.bean.QuestionReviewSession;
 import vn.tonnguyen.sathach.bean.QuestionState;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class QuestionReviewActivity extends BaseActivity {
+public class MostIncorrectQuestionActivity extends BaseActivity {
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
-	private QuestionReviewSession session;
-	private long totalTime; // total time that user has spent for the last exam
 	private WebView questionView; // a WebView, to display question image
 	private TextView questionNavigation; // text control to display current question in total
-	private RadioGroup radioGroup; // radio group which contains all answer choices
-	private TextView remainingTimeTextView; // text control to display remaining time
 	private Button previousButton;
 	private Button nextButton;
 	private QuestionNavigationQuickAction quickActionMenu; // a quick action menu which will be popped up when clicking on question navigation button
@@ -40,23 +30,8 @@ public class QuestionReviewActivity extends BaseActivity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
-		
-		Log.d("QuestionReviewActivity", "onCreate");
-		
-		if(savedInstanceState == null) { // load at firt time, not resume
-			Bundle extras = getIntent().getExtras();
-			if(extras == null)
-			{
-				Toast.makeText(context, context.getString(R.string.error_question_review_session_not_found), Toast.LENGTH_LONG).show();
-				finish();
-				return;
-			}
-			session = (QuestionReviewSession)extras.getSerializable(PARAM_KEY);
-			examQuestions = session.getQuestions();
-			totalTime = session.getTotalTime();
-		}
+		Log.d("MostIncorrectQuestionActivity", "onCreate");
 		
 		context = (MyApplication)getApplicationContext();
 		setContentView(R.layout.activity_exam);
@@ -71,9 +46,10 @@ public class QuestionReviewActivity extends BaseActivity {
 		// This value should be persist if user change the zoom level
 		// so they dont have to change the zoom level every time they view a question
 		
+		findViewById(R.id.exam_radioGroup).setVisibility(View.INVISIBLE);
+		findViewById(R.id.exam_titleBar_RemainingTime).setVisibility(View.INVISIBLE);
+		
 		questionNavigation = (TextView)findViewById(R.id.exam_titleBar_QuestionInfo);
-		radioGroup = (RadioGroup)findViewById(R.id.exam_radioGroup);
-		remainingTimeTextView = (TextView)findViewById(R.id.exam_titleBar_RemainingTime);
 		
 		// bind click event for next and previous buttons
 		nextButton = (Button)findViewById(R.id.exam_buttonNext);
@@ -108,19 +84,52 @@ public class QuestionReviewActivity extends BaseActivity {
 		if(savedInstanceState != null) { 
 			// question will be retrieve back and display in onRestoreInstanceState
 		} else {
+			initQuestions();
 			// add question navigation buttons
 			addQuestionNavigationButtons();
 			currentQuestionIndex = 0;
-			remainingTimeTextView.setText(getTimeAsString(totalTime));
 			updateQuestionStates(examQuestions);
 			showQuestion(currentQuestionIndex);
 		}
 	}
 	
-	private void updateQuestionStates(Question[] examQuestions) {
-		for(int x = 0; x < examQuestions.length; x++) {
-			updateQuestionNagivationState(x, examQuestions[x].isCorrect() ? QuestionState.CORRECT : QuestionState.INCORRECT);
+	/***
+	 * Listen on back button pressed, to navigate through questions instead, or asking user to exit if they are viewing the first question 
+	 */
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event)  {
+	    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+	        if(currentQuestionIndex == 0) {
+	        	finish();
+	        } else {
+	        	previous();
+	        }
+	        return true;
+	    }
+	    return super.onKeyDown(keyCode, event);
+	}
+	
+	private void initQuestions() {
+		QuestionDbAdapter dbHelper = new QuestionDbAdapter(this);
+		dbHelper.open();
+		Cursor cursor = dbHelper.fetchAllResults();
+		//startManagingCursor(cursor);
+		ArrayList<Question> list = new ArrayList<Question>();
+		String questionName;
+		int count = 0;
+		while(cursor.moveToNext()) {
+			if(count >= 30) {
+				break;
+			}
+			questionName = cursor.getString(0);
+			questionName = questionName.substring(0, 3);
+			Log.d("ResultActivity", questionName);
+			list.add(context.getQuestions().get(Integer.parseInt(questionName) - 1));
+			count++;
 		}
+		cursor.close();
+		examQuestions = list.toArray(new Question[list.size()]);
+		dbHelper.close();
 	}
 	
 	/**
@@ -220,110 +229,6 @@ public class QuestionReviewActivity extends BaseActivity {
 		}
 	}
 	
-	/**
-	 * Create option menu
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.menu_question_review_screen, menu);
-	    return true;
-	}
-	
-	/**
-	 * Process when user click on option menu
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	    case R.id.exam_screen_end_exam:
-	    	context.vibrateIfEnabled();
-	        onExit();
-	        return true;
-	    case R.id.exam_screen_preference:
-	    	context.vibrateIfEnabled();
-			Intent settingsActivity = new Intent(context, Preferences.class);
-			startActivity(settingsActivity);
-	        return true;
-	    default:
-	        return super.onOptionsItemSelected(item);
-	    }
-	}
-	
-	@Override
-	protected void onSaveInstanceState(Bundle state) {
-		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
-		// save the current session, so next time when user come back, we will load it
-		if(examQuestions != null) {
-			session.setCurrentQuestionIndex(currentQuestionIndex);
-			state.putSerializable(SESSION_KEY, session);
-		}
-		super.onSaveInstanceState(state);
-	}
-	
-	@Override
-	protected void onRestoreInstanceState(Bundle state) {
-		Log.d("ExamScreen", "onRestoreInstanceState " + state.toString());
-		Log.d("Get question from saved state", "onRestore");
-		// restore the last session of user
-		Serializable obj = state.getSerializable(SESSION_KEY);
-		if(obj != null) {
-			session = (QuestionReviewSession)obj;
-			examQuestions = session.getQuestions();
-			currentQuestionIndex = session.getCurrentQuestionIndex();
-			totalTime = session.getTotalTime();
-			remainingTimeTextView.setText(getTimeAsString(totalTime));
-			// add question navigation buttons
-			addQuestionNavigationButtons();
-			updateQuestionStates(examQuestions);
-			showQuestion(currentQuestionIndex); // display the last viewed question
-		}
-		super.onRestoreInstanceState(state);
-	}
-	
-	/***
-	 * Listen on back button pressed, to navigate through questions instead, or asking user to exit if they are viewing the first question 
-	 */
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event)  {
-	    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-	        if(currentQuestionIndex == 0) {
-	        	// asking user to exit if they are viewing the first question
-	        	onExit();
-	        } else {
-	        	previous();
-	        }
-	        return true;
-	    }
-	    return super.onKeyDown(keyCode, event);
-	}
-	
-	private void onExit() {
-		// confirm to exit exam
-    	new AlertDialog.Builder(QuestionReviewActivity.this)
-		.setIcon(android.R.drawable.ic_dialog_info)
-		.setTitle(R.string.questionreview_exit_confirm_title)
-		.setMessage(R.string.questionreview_exit_confirm_message)
-		.setPositiveButton(R.string.questionreview_exit_confirm_ok,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						context.vibrateIfEnabled();
-						finish();
-					}
-				})
-		.setNegativeButton(R.string.questionreview_exit_confirm_cancel,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,
-							int which) {
-						context.vibrateIfEnabled();
-						// do nothing
-					}
-				}).show();
-	}
-	
 	private void next() {
 		if(currentQuestionIndex >= examQuestions.length - 1) { // no more question left to show
 			return;
@@ -368,8 +273,6 @@ public class QuestionReviewActivity extends BaseActivity {
 		// update text to show current question in total:
 		questionNavigation.setText(String.format("%02d", questionIndex + 1) + "/" + examQuestions.length);
 		
-		setAnswerAndUserChoice(questionToShow);
-		
 		// disable previous button if questionIndex == 0, and next button if questionIndex == last question index
 		previousButton.setEnabled(true);
 		previousButton.setVisibility(View.VISIBLE);
@@ -384,31 +287,37 @@ public class QuestionReviewActivity extends BaseActivity {
 		}
 	}
 	
-	private void setAnswerAndUserChoice(Question question) {
-		radioGroup.clearCheck(); // clear answer
-		int childCount = radioGroup.getChildCount();
-		// disable all radio button in this group
-		for(int i = 0; i < childCount; i++) {
-			//radioGroup.getChildAt(i).setEnabled(false);
-			radioGroup.getChildAt(i).setVisibility(View.INVISIBLE);
+	@Override
+	protected void onSaveInstanceState(Bundle state) {
+		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
+		// save the current session, so next time when user come back, we will load it
+		if(examQuestions != null) {
+			state.putSerializable(SESSION_KEY, new QuestionReviewSession(examQuestions, currentQuestionIndex, 0, 0, null));
 		}
-		int userChoice = question.getUserChoice();
-		if(userChoice >= 1) {
-			RadioButton button = (RadioButton)radioGroup.getChildAt(userChoice - 1);
-			button.setVisibility(View.VISIBLE);
-			button.setBackgroundDrawable(null);
-			if(!question.isCorrect()) {
-				button.setButtonDrawable(userChoice == 1 ? R.drawable.radio_button_1_incorrect 
-																		: userChoice == 2 ? R.drawable.radio_button_2_incorrect
-																		: userChoice == 3 ? R.drawable.radio_button_3_incorrect 
-																		: R.drawable.radio_button_4_incorrect);
-			} else {
-				button.setButtonDrawable(userChoice == 1 ? R.drawable.radio_button_1_selected 
-						: userChoice == 2 ? R.drawable.radio_button_2_selected
-						: userChoice == 3 ? R.drawable.radio_button_3_selected 
-						: R.drawable.radio_button_4_selected);
-			}
+		super.onSaveInstanceState(state);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		Log.d("ExamScreen", "onRestoreInstanceState " + state.toString());
+		Log.d("Get question from saved state", "onRestore");
+		// restore the last session of user
+		Serializable obj = state.getSerializable(SESSION_KEY);
+		if(obj != null) {
+			QuestionReviewSession session = (QuestionReviewSession)obj;
+			examQuestions = session.getQuestions();
+			currentQuestionIndex = session.getCurrentQuestionIndex();
+			// add question navigation buttons
+			addQuestionNavigationButtons();
+			updateQuestionStates(examQuestions);
+			showQuestion(currentQuestionIndex); // display the last viewed question
 		}
-		
+		super.onRestoreInstanceState(state);
+	}
+	
+	private void updateQuestionStates(Question[] examQuestions) {
+		for(int x = 0; x < examQuestions.length; x++) {
+			updateQuestionNagivationState(x, QuestionState.INCORRECT);
+		}
 	}
 }

@@ -19,6 +19,7 @@
 		<activity android:name=".ExamActivity" />
 		<activity android:name=".ResultActivity" />
 		<activity android:name=".QuestionReviewActivity" />
+		<activity android:name=".MostIncorrectQuestionActivity" />
 		<activity android:name=".Preferences" />
     </application>
 </manifest>
