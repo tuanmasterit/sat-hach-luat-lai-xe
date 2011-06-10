@@ -50,6 +50,10 @@ public class BaseActivity extends Activity {
 		// Look up the AdView as a resource and load a request.
 		//if(adView == null) {
 			adView = (AdView)findViewById(R.id.adViewComponent);
+			
+//			Animation animation = AnimationUtils.loadAnimation(this, R.anim.rail);
+//			animation.setDuration(400);
+			
 			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
             animation.setDuration( 400 );
             animation.setFillAfter( true );

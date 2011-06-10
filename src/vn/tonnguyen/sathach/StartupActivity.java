@@ -104,6 +104,7 @@ public class StartupActivity extends BaseActivity {
 										finish();
 									}
 								}).show();
+				
 			} else {
 				startLoadingResource();
 			}
@@ -148,19 +149,19 @@ public class StartupActivity extends BaseActivity {
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Downloading));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(true);
+	        	progressDialog.setCancelable(false);
 	        	break;
 	        case DIALOG_EXTRACT_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Extracting));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(true);
+	        	progressDialog.setCancelable(false);
 	        	break;
 	        case DIALOG_LOADING_PROGRESS:
 	        	progressDialog = new ProgressDialog(this);
 	        	progressDialog.setMessage(context.getString(R.string.loading_Data));
 	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(true);
+	        	progressDialog.setCancelable(false);
 	        	break;
 	        default:
 	            break;

@@ -12,12 +12,12 @@
     <string name="download_Resource_Button_No">Thoát</string>
     <string name="download_Resource_Message_Downloading">Đang tải dữ liệu...</string>
     <string name="download_Resource_Message_Extracting">Đang giải nén...</string>
-    <string name="download_Resource_Error_Occurred">Có lỗi trong quá trình download dữ liệu, xin vui lòng thử lại. Lỗi: </string>
+    <string name="download_Resource_Error_Occurred">Có lỗi trong quá trình tải dữ liệu, xin vui lòng thử lại. Lỗi: </string>
     <string name="download_Resource_Message_Downloaded">Đã tải xong dữ liệu</string>
     <string name="download_Resource_Message_Extracted">Đã giải nén xong</string>
     <string name="download_Resource_Message_Loaded">Đã nạp xong dữ liệu</string>
     
-    <string name="home_SelectlLevel_Title">Chọn hạng</string>
+    <string name="home_SelectlLevel_Title">Chọn một hạng để thi</string>
     
     <string name="menu_new_exam">Làm bài thi</string>
     <string name="menu_config">Thiết lập</string>
@@ -44,7 +44,7 @@
     <string name="result_view_questions_review">Xem đáp án</string>
     <string name="result_exit">Đóng</string>
     
-    <string name="result_failed1">Bạn đã thi trượt, bạn cần có gắng hơn.</string>
+    <string name="result_failed1">Bạn đã thi trượt, bạn cần có gắng hơn. Chúc bạn may mắn lần sau!</string>
     
     <string name="result_passed1">Chúc mừng bạn đã thi đỗ!</string>
     
@@ -57,4 +57,8 @@
     
     <string name="preference_vibrateSetting_title">Rung khi nhấn nút</string>
     <string name="preference_vibrateSetting_summary">Máy sẽ rung mỗi khi nhấn nút</string>
+    
+    <string name="mostincorrect_empty_dialog_title">Chưa có dữ liệu</string>
+    <string name="mostincorrect_empty_dialog_message">Hừm, có vẻ như bạn chưa làm bài thi nào cả. Thử làm bài đi rồi mình sẽ hiện các câu bạn hay làm sai nhé!</string>
+    <string name="mostincorrect_empty_dialog_ok">Đồng ý</string>
 </resources>
