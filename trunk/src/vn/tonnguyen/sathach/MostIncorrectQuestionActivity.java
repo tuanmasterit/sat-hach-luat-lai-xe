@@ -7,10 +7,17 @@ import java.util.ArrayList;
 import vn.tonnguyen.sathach.bean.Question;
 import vn.tonnguyen.sathach.bean.QuestionReviewSession;
 import vn.tonnguyen.sathach.bean.QuestionState;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -19,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MostIncorrectQuestionActivity extends BaseActivity {
+	public static final int DIALOG_EMPTY_DATE = 1;
+	
 	private int currentQuestionIndex; // to mark the index of the current displaying question
 	private Question[] examQuestions; // hold the list of random questions
 	private WebView questionView; // a WebView, to display question image
@@ -26,71 +35,135 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	private Button previousButton;
 	private Button nextButton;
 	private QuestionNavigationQuickAction quickActionMenu; // a quick action menu which will be popped up when clicking on question navigation button
+	private Dialog dialog;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d("MostIncorrectQuestionActivity", "onCreate");
+		initQuestions();
 		
-		context = (MyApplication)getApplicationContext();
-		setContentView(R.layout.activity_exam);
-		initAdMob();
-		questionView = (WebView)findViewById(R.id.exam_QuestionView);
-        //Make sure links in the webview is handled by the webview and not sent to a full browser
-		questionView.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
-        //if ROM supports Multi-Touch     
-		questionView.getSettings().setBuiltInZoomControls(true);
-		questionView.getSettings().setUseWideViewPort(true);
-		questionView.setInitialScale(context.getRecentlyZoom()); // so the phone can display the whole image on screen. 
-		// This value should be persist if user change the zoom level
-		// so they dont have to change the zoom level every time they view a question
-		
-		findViewById(R.id.exam_radioGroup).setVisibility(View.INVISIBLE);
-		findViewById(R.id.exam_titleBar_RemainingTime).setVisibility(View.INVISIBLE);
-		
-		questionNavigation = (TextView)findViewById(R.id.exam_titleBar_QuestionInfo);
-		
-		// bind click event for next and previous buttons
-		nextButton = (Button)findViewById(R.id.exam_buttonNext);
-		nextButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				context.vibrateIfEnabled();
-				next();
-			}
-		});
-		previousButton = (Button)findViewById(R.id.exam_buttonPrevious);
-		previousButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				context.vibrateIfEnabled();
-				previous();
-			}
-		});
-		
-		quickActionMenu = new QuestionNavigationQuickAction(findViewById(R.id.exam_titleBar_question_navigation_container));
-		
-		// clicking on navigation container will show a quick action dialog, to choose question to goto
-		findViewById(R.id.exam_titleBar_question_navigation_container).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				context.vibrateIfEnabled();
-				quickActionMenu.show();
-				quickActionMenu.setSelectedQuestion(currentQuestionIndex);
-			}
-		});
-		
-		if(savedInstanceState != null) { 
-			// question will be retrieve back and display in onRestoreInstanceState
-		} else {
-			initQuestions();
-			// add question navigation buttons
-			addQuestionNavigationButtons();
-			currentQuestionIndex = 0;
-			updateQuestionStates(examQuestions);
-			showQuestion(currentQuestionIndex);
+		if(examQuestions == null || examQuestions.length <= 0) {
+			showDialog(DIALOG_EMPTY_DATE);
 		}
+		else {
+			context = (MyApplication)getApplicationContext();
+			setContentView(R.layout.activity_exam);
+			initAdMob();
+			questionView = (WebView)findViewById(R.id.exam_QuestionView);
+	        //Make sure links in the webview is handled by the webview and not sent to a full browser
+			questionView.getSettings().setSupportZoom(true);       //Zoom Control on web (You don't need this
+	        //if ROM supports Multi-Touch     
+			questionView.getSettings().setBuiltInZoomControls(true);
+			questionView.getSettings().setUseWideViewPort(true);
+			questionView.setInitialScale(context.getRecentlyZoom()); // so the phone can display the whole image on screen. 
+			// This value should be persist if user change the zoom level
+			// so they dont have to change the zoom level every time they view a question
+			
+			findViewById(R.id.exam_radioGroup).setVisibility(View.INVISIBLE);
+			findViewById(R.id.exam_titleBar_RemainingTime).setVisibility(View.INVISIBLE);
+			
+			questionNavigation = (TextView)findViewById(R.id.exam_titleBar_QuestionInfo);
+			
+			// bind click event for next and previous buttons
+			nextButton = (Button)findViewById(R.id.exam_buttonNext);
+			nextButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					context.vibrateIfEnabled();
+					next();
+				}
+			});
+			previousButton = (Button)findViewById(R.id.exam_buttonPrevious);
+			previousButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					context.vibrateIfEnabled();
+					previous();
+				}
+			});
+			
+			quickActionMenu = new QuestionNavigationQuickAction(findViewById(R.id.exam_titleBar_question_navigation_container));
+			
+			// clicking on navigation container will show a quick action dialog, to choose question to goto
+			findViewById(R.id.exam_titleBar_question_navigation_container).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					context.vibrateIfEnabled();
+					quickActionMenu.show();
+					quickActionMenu.setSelectedQuestion(currentQuestionIndex);
+				}
+			});
+			
+			if(savedInstanceState != null) { 
+				// question will be retrieve back and display in onRestoreInstanceState
+			} else {
+				// add question navigation buttons
+				addQuestionNavigationButtons();
+				currentQuestionIndex = 0;
+				updateQuestionStates(examQuestions);
+				showQuestion(currentQuestionIndex);
+			}
+		}
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		if(dialog != null && dialog.isShowing()) {
+			dialog.dismiss();
+			dialog = null;
+		}
+		switch (id) {
+        case DIALOG_EMPTY_DATE:
+        	dialog = new AlertDialog.Builder(this)
+			.setIcon(android.R.drawable.ic_dialog_info)
+			.setTitle(R.string.mostincorrect_empty_dialog_title)
+			.setMessage(R.string.mostincorrect_empty_dialog_message)
+			.setCancelable(true)
+			.setPositiveButton(R.string.mostincorrect_empty_dialog_ok,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					}).create();
+        	break;
+        default:
+            break;
+	    }
+	    return dialog;
+	}
+	
+	/**
+	 * Create option menu
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu_exam_screen, menu);
+	    return true;
+	}
+	
+	/**
+	 * Process when user click on option menu
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    case R.id.exam_screen_end_exam:
+	    	context.vibrateIfEnabled();
+	        finish();
+	        return true;
+	    case R.id.exam_screen_preference:
+	    	context.vibrateIfEnabled();
+			Intent settingsActivity = new Intent(context, Preferences.class);
+			startActivity(settingsActivity);
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 	/***
@@ -288,11 +361,19 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	}
 	
 	@Override
+	protected void onPause() {
+		super.onPause();
+		dismissDialog(DIALOG_EMPTY_DATE);
+	}
+	
+	@Override
 	protected void onSaveInstanceState(Bundle state) {
 		Log.d("ExamScreen", "onSaveInstanceState " + state.toString());
 		// save the current session, so next time when user come back, we will load it
 		if(examQuestions != null) {
-			state.putSerializable(SESSION_KEY, new QuestionReviewSession(examQuestions, currentQuestionIndex, 0, 0, null));
+			if(examQuestions != null && examQuestions.length > 0) {
+				state.putSerializable(SESSION_KEY, new QuestionReviewSession(examQuestions, currentQuestionIndex, 0, 0, null));
+			}
 		}
 		super.onSaveInstanceState(state);
 	}
@@ -305,12 +386,16 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 		Serializable obj = state.getSerializable(SESSION_KEY);
 		if(obj != null) {
 			QuestionReviewSession session = (QuestionReviewSession)obj;
-			examQuestions = session.getQuestions();
-			currentQuestionIndex = session.getCurrentQuestionIndex();
-			// add question navigation buttons
-			addQuestionNavigationButtons();
-			updateQuestionStates(examQuestions);
-			showQuestion(currentQuestionIndex); // display the last viewed question
+			if(session != null) {
+				examQuestions = session.getQuestions();
+				if(examQuestions != null && examQuestions.length > 0) {
+					currentQuestionIndex = session.getCurrentQuestionIndex();
+					// add question navigation buttons
+					addQuestionNavigationButtons();
+					updateQuestionStates(examQuestions);
+					showQuestion(currentQuestionIndex); // display the last viewed question
+				}
+			}
 		}
 		super.onRestoreInstanceState(state);
 	}
