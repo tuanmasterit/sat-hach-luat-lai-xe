@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+	        android:id="@+id/adViewContainer"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:gravity="center">
+       	<com.google.ads.AdView android:id="@+id/adViewComponent"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		ads:adUnitId="a14dc8aa6b933d0"
+		ads:adSize="BANNER" />
+    </LinearLayout>
+	
+	<ScrollView android:layout_width="fill_parent"
+	            android:layout_height="wrap_content" >		
+		<LinearLayout
+	            android:orientation="vertical"
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:padding="5dip" >
+			<ImageView 
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center_horizontal"
+		        android:src="@drawable/exam_help_sreen"  />
+	        <TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_1"
+		        />
+			<TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_2"
+		        />
+			<TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_3"
+		        />
+			<TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_4"
+		        />
+			<TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_5"
+		        />
+			<ImageView 
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center_horizontal"
+		        android:src="@drawable/exam_help_sreen_navigation"  />
+	        <TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_6"
+		        />
+	        <TextView 
+		        style="@style/HelpScreenText"
+		        android:text="@string/exam_help_7"
+		        />
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>

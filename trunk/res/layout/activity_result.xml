@@ -3,8 +3,7 @@
 	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/startup_grid_background">
+    android:layout_height="fill_parent" >
 
     <LinearLayout
 	        android:id="@+id/adViewContainer"
@@ -25,37 +24,31 @@
             android:layout_height="wrap_content"
             android:padding="5dip" >
 		<TextView 
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        style="@style/HelpScreenText"
 	        android:text="@string/result_title"
 	        android:gravity="center_horizontal"
 	        android:textStyle="bold"
-	        android:textColor="@color/startup_btn_text" />
+	        />
         <TextView android:id="@+id/result_h1"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        style="@style/HelpScreenText"
 	        android:text="@string/result_h1"
-	        android:textColor="@color/startup_btn_text" />
+	        />
 		<TextView android:id="@+id/result_h2"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        style="@style/HelpScreenText"
 	        android:text="@string/result_h2"
-	        android:textColor="@color/startup_btn_text" />
+	        />
 		<TextView android:id="@+id/result_h4"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        style="@style/HelpScreenText"
 	        android:text="@string/result_h4"
-	        android:textColor="@color/startup_btn_text" />
+	        />
 		<TextView android:id="@+id/result_h3"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        style="@style/HelpScreenText"
 	        android:text="@string/result_h3"
-	        android:textColor="@color/startup_btn_text" />
+	        />
 		<TextView 
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
+	        style="@style/HelpScreenText"
 	        android:text="@string/see_you_again"
-	        android:textColor="@color/startup_btn_text" />
+	        />
 	</LinearLayout>
 	
     <LinearLayout

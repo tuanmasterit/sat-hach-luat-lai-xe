@@ -42,13 +42,13 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d("MostIncorrectQuestionActivity", "onCreate");
+		context = (MyApplication)getApplicationContext();
 		initQuestions();
 		
 		if(examQuestions == null || examQuestions.length <= 0) {
 			showDialog(DIALOG_EMPTY_DATE);
 		}
 		else {
-			context = (MyApplication)getApplicationContext();
 			setContentView(R.layout.activity_exam);
 			initAdMob();
 			questionView = (WebView)findViewById(R.id.exam_QuestionView);
@@ -141,7 +141,7 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.menu_exam_screen, menu);
+	    inflater.inflate(R.menu.menu_question_review_screen, menu);
 	    return true;
 	}
 	
@@ -158,9 +158,12 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	        return true;
 	    case R.id.exam_screen_preference:
 	    	context.vibrateIfEnabled();
-			Intent settingsActivity = new Intent(context, Preferences.class);
-			startActivity(settingsActivity);
+			startActivity(new Intent(context, Preferences.class));
 	        return true;
+//	    case R.id.exam_screen_help:
+//	    	context.vibrateIfEnabled();
+//			startActivity(new Intent(context, ExamHelpActivity.class));
+//	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -183,6 +186,9 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	}
 	
 	private void initQuestions() {
+		if(context == null) {
+			return;
+		}
 		QuestionDbAdapter dbHelper = new QuestionDbAdapter(this);
 		dbHelper.open();
 		Cursor cursor = dbHelper.fetchAllResults();
@@ -363,7 +369,10 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		dismissDialog(DIALOG_EMPTY_DATE);
+		if(dialog != null && dialog.isShowing()) {
+			dialog.dismiss();
+			dialog = null;
+		}
 	}
 	
 	@Override
