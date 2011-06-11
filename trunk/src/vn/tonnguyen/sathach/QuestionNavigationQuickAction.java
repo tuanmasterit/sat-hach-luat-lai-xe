@@ -1,5 +1,6 @@
 package vn.tonnguyen.sathach;
 
+import net.londatiga.android.ActionItem;
 import vn.tonnguyen.sathach.bean.QuestionState;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -105,12 +106,14 @@ public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAc
 		// create numberOfRow rows, each row has numberOfQuestionInRow buttons
 		int i = 0;
 		LinearLayout row;
+		ActionItem actionItem = null;
 		for(int rowIndex = 0; rowIndex < numberOfRow; rowIndex++) {
 			row = (LinearLayout) inflater.inflate(R.layout.quickaction_row, mTrack, false);
 			for(int item = 0; item < numberOfQuestionInRow; item++) {
-				title 		= actionList.get(i).getTitle();
-				icon 		= actionList.get(i).getIcon();
-				listener	= actionList.get(i).getListener();
+				actionItem = actionList.get(i);
+				title 		= actionItem.getTitle();
+				icon 		= actionItem.getIcon();
+				listener	= actionItem.getListener();
 		
 				view 		= getActionItem(title, row, icon, listener);
 			
