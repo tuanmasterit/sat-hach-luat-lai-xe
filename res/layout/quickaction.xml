@@ -42,11 +42,9 @@
 				<include layout="@layout/action_item" style="@style/QuickActionButton" />
 				<include layout="@layout/action_item" style="@style/QuickActionButton" />
 				<include layout="@layout/action_item" style="@style/QuickActionButton" />
-				<include layout="@layout/action_item" style="@style/QuickActionButton" />
 			</LinearLayout>
 			
 			<LinearLayout style="@style/QuickActionRow" >
-				<include layout="@layout/action_item" style="@style/QuickActionButton" />
 				<include layout="@layout/action_item" style="@style/QuickActionButton" />
 				<include layout="@layout/action_item" style="@style/QuickActionButton" />
 				<include layout="@layout/action_item" style="@style/QuickActionButton" />
