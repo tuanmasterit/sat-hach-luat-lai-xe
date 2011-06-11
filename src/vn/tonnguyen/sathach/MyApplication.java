@@ -15,16 +15,6 @@ public class MyApplication extends Application {
 	
 	public static final String APPLICATION_DATA_PATH = Environment.getExternalStorageDirectory() + "/data/vn.tonnguyen.sathach/";
 	
-	//public static final String APPLICATION_INDEX_FILE_NAME = "index.dat";
-	
-	//public static final String APPLICATION_INDEX_FILE_PATH = APPLICATION_DATA_PATH + APPLICATION_INDEX_FILE_NAME;
-	
-	//public static final String APPLICATION_QUESTIONS_DATA_FILE_NAME = "questions.dat";
-	
-	//public static final String APPLICATION_QUESTIONS_DATA_FILE_PATH = APPLICATION_DATA_PATH + APPLICATION_QUESTIONS_DATA_FILE_NAME;
-	
-	//public static final String ONLINE_DATA_FILE_URL = "http://sat-hach-luat-lai-xe.googlecode.com/files/Data.zip";
-	
 	public static final String ONLINE_DATA_ROOT_URL = "http://sat-hach-luat-lai-xe.googlecode.com/files/";
 	
 	public static final String APPLICATION_SAVING_ZIP_FILE_PATH = APPLICATION_DATA_PATH + "data.zip";
@@ -38,6 +28,8 @@ public class MyApplication extends Application {
 	public static final String USER_PREFERENCE_ZOOM_KEY = "ZOOM";
 	
 	public static final String USER_PREFERENCE_ENABLE_VIBRATE_ON_TOUCH = "VibrateOnTouch";
+	
+	public static final String USER_PREFERENCE_FIRST_TIME_DOING_EXAM = "FIRSTTIME";
 	
 	private Hashtable<Integer, Question> questions;
 	
@@ -145,5 +137,13 @@ public class MyApplication extends Application {
 
 	public void setVibrateOnTouchEnabled(boolean isVibrateOnTouchEnabled) {
 		this.isVibrateOnTouchEnabled = isVibrateOnTouchEnabled;
+	}
+	
+	public boolean isFirstTimeDoingExam() {
+		return getUserPreferences().getBoolean(USER_PREFERENCE_FIRST_TIME_DOING_EXAM, true);
+	}
+	
+	public void setFirstTimeDoingExam(boolean value) {
+		getUserPreferences().edit().putBoolean(USER_PREFERENCE_FIRST_TIME_DOING_EXAM, value).commit();
 	}
 }

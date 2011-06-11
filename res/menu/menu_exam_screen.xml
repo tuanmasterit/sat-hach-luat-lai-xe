@@ -3,6 +3,9 @@
 	<item android:id="@+id/exam_screen_preference" 
 			android:title="@string/menu_config" 
 			android:icon="@android:drawable/ic_menu_preferences" />
+	<item android:id="@+id/exam_screen_help" 
+			android:title="@string/menu_help" 
+			android:icon="@android:drawable/ic_menu_help" />
     <item android:id="@+id/exam_screen_end_exam" 
     		android:title="@string/exam_menu_end_exam" 
     		android:icon="@android:drawable/ic_menu_save" />

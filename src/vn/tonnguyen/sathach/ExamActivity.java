@@ -167,6 +167,12 @@ public class ExamActivity extends BaseActivity {
 			// start a thread to display, update remaining time, the exam duration is 20 minutes
 			isInExam = true;
 			remainingTime = selectedLevel.getExamTime();
+			
+			// showing first-time-help message
+			if(context.isFirstTimeDoingExam()) {
+				Toast.makeText(context, R.string.exam_firsttime_help_message, Toast.LENGTH_LONG).show();
+			}
+			
 			//remainingTime = 60000;
 			
 			// this thread will be started in onResume event
@@ -298,9 +304,12 @@ public class ExamActivity extends BaseActivity {
 	        return true;
 	    case R.id.exam_screen_preference:
 	    	context.vibrateIfEnabled();
-			Intent settingsActivity = new Intent(context, Preferences.class);
-			startActivity(settingsActivity);
+			startActivity(new Intent(context, Preferences.class));
 	        return true;
+	    case R.id.exam_screen_help:
+	    	context.vibrateIfEnabled();
+			startActivity(new Intent(context, ExamHelpActivity.class));
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -383,6 +392,10 @@ public class ExamActivity extends BaseActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						context.vibrateIfEnabled();
 						isInExam = false;
+						// user has done at least once, let's turn the first-time flag to false
+						if(context.isFirstTimeDoingExam()) {
+							context.setFirstTimeDoingExam(false);
+						}
 						// show result
 						showResult();
 						finish();
@@ -446,6 +459,10 @@ public class ExamActivity extends BaseActivity {
 								" - Answer: " + currentQuestion.getAnswer());
 		currentQuestion.setUserChoice(choice);
 		updateQuestionNagivationState(currentQuestionIndex, QuestionState.ANSWERED);
+		// show help message to guide user how to exit, when they have answered the last question, at the first exam
+		if(currentQuestionIndex == examQuestions.length - 1 && context.isFirstTimeDoingExam()) {
+			Toast.makeText(context, R.string.exam_firsttime_howtoexit_message, Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	private void displayQuestion(Question questionToShow) throws IOException {

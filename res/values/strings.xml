@@ -21,6 +21,7 @@
     
     <string name="menu_new_exam">Làm bài thi</string>
     <string name="menu_config">Thiết lập</string>
+    <string name="menu_help">Hướng dẫn</string>
     <string name="menu_exit">Thoát</string>
     <string name="menu_mostincorrect">Câu hay làm sai</string>
     
@@ -28,6 +29,8 @@
     <string name="error_data_corrupted">Dữ liệu lỗi</string>
     <string name="error_question_review_session_not_found">Không tìm thấy dữ liệu kết quả.</string>
     
+    <string name="exam_firsttime_help_message">Để hiểu về các chức năng, cách sử dụng chương trình, bạn nhấn phím Menu và chọn "Hướng dẫn".</string>
+    <string name="exam_firsttime_howtoexit_message">Để nộp bài, bạn nhấn phím Menu và chọn "Kết thúc".</string>
     <string name="exam_exit_confirm_title">Bạn muốn hoàn tất bài thi?</string>
     <string name="exam_exit_confirm_message">Chọn "Đồng ý" để hoàn tất bài thi, hoặc chọn "Tiếp tục làm bài" để quay lại bài thi</string>
     <string name="exam_exit_confirm_ok">Đồng ý</string>
@@ -61,4 +64,12 @@
     <string name="mostincorrect_empty_dialog_title">Chưa có dữ liệu</string>
     <string name="mostincorrect_empty_dialog_message">Hừm, có vẻ như bạn chưa làm bài thi nào cả. Thử làm bài đi rồi mình sẽ hiện các câu bạn hay làm sai nhé!</string>
     <string name="mostincorrect_empty_dialog_ok">Đồng ý</string>
+    
+    <string name="exam_help_1">1: Số thứ tự câu hỏi hiện tại.</string>
+    <string name="exam_help_2">2: Trạng thái các câu hỏi. Màu đỏ là các câu chưa trả lời, màu vàng là các câu đã trả lời. Nhấn vào phần này, chức năng di chuyển nhanh giữa các câu hỏi sẽ hiện ra. (Xem chi tiết bên dưới)</string>
+    <string name="exam_help_3">3: Thời gian còn lại để làm bài thi. Chương trình sẽ tự động kết thúc bài thi khi hết thời gian làm bài.</string>
+    <string name="exam_help_4">4: Các phương án trả lời. Bạn nhấn vào một phương án để trả lời cho câu hỏi tương ứng.</string>
+    <string name="exam_help_5">5: Các phím di chuyển. Mũi tên sang phải để sang câu tiếp theo, mũi tên sang trái để quay lại câu trước.</string>
+    <string name="exam_help_6">Chức năng di chuyển nhanh giữa các câu hỏi cho phép bạn di chuyển tới các câu hỏi bạn muốn, thay vì phải sử dụng các phím di chuyển. Nhấn vào số thứ tự mỗi câu để tới câu đó. Các câu chưa được trả lời sẽ được in đậm.</string>
+    <string name="exam_help_7">Để kết thúc bài thi, bạn nhấn phím Menu và chọn Kết thúc.</string>
 </resources>

@@ -92,6 +92,12 @@
         <item name="android:background">@drawable/quickcontact_slider_btn</item>
     </style>
     
+    <style name="HelpScreenText">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingBottom">5dip</item>
+    </style>
+    
     <!-- Start of Action menu styles  -->
     <style name="Animations" />
 
