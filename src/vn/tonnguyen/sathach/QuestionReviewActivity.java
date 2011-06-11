@@ -397,6 +397,7 @@ public class QuestionReviewActivity extends BaseActivity {
 			RadioButton button = (RadioButton)radioGroup.getChildAt(userChoice - 1);
 			button.setVisibility(View.VISIBLE);
 			button.setBackgroundDrawable(null);
+			button.setButtonDrawable(null);
 			if(!question.isCorrect()) {
 				button.setButtonDrawable(userChoice == 1 ? R.drawable.radio_button_1_incorrect 
 																		: userChoice == 2 ? R.drawable.radio_button_2_incorrect
@@ -409,6 +410,5 @@ public class QuestionReviewActivity extends BaseActivity {
 						: R.drawable.radio_button_4_selected);
 			}
 		}
-		
 	}
 }
