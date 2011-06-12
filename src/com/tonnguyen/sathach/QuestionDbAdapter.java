@@ -1,6 +1,5 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
-import vn.tonnguyen.sathach.bean.UserResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +7,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.tonnguyen.sathach.bean.UserResult;
 
 public class QuestionDbAdapter {
     public static final String KEY_RESULT_ID = "QuestionName";

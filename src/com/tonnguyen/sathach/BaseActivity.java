@@ -1,4 +1,4 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import java.io.BufferedReader;
 import java.io.IOException;

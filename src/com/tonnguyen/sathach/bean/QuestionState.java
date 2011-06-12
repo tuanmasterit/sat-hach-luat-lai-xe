@@ -1,7 +1,7 @@
 /**
  * 
  */
-package vn.tonnguyen.sathach.bean;
+package com.tonnguyen.sathach.bean;
 
 /**
  * @author Ton Nguyen

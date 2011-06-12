@@ -1,4 +1,4 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;

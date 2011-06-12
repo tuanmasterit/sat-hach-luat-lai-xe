@@ -1,4 +1,4 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -8,12 +8,6 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Random;
 
-import vn.tonnguyen.sathach.bean.ExamFormat;
-import vn.tonnguyen.sathach.bean.Level;
-import vn.tonnguyen.sathach.bean.Question;
-import vn.tonnguyen.sathach.bean.QuestionReviewSession;
-import vn.tonnguyen.sathach.bean.QuestionState;
-import vn.tonnguyen.sathach.bean.Session;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +27,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tonnguyen.sathach.bean.ExamFormat;
+import com.tonnguyen.sathach.bean.Level;
+import com.tonnguyen.sathach.bean.Question;
+import com.tonnguyen.sathach.bean.QuestionReviewSession;
+import com.tonnguyen.sathach.bean.QuestionState;
+import com.tonnguyen.sathach.bean.Session;
 
 public class ExamActivity extends BaseActivity {
 	private int currentQuestionIndex; // to mark the index of the current displaying question

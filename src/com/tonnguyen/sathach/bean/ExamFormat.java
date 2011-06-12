@@ -1,4 +1,4 @@
-package vn.tonnguyen.sathach.bean;
+package com.tonnguyen.sathach.bean;
 
 import java.io.Serializable;
 
