@@ -44,25 +44,25 @@ public class BaseActivity extends Activity {
 	}
 	
 	public void initAdMob() {
-		if(findViewById(R.id.adViewComponent) == null) {
-			return;
-		}
-		// Look up the AdView as a resource and load a request.
-		//if(adView == null) {
-			adView = (AdView)findViewById(R.id.adViewComponent);
-			
-//			Animation animation = AnimationUtils.loadAnimation(this, R.anim.rail);
-//			animation.setDuration(400);
-			
-			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
-            animation.setDuration( 400 );
-            animation.setFillAfter( true );
-            animation.setInterpolator( new AccelerateInterpolator() );
-			adView.setAnimation(animation);
-		//}
-		if(!adView.isRefreshing()) {
-			adView.loadAd(createAdRequest());
-		}
+//		if(findViewById(R.id.adViewComponent) == null) {
+//			return;
+//		}
+//		// Look up the AdView as a resource and load a request.
+//		//if(adView == null) {
+//			adView = (AdView)findViewById(R.id.adViewComponent);
+//			
+////			Animation animation = AnimationUtils.loadAnimation(this, R.anim.rail);
+////			animation.setDuration(400);
+//			
+//			AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
+//            animation.setDuration( 400 );
+//            animation.setFillAfter( true );
+//            animation.setInterpolator( new AccelerateInterpolator() );
+//			adView.setAnimation(animation);
+//		//}
+//		if(!adView.isRefreshing()) {
+//			adView.loadAd(createAdRequest());
+//		}
 	}
 	
 	private AdRequest createAdRequest() {

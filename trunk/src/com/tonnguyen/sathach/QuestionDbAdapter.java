@@ -114,9 +114,12 @@ public class QuestionDbAdapter {
      * 
      * @return Cursor over all notes
      */
-    public Cursor fetchAllResults() {
+    public Cursor fetchMostIncorrectResults() {
         return mDb.query(DATABASE_TABLE, new String[] {KEY_RESULT_ID, KEY_RESULT_NUM_OF_APPEAR,
-        		KEY_RESULT_CORRECT, KEY_RESULT_INCORRECT}, null, null, null, null, KEY_RESULT_INCORRECT + " DESC, " + KEY_RESULT_NUM_OF_APPEAR + " DESC");
+        		KEY_RESULT_CORRECT, KEY_RESULT_INCORRECT}, 
+        		//KEY_RESULT_INCORRECT + " > 0",
+        		null,
+        		null, null, null, KEY_RESULT_INCORRECT + " DESC, " + KEY_RESULT_NUM_OF_APPEAR + " DESC");
     }
     
     public boolean updateResult(UserResult result) {

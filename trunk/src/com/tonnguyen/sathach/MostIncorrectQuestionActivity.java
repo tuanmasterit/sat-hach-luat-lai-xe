@@ -192,7 +192,7 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 		}
 		QuestionDbAdapter dbHelper = new QuestionDbAdapter(this);
 		dbHelper.open();
-		Cursor cursor = dbHelper.fetchAllResults();
+		Cursor cursor = dbHelper.fetchMostIncorrectResults();
 		//startManagingCursor(cursor);
 		ArrayList<Question> list = new ArrayList<Question>();
 		String questionName;
@@ -203,8 +203,9 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 			}
 			questionName = cursor.getString(0);
 			questionName = questionName.substring(0, 3);
-			Log.d("ResultActivity", questionName);
-			list.add(context.getQuestions().get(Integer.parseInt(questionName) - 1));
+			Log.d("ResultActivity - question name: ", questionName);
+			Log.d("ResultActivity - question index: ", String.valueOf(Integer.parseInt(questionName)));
+			list.add(context.getQuestions().get(Integer.parseInt(questionName)));
 			count++;
 		}
 		cursor.close();
@@ -221,18 +222,19 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 		int lineNumber = (questionIndex / 10) + 1;
 		int buttonIndex = questionIndex % 10;
 		
-		LinearLayout line;
-		switch (lineNumber) {
-		case 1:
-			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
-			break;
-		case 2:
-			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
-			break;
-		default:
-			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
-			break;
-		}
+		LinearLayout container = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_container);
+		LinearLayout line = (LinearLayout)container.getChildAt(lineNumber - 1);
+//		switch (lineNumber) {
+//		case 1:
+//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line1);
+//			break;
+//		case 2:
+//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line2);
+//			break;
+//		default:
+//			line = (LinearLayout)findViewById(R.id.exam_titleBar_question_navigation_line3);
+//			break;
+//		}
 		updateQuestionNagivationState((Button)line.getChildAt(buttonIndex), state);
 		
 		quickActionMenu.updateQuestionState(questionIndex, state);
@@ -276,6 +278,10 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 		int start = lineIndex * 10;
 		int end = start + 10;
 		for(int x = start; x < end; x++) {
+//			// break if the question index is out of bound of the question list (in case we don't have enough incorrect question to display (< 30))
+//			if(x >= examQuestions.length) {
+//				return;
+//			}
 			final int index = x;
 			// create a button from template
 			button = (Button)getLayoutInflater().inflate(R.layout.navigation_button, line, false);
