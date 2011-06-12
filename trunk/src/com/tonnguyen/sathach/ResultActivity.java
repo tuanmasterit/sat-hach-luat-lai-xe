@@ -1,11 +1,12 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
-import vn.tonnguyen.sathach.bean.QuestionReviewSession;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.tonnguyen.sathach.bean.QuestionReviewSession;
 
 public class ResultActivity extends BaseActivity {
 	private QuestionReviewSession session;

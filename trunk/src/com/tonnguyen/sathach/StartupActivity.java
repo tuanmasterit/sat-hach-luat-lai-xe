@@ -1,4 +1,4 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +12,6 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import vn.tonnguyen.sathach.bean.ExamFormat;
-import vn.tonnguyen.sathach.bean.Level;
-import vn.tonnguyen.sathach.bean.Question;
-import vn.tonnguyen.sathach.bean.QuestionReviewSession;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -30,6 +26,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.tonnguyen.sathach.bean.ExamFormat;
+import com.tonnguyen.sathach.bean.Level;
+import com.tonnguyen.sathach.bean.Question;
+import com.tonnguyen.sathach.bean.QuestionReviewSession;
 
 public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;

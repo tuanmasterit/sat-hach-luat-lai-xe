@@ -1,19 +1,20 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import vn.tonnguyen.sathach.bean.Level;
-import vn.tonnguyen.sathach.bean.Question;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 
+import com.tonnguyen.sathach.bean.Level;
+import com.tonnguyen.sathach.bean.Question;
+
 public class MyApplication extends Application {
 	
-	public static final String APPLICATION_DATA_PATH = Environment.getExternalStorageDirectory() + "/data/vn.tonnguyen.sathach/";
+	public static final String APPLICATION_DATA_PATH = Environment.getExternalStorageDirectory() + "/data/com.tonnguyen.sathach/";
 	
 	public static final String ONLINE_DATA_ROOT_URL = "http://sat-hach-luat-lai-xe.googlecode.com/files/";
 	

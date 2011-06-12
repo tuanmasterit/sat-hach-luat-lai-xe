@@ -1,12 +1,9 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import vn.tonnguyen.sathach.bean.Question;
-import vn.tonnguyen.sathach.bean.QuestionReviewSession;
-import vn.tonnguyen.sathach.bean.QuestionState;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -24,6 +21,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tonnguyen.sathach.bean.Question;
+import com.tonnguyen.sathach.bean.QuestionReviewSession;
+import com.tonnguyen.sathach.bean.QuestionState;
 
 public class MostIncorrectQuestionActivity extends BaseActivity {
 	public static final int DIALOG_EMPTY_DATE = 1;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:ads="http://schemas.android.com/apk/res/vn.tonnguyen.sathach"
+	xmlns:ads="http://schemas.android.com/apk/res/com.tonnguyen.sathach"
     android:id="@+id/exam_root"
     android:orientation="vertical"
     android:layout_width="fill_parent"

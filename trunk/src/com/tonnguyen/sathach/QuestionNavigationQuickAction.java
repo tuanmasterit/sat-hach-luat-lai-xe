@@ -1,7 +1,6 @@
-package vn.tonnguyen.sathach;
+package com.tonnguyen.sathach;
 
 import net.londatiga.android.ActionItem;
-import vn.tonnguyen.sathach.bean.QuestionState;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -15,6 +14,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.tonnguyen.sathach.bean.QuestionState;
 
 public class QuestionNavigationQuickAction extends net.londatiga.android.QuickAction {
 
