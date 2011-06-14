@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.tonnguyen.sathach.bean.Level;
+import com.tonnguyen.sathach.bean.QuestionReviewSession;
 
 public class HomeActivity extends BaseActivity {
 	public static final int REQUEST_CODE_START_EXAM = 1;
@@ -110,4 +111,33 @@ public class HomeActivity extends BaseActivity {
 			}
 		});
 	}
+
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+		case REQUEST_CODE_START_EXAM: // back from exam screen
+	        if(resultCode == RESULT_CANCELED) { // seems like we never have this case
+	            // do nothing
+	        } else if(resultCode == RESULT_OK) { // user has completed the test, show the result screen
+	        	Intent intent = new Intent((MyApplication)getApplicationContext(), ResultActivity.class);
+	        	intent.putExtra(PARAM_KEY, (QuestionReviewSession)data.getSerializableExtra(PARAM_KEY));
+	        	startActivityForResult(intent, REQUEST_CODE_VIEW_RESULT);
+	        }
+			break;
+		case REQUEST_CODE_VIEW_RESULT: // back from result screen
+			// check if user want to see questions review
+			if(resultCode == RESULT_CANCELED) {
+				// they dont want to check questions review, do nothing
+			} else {
+				// display question review screen
+	        	Intent intent = new Intent((MyApplication)getApplicationContext(), QuestionReviewActivity.class);
+	        	intent.putExtra(QuestionReviewActivity.PARAM_KEY, (QuestionReviewSession)data.getSerializableExtra(QuestionReviewActivity.PARAM_KEY));
+	        	startActivity(intent);
+			}
+			break;
+		default:
+			break;
+		}
+    }
 }
