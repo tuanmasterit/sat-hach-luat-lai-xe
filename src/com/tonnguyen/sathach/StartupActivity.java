@@ -12,10 +12,6 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +19,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tonnguyen.sathach.bean.ExamFormat;
@@ -36,17 +36,20 @@ public class StartupActivity extends BaseActivity {
 	public static final int DIALOG_EXTRACT_PROGRESS = 6;
 	public static final int DIALOG_LOADING_PROGRESS = 7;
 	
-	private ProgressDialog progressDialog;
+	//private ProgressDialog progressDialog;
 	private Handler threadHandler;
 	
-	private DownloadFilesTask downloadTask;
-	private ExtractFilesTask extractTask;
-	private ResourceLoaderThread loaderTask;
+	private static DownloadFilesTask downloadTask;
+	private static ExtractFilesTask extractTask;
+	private static ResourceLoaderThread loaderTask;
 	
-	private boolean isShowingDialog;
-	private boolean isDownloading;
-	private boolean isExtracting;
-	private boolean isLoadingResource;
+	//private boolean isShowingDialog;
+	private static boolean isDownloading;
+	private static boolean isExtracting;
+	private static boolean isLoadingResource;
+	
+	private ProgressBar progressBar;
+	private TextView progressStatus;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -56,31 +59,119 @@ public class StartupActivity extends BaseActivity {
 		Log.d("Statup onCreate", "Displaying startup dialog");
 		
 		context = (MyApplication)getApplicationContext();
+		setContentView(R.layout.activity_startup);
+		initAdMob();
+		loadResource();
 		Object retained = getLastNonConfigurationInstance();
 		if(retained != null) {
 			Log.i("Statup onCreate", "Reclaiming previous background task.");
+			setWorkingState();
 			if (retained instanceof DownloadFilesTask) {
 		        isDownloading = true;
 				downloadTask = (DownloadFilesTask) retained;
-				downloadTask.setActivity(this);
 			} else if (retained instanceof ExtractFilesTask) {
 		        isExtracting = true;
 				extractTask = (ExtractFilesTask) retained;
-				extractTask.setActivity(this);
 			} else {
 		        isLoadingResource = true;
 				loaderTask = (ResourceLoaderThread) retained;
-				loaderTask.setActivity(this);
 			}
-		} else {
-			loadResource();
 		}
+		if(savedInstanceState != null) {
+			Log.d("onCreate", "savedInstanceState is not NULL");
+			isDownloading = savedInstanceState.getBoolean("isDownloading");
+			isExtracting = savedInstanceState.getBoolean("isExtracting");
+			isLoadingResource = savedInstanceState.getBoolean("isLoadingResource");
+			Log.d("onCreate - isDownloading || isExtracting || isLoadingResource", String.valueOf(isDownloading || isExtracting || isLoadingResource));
+			if(isDownloading || isExtracting || isLoadingResource) {
+				setWorkingState();
+			}
+		}
+		if(downloadTask != null) {
+			downloadTask.setActivity(this);
+			updateProgressStatus(context.getString(R.string.download_Resource_Message_Downloading));
+		}
+		if(extractTask != null) {
+			extractTask.setActivity(this);
+			updateProgressStatus(context.getString(R.string.download_Resource_Message_Extracting));
+		}
+		if(loaderTask != null) {
+			loaderTask.setActivity(this);
+			updateProgressStatus(context.getString(R.string.loading_Data));
+		}
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle state) {
+		state.putSerializable("isDownloading", isDownloading);
+		state.putSerializable("isExtracting", isExtracting);
+		state.putSerializable("isLoadingResource", isLoadingResource);
+		Log.d("StartupActivity onSaveInstanceState", state.toString());
+		super.onSaveInstanceState(state);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		Log.d("StartupActivity", "onRestoreInstanceState " + state.toString());
+		isDownloading = state.getBoolean("isDownloading");
+		isExtracting = state.getBoolean("isExtracting");
+		isLoadingResource = state.getBoolean("isLoadingResource");
+		super.onRestoreInstanceState(state);
+	}
+	
+	@Override
+	public void onStart() {
+		Log.d("StartupActivity onStart", "onStart");
+		super.onStart();
+	}
+	
+	@Override
+	public void onResume() {
+		Log.d("StartupActivity onResume - isDownloading || isExtracting || isLoadingResource", String.valueOf(isDownloading || isExtracting || isLoadingResource));
+		if(isDownloading || isExtracting || isLoadingResource) {
+			setWorkingState();
+		}
+		super.onResume();
+	}
+	
+	@Override
+	public void onPause() {
+		Log.d("StartupActivity onPause", "onPause");
+		super.onPause();
+	}
+	
+	@Override
+	public void onStop() {
+		Log.d("StartupActivity onStop", "onStop");
+		super.onStop();
+	}
+	
+	@Override
+	public void onDestroy() {
+		Log.d("StartupActivity onDestroy", "onDestroy");
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onRestart() {
+		Log.d("StartupActivity onRestart", "onRestart");
+		super.onRestart();
+	}
+	
+	private void updateProgressStatus(String status) {
+		progressStatus.setText(status);
+	}
+	
+	private void updateProgress(int progress) {
+		progressBar.setProgress(progress);
 	}
 	
 	private void loadResource() {
 		Log.d("Statup loadResource", "loadResource");
 		Log.d("context.getQuestions()", String.valueOf(context.getQuestions() == null));
 		Log.d("context.getLevels()", String.valueOf(context.getLevels() == null));
+		progressBar = (ProgressBar)findViewById(R.id.startup_progressBar);
+		progressStatus = (TextView)findViewById(R.id.startup_progressStatus);
 		if(context.getQuestions() == null || context.getLevels() == null) { // check if resource has been loaded into memory
 			threadHandler = new Handler() {
 				@Override
@@ -90,35 +181,19 @@ public class StartupActivity extends BaseActivity {
 				}
 			};
 			if (!isResourcesAvailable()) { // check if resource has been downloaded into data folder
-				// Get resources from Internet
-				// confirm is user is willing to download first
 				final StartupActivity thisActivity = this;
-				new AlertDialog.Builder(this)
-						.setIcon(android.R.drawable.ic_dialog_info)
-						.setTitle(R.string.download_Resource_Title)
-						.setMessage(R.string.download_Resource_Message)
-						.setPositiveButton(R.string.download_Resource_Button_Yes,
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										context.vibrateIfEnabled();
-										// Start the download process and showing the process dialog
-										Log.d("Statup", "Displaying download dialog");
-										downloadTask = new DownloadFilesTask(thisActivity);
-										downloadTask.execute(getOnlineDataFileUrl(), MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
-									}
-								})
-						.setNegativeButton(R.string.download_Resource_Button_No,
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										context.vibrateIfEnabled();
-										// Close the activity
-										Log.d("Startup screen", "Closing startup activity");
-										finish();
-									}
-								}).show();
+				((Button)findViewById(R.id.startup_downloadButton)).setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						context.vibrateIfEnabled();
+						setWorkingState();
+						
+						// Start the download process and showing the process dialog
+						Log.d("Statup", "Displaying download dialog");
+						downloadTask = new DownloadFilesTask(thisActivity);
+						downloadTask.execute(getOnlineDataFileUrl(), MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH);
+					}
+				});
 				
 			} else {
 				loaderTask = new ResourceLoaderThread(this);
@@ -129,6 +204,14 @@ public class StartupActivity extends BaseActivity {
 		}
 	}
 	
+	private void setWorkingState() {
+		findViewById(R.id.startup_confirmMessage).setVisibility(View.GONE);
+		findViewById(R.id.startup_downloadButton).setVisibility(View.GONE);
+		
+		progressBar.setVisibility(View.VISIBLE);
+		progressStatus.setVisibility(View.VISIBLE);
+	}
+	
 	/**
 	 * After a screen orientation change, this method is invoked. As we're going
 	 * to state save the task, we can no longer associate it with the Activity
@@ -136,6 +219,7 @@ public class StartupActivity extends BaseActivity {
 	 */
 	@Override
 	public Object onRetainNonConfigurationInstance() {
+		Log.d("StartupActivity onRetainNonConfigurationInstance - isDownloading || isExtracting || isLoadingResource", String.valueOf(isDownloading || isExtracting || isLoadingResource));
 		if(isDownloading) {
 			downloadTask.setActivity(null);
 			return downloadTask;
@@ -155,10 +239,6 @@ public class StartupActivity extends BaseActivity {
 	 */
 	private void onDownloadTaskCompleted(boolean completed, String errorMessage) {
 		Log.i("Startup Activity", "Activity " + this + " has been notified the task is complete.");
-		if (isShowingDialog) {
-			dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-			isShowingDialog = false;
-		}
 		if(completed) {
 			// start extracting downloaded file
 			extractTask = new ExtractFilesTask(this);
@@ -175,11 +255,6 @@ public class StartupActivity extends BaseActivity {
 	 */
 	private void onExtractTaskCompleted(boolean completed, String errorMessage) {
 		Log.i("Startup Activity", "Activity " + this + " has been notified the task is complete.");
-		if (isShowingDialog) {
-			dismissDialog(DIALOG_EXTRACT_PROGRESS);
-			isShowingDialog = false;
-		}
-		
 		if(completed) {
 			// start loading resource
 			loaderTask = new ResourceLoaderThread(this);
@@ -196,10 +271,6 @@ public class StartupActivity extends BaseActivity {
 	 */
 	private void onLoadingTaskCompleted() {
 		Log.i("Startup Activity", "Activity " + this + " has been notified the task is complete.");
-		if (isShowingDialog) {
-			dismissDialog(DIALOG_LOADING_PROGRESS);
-			isShowingDialog = false;
-		}
 		showHomeActivity();
 	}
 	
@@ -224,42 +295,6 @@ public class StartupActivity extends BaseActivity {
 		return MyApplication.ONLINE_DATA_ROOT_URL + fileName;
 	}
 	
-	/**
-	 * Override the onCreateDialog, show when async task was working, user leaved application, and came back, Android will know what dialog should be displayed
-	 */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		Log.d("Statup onCreateDialog", "onCreateDialog " + id);
-		if(progressDialog != null && progressDialog.isShowing()) {
-			progressDialog.dismiss();
-			progressDialog = null;
-		}
-	    switch (id) {
-	        case DIALOG_DOWNLOAD_PROGRESS:
-	        	progressDialog = new ProgressDialog(this);
-	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Downloading));
-	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(false);
-	        	break;
-	        case DIALOG_EXTRACT_PROGRESS:
-	        	progressDialog = new ProgressDialog(this);
-	        	progressDialog.setMessage(context.getString(R.string.download_Resource_Message_Extracting));
-	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(false);
-	        	break;
-	        case DIALOG_LOADING_PROGRESS:
-	        	progressDialog = new ProgressDialog(this);
-	        	progressDialog.setMessage(context.getString(R.string.loading_Data));
-	        	progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-	        	progressDialog.setCancelable(false);
-	        	break;
-	        default:
-	            break;
-	    }
-	    isShowingDialog = true;
-	    return progressDialog;
-	}
-	
 	private void processMessage(Message msg, MyApplication application) {
 		// process incoming messages here
 		switch(msg.what) {
@@ -277,6 +312,18 @@ public class StartupActivity extends BaseActivity {
 	 * Init data, bind event for buttons
 	 */
 	private void showHomeActivity() {
+		if(downloadTask != null) {
+			downloadTask.cancel(true);
+			downloadTask = null;
+		}
+		if(extractTask != null) {
+			extractTask.cancel(true);
+			extractTask = null;
+		}
+		if(loaderTask != null) {
+			loaderTask.cancel(true);
+			loaderTask = null;
+		}
 		Intent intent = new Intent(context, HomeActivity.class);
 		startActivity(intent);
 	}
@@ -311,7 +358,9 @@ public class StartupActivity extends BaseActivity {
 		Message msg = new Message();
 		msg.what = messageID;
 		msg.obj = what;
-		threadHandler.sendMessage(msg);
+		if(threadHandler != null) {
+			threadHandler.sendMessage(msg);
+		}
 	}
 	
 	/**
@@ -336,7 +385,9 @@ public class StartupActivity extends BaseActivity {
 		 */
 	    protected void onPreExecute() {
 	        super.onPreExecute();
-	        activity.showDialog(DIALOG_DOWNLOAD_PROGRESS);
+	        //activity.showDialog(DIALOG_DOWNLOAD_PROGRESS);
+	        activity.updateProgress(0);
+	        activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Downloading));
 	        isDownloading = true;
 	    }
 		
@@ -430,8 +481,10 @@ public class StartupActivity extends BaseActivity {
 		 * This method will be invoke be UI thread. The purpose is to update UI
 		 */
 		protected void onProgressUpdate(Integer... args) {
-			Log.d("Downloading Resource", args[0].toString());
-			activity.progressDialog.setProgress(args[0]);
+			//Log.d("Downloading Resource", args[0].toString());
+			//activity.progressDialog.setProgress(args[0]);
+			activity.updateProgress(args[0]);
+			activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Downloading) + " - " + args[0]);
 		}
 		
 		private void setActivity(StartupActivity activity) {
@@ -482,7 +535,9 @@ public class StartupActivity extends BaseActivity {
 		 */
 	    protected void onPreExecute() {
 	        super.onPreExecute();
-	        activity.showDialog(DIALOG_EXTRACT_PROGRESS);
+	        //activity.showDialog(DIALOG_EXTRACT_PROGRESS);
+	        activity.updateProgress(0);
+	        activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Extracting));
 	        isExtracting = true;
 	    }
 		
@@ -562,8 +617,9 @@ public class StartupActivity extends BaseActivity {
 		 * This method will be invoke be UI thread. The purpose is to update UI
 		 */
 		protected void onProgressUpdate(Integer... args) {
-			Log.d("Extracting Resource", args[0].toString());
-			activity.progressDialog.setProgress(args[0]);
+			//Log.d("Extracting Resource", args[0].toString());
+			//activity.progressDialog.setProgress(args[0]);
+			activity.updateProgress(args[0]);
 		}
 		
 		private void setActivity(StartupActivity activity) {
@@ -612,7 +668,9 @@ public class StartupActivity extends BaseActivity {
 		 */
 	    protected void onPreExecute() {
 	        super.onPreExecute();
-	        activity.showDialog(DIALOG_LOADING_PROGRESS);
+	        //activity.showDialog(DIALOG_LOADING_PROGRESS);
+	        activity.updateProgress(0);
+	        activity.updateProgressStatus(context.getString(R.string.loading_Data));
 	        isLoadingResource = true;
 	    }
 		
@@ -640,7 +698,8 @@ public class StartupActivity extends BaseActivity {
 					question = new Question(questionFileName, numberOfAnswer, answer);
 					questions.put(i, question);
 					
-					activity.progressDialog.setProgress(80 * i / MyApplication.NUMBER_OF_QUESTIONS);
+					//activity.progressDialog.setProgress(80 * i / MyApplication.NUMBER_OF_QUESTIONS);
+					publishProgress(80 * i / MyApplication.NUMBER_OF_QUESTIONS);
 				}
 				context.setQuestions(questions);
 
@@ -671,7 +730,8 @@ public class StartupActivity extends BaseActivity {
 		 * This method will be invoke be UI thread. The purpose is to update UI
 		 */
 		protected void onProgressUpdate(Integer... args) {
-			activity.progressDialog.setProgress(args[0]);
+			//activity.progressDialog.setProgress(args[0]);
+			activity.updateProgress(args[0]);
 		}
 		
 		private void setActivity(StartupActivity activity) {
