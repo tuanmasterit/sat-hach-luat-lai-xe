@@ -620,6 +620,7 @@ public class StartupActivity extends BaseActivity {
 			//Log.d("Extracting Resource", args[0].toString());
 			//activity.progressDialog.setProgress(args[0]);
 			activity.updateProgress(args[0]);
+			activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Extracting) + " - " + args[0]);
 		}
 		
 		private void setActivity(StartupActivity activity) {
@@ -732,6 +733,7 @@ public class StartupActivity extends BaseActivity {
 		protected void onProgressUpdate(Integer... args) {
 			//activity.progressDialog.setProgress(args[0]);
 			activity.updateProgress(args[0]);
+			activity.updateProgressStatus(context.getString(R.string.loading_Data) + " - " + args[0]);
 		}
 		
 		private void setActivity(StartupActivity activity) {
