@@ -31,19 +31,12 @@ import com.tonnguyen.sathach.bean.Question;
 
 public class StartupActivity extends BaseActivity {
 	public static final int WHAT_ERROR = 1;
-	
-	public static final int DIALOG_DOWNLOAD_PROGRESS = 5;
-	public static final int DIALOG_EXTRACT_PROGRESS = 6;
-	public static final int DIALOG_LOADING_PROGRESS = 7;
-	
-	//private ProgressDialog progressDialog;
 	private Handler threadHandler;
 	
 	private static DownloadFilesTask downloadTask;
 	private static ExtractFilesTask extractTask;
 	private static ResourceLoaderThread loaderTask;
 	
-	//private boolean isShowingDialog;
 	private static boolean isDownloading;
 	private static boolean isExtracting;
 	private static boolean isLoadingResource;
@@ -60,11 +53,11 @@ public class StartupActivity extends BaseActivity {
 		
 		context = (MyApplication)getApplicationContext();
 		setContentView(R.layout.activity_startup);
-		initAdMob();
 		loadResource();
 		Object retained = getLastNonConfigurationInstance();
 		if(retained != null) {
 			Log.i("Statup onCreate", "Reclaiming previous background task.");
+			initAdMob();
 			setWorkingState();
 			if (retained instanceof DownloadFilesTask) {
 		        isDownloading = true;
@@ -181,6 +174,7 @@ public class StartupActivity extends BaseActivity {
 				}
 			};
 			if (!isResourcesAvailable()) { // check if resource has been downloaded into data folder
+				initAdMob();
 				final StartupActivity thisActivity = this;
 				((Button)findViewById(R.id.startup_downloadButton)).setOnClickListener(new View.OnClickListener() {
 					@Override
@@ -385,7 +379,6 @@ public class StartupActivity extends BaseActivity {
 		 */
 	    protected void onPreExecute() {
 	        super.onPreExecute();
-	        //activity.showDialog(DIALOG_DOWNLOAD_PROGRESS);
 	        activity.updateProgress(0);
 	        activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Downloading));
 	        isDownloading = true;
@@ -481,8 +474,6 @@ public class StartupActivity extends BaseActivity {
 		 * This method will be invoke be UI thread. The purpose is to update UI
 		 */
 		protected void onProgressUpdate(Integer... args) {
-			//Log.d("Downloading Resource", args[0].toString());
-			//activity.progressDialog.setProgress(args[0]);
 			activity.updateProgress(args[0]);
 			activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Downloading) + " - " + args[0]);
 		}
@@ -535,7 +526,6 @@ public class StartupActivity extends BaseActivity {
 		 */
 	    protected void onPreExecute() {
 	        super.onPreExecute();
-	        //activity.showDialog(DIALOG_EXTRACT_PROGRESS);
 	        activity.updateProgress(0);
 	        activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Extracting));
 	        isExtracting = true;
@@ -591,10 +581,6 @@ public class StartupActivity extends BaseActivity {
 					
 					zipentry = zipinputstream.getNextEntry();
 				}// while
-				// delete zip file
-				try {
-					new File(params[0]).delete();
-				} catch (Exception e) {}
 				isSucceed = true;
 				return null;
 			} catch (Exception e) {
@@ -603,6 +589,12 @@ public class StartupActivity extends BaseActivity {
 				errorMessage = e.getMessage();
 				return null;
 			} finally {
+				try {
+					// delete zip file
+					try {
+						new File(params[0]).delete();
+					} catch (Exception e) {}
+				} catch (Exception w) {}
 				try {
 					if (zipinputstream != null) {
 						zipinputstream.close();
@@ -617,8 +609,6 @@ public class StartupActivity extends BaseActivity {
 		 * This method will be invoke be UI thread. The purpose is to update UI
 		 */
 		protected void onProgressUpdate(Integer... args) {
-			//Log.d("Extracting Resource", args[0].toString());
-			//activity.progressDialog.setProgress(args[0]);
 			activity.updateProgress(args[0]);
 			activity.updateProgressStatus(context.getString(R.string.download_Resource_Message_Extracting) + " - " + args[0]);
 		}
@@ -669,7 +659,6 @@ public class StartupActivity extends BaseActivity {
 		 */
 	    protected void onPreExecute() {
 	        super.onPreExecute();
-	        //activity.showDialog(DIALOG_LOADING_PROGRESS);
 	        activity.updateProgress(0);
 	        activity.updateProgressStatus(context.getString(R.string.loading_Data));
 	        isLoadingResource = true;
@@ -731,7 +720,6 @@ public class StartupActivity extends BaseActivity {
 		 * This method will be invoke be UI thread. The purpose is to update UI
 		 */
 		protected void onProgressUpdate(Integer... args) {
-			//activity.progressDialog.setProgress(args[0]);
 			activity.updateProgress(args[0]);
 			activity.updateProgressStatus(context.getString(R.string.loading_Data) + " - " + args[0]);
 		}
