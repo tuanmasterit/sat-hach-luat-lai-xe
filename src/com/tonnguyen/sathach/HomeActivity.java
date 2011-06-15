@@ -23,7 +23,6 @@ public class HomeActivity extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d("HomeActivity onCreate", "Displaying Home screen");
-		context = (MyApplication)getApplicationContext();
 		
 		setContentView(R.layout.activity_home);
 		

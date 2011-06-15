@@ -57,7 +57,6 @@ public class ExamActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		
 		Log.d("ExamScreen", "onCreate");
-		context = (MyApplication)getApplicationContext();
 		int levelIndex = context.getRecentlyLevel();
 		if(levelIndex < 0) {
 			Toast.makeText(context, context.getString(R.string.error_pleaseSelect_Level), Toast.LENGTH_LONG)

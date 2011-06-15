@@ -59,7 +59,6 @@ public class QuestionReviewActivity extends BaseActivity {
 			totalTime = session.getTotalTime();
 		}
 		
-		context = (MyApplication)getApplicationContext();
 		setContentView(R.layout.activity_exam);
 		initAdMob();
 		questionView = (WebView)findViewById(R.id.exam_QuestionView);
