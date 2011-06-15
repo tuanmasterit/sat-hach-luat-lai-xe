@@ -17,7 +17,6 @@ public class ResultActivity extends BaseActivity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_result);
-		final MyApplication context = (MyApplication)getApplicationContext();
 		Bundle extras = getIntent().getExtras();
 		if(extras != null)
 		{

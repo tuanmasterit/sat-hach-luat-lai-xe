@@ -43,7 +43,6 @@ public class MostIncorrectQuestionActivity extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d("MostIncorrectQuestionActivity", "onCreate");
-		context = (MyApplication)getApplicationContext();
 		initQuestions();
 		
 		if(examQuestions == null || examQuestions.length <= 0) {

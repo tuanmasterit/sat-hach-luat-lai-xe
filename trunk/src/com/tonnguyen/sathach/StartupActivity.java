@@ -51,7 +51,6 @@ public class StartupActivity extends BaseActivity {
 		
 		Log.d("Statup onCreate", "Displaying startup dialog");
 		
-		context = (MyApplication)getApplicationContext();
 		setContentView(R.layout.activity_startup);
 		loadResource();
 		Object retained = getLastNonConfigurationInstance();

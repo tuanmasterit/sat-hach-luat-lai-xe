@@ -33,6 +33,7 @@ public class BaseActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		context = (MyApplication)getApplicationContext();
 		//Remove title bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
