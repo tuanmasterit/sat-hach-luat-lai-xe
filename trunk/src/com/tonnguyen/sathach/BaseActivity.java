@@ -21,12 +21,14 @@ import com.google.ads.AdView;
  * @author Ton Nguyen
  *
  */
-public class BaseActivity extends Activity {
+public abstract class BaseActivity extends Activity {
 	public static final String PARAM_KEY = "InputQuestionReviewData";
 	public static final String SESSION_KEY = "CurrentQuestionReviewSession";
 	
 	protected AdView adView;
 	protected MyApplication context;
+	
+
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -59,6 +61,21 @@ public class BaseActivity extends Activity {
 		if(!adView.isRefreshing()) {
 			adView.loadAd(createAdRequest());
 		}
+	}
+	
+	protected void updateProgressStatus(String status) {
+	}
+	
+	protected void updateProgress(int progress) {
+	}
+	
+	protected void onDownloadTaskCompleted(boolean completed, String errorMessage) {
+	}
+	
+	protected void onExtractTaskCompleted(boolean completed, String errorMessage) {
+	}
+	
+	protected void onLoadingTaskCompleted(boolean completed, String errorMessage) {
 	}
 	
 	private AdRequest createAdRequest() {
