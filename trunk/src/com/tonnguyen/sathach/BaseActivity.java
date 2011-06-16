@@ -10,8 +10,6 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Window;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
 
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
@@ -53,11 +51,11 @@ public abstract class BaseActivity extends Activity {
 		// Look up the AdView as a resource and load a request.
 		adView = (AdView)findViewById(R.id.adViewComponent);
 		
-		AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
-        animation.setDuration( 400 );
-        animation.setFillAfter( true );
-        animation.setInterpolator( new AccelerateInterpolator() );
-		adView.setAnimation(animation);
+//		AlphaAnimation animation = new AlphaAnimation( 0.0f, 1.0f );
+//        animation.setDuration( 400 );
+//        animation.setFillAfter( true );
+//        animation.setInterpolator( new AccelerateInterpolator() );
+//		adView.setAnimation(animation);
 		if(!adView.isRefreshing()) {
 			adView.loadAd(createAdRequest());
 		}

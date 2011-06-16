@@ -54,7 +54,6 @@ public class StartupActivity extends BaseActivity {
 		Object retained = getLastNonConfigurationInstance();
 		if(retained != null) {
 			Log.i("Statup onCreate", "Reclaiming previous background task.");
-			initAdMob();
 			setProcessingState();
 			if (retained instanceof DownloadFilesTask) {
 		        isDownloading = true;
@@ -174,8 +173,7 @@ public class StartupActivity extends BaseActivity {
 					super.handleMessage(msg);
 				}
 			};
-			if (!isResourcesAvailable()) { // check if resource has been downloaded into data folder
-				initAdMob();
+			if (isResourcesAvailable()) { // check if resource has been downloaded into data folder
 				progressContainer.setVisibility(View.VISIBLE);
 				buttonContainer.setVisibility(View.GONE);
 				final StartupActivity thisActivity = this;
@@ -340,6 +338,7 @@ public class StartupActivity extends BaseActivity {
 		progressContainer.setVisibility(View.GONE);
 		buttonContainer.setVisibility(View.VISIBLE);
 		initLayout();
+		initAdMob();
 	}
 	
 	private void initLayout() {
@@ -463,6 +462,10 @@ public class StartupActivity extends BaseActivity {
 	 */
 	private boolean isResourcesAvailable() {
 		return isFileExist(MyApplication.APPLICATION_DATA_PATH + "161.png")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "268.png")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "330.png")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "377.png")
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "398.png")
 				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.png");
 	}
 
