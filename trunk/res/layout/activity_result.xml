@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:ads="http://schemas.android.com/apk/res/com.tonnguyen.sathach"
     android:orientation="vertical"
+    android:background="@drawable/startup_grid_background"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
@@ -28,26 +29,32 @@
 	        android:text="@string/result_title"
 	        android:gravity="center_horizontal"
 	        android:textStyle="bold"
+	        android:textColor="@color/startup_btn_text"
 	        />
         <TextView android:id="@+id/result_h1"
 	        style="@style/HelpScreenText"
 	        android:text="@string/result_h1"
+	        android:textColor="@color/startup_btn_text"
 	        />
 		<TextView android:id="@+id/result_h2"
 	        style="@style/HelpScreenText"
 	        android:text="@string/result_h2"
+	        android:textColor="@color/startup_btn_text"
 	        />
 		<TextView android:id="@+id/result_h4"
 	        style="@style/HelpScreenText"
 	        android:text="@string/result_h4"
+	        android:textColor="@color/startup_btn_text"
 	        />
 		<TextView android:id="@+id/result_h3"
 	        style="@style/HelpScreenText"
 	        android:text="@string/result_h3"
+	        android:textColor="@color/startup_btn_text"
 	        />
 		<TextView 
 	        style="@style/HelpScreenText"
 	        android:text="@string/see_you_again"
+	        android:textColor="@color/startup_btn_text"
 	        />
 	</LinearLayout>
 	

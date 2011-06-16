@@ -173,7 +173,7 @@ public class StartupActivity extends BaseActivity {
 					super.handleMessage(msg);
 				}
 			};
-			if (isResourcesAvailable()) { // check if resource has been downloaded into data folder
+			if (!isResourcesAvailable()) { // check if resource has been downloaded into data folder
 				progressContainer.setVisibility(View.VISIBLE);
 				buttonContainer.setVisibility(View.GONE);
 				final StartupActivity thisActivity = this;
