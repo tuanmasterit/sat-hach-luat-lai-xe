@@ -334,10 +334,28 @@ public class StartupActivity extends BaseActivity {
 		default: // error occurred
 			// display error message
 			Log.d("Error occurred", (String)msg.obj);
-			Toast toast = Toast.makeText(application, application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj, Toast.LENGTH_LONG);
-			toast.show();
-			Log.d("Startup screen", "Closing startup activity");
-			finish();
+			
+			progressContainer.setVisibility(View.VISIBLE);
+			buttonContainer.setVisibility(View.GONE);
+			
+			findViewById(R.id.startup_confirmMessage).setVisibility(View.VISIBLE);
+			findViewById(R.id.startup_downloadButton).setVisibility(View.VISIBLE);
+			progressBar.setVisibility(View.GONE);
+			progressStatus.setVisibility(View.GONE);
+			
+			// displaying error message
+			new AlertDialog.Builder(StartupActivity.this)
+			.setIcon(android.R.drawable.ic_dialog_info)
+			.setTitle(R.string.download_Resource_Title)
+			.setMessage(application.getString(R.string.download_Resource_Error_Occurred) + (String)msg.obj)
+			.setPositiveButton(R.string.exam_exit_confirm_ok,
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					})
+			.show();
 		}
 	}
 	
