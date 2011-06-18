@@ -21,9 +21,6 @@ package com.tonnguyen.sathach;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.tonnguyen.sathach.bean.Level;
-import com.tonnguyen.sathach.bean.QuestionReviewSession;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,6 +35,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tonnguyen.sathach.bean.Level;
+import com.tonnguyen.sathach.bean.QuestionReviewSession;
 
 /**
  * @author Ton Nguyen
@@ -68,36 +68,48 @@ public class StartupActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		Log.d("Statup onCreate", "Displaying startup dialog");
-		
 		setContentView(R.layout.activity_home);
-		loadResource();
-		Object retained = getLastNonConfigurationInstance();
-		if(retained != null) {
-			Log.i("Statup onCreate", "Reclaiming previous background task.");
-			setProcessingState();
-			if (retained instanceof DownloadFilesTask) {
-		        isDownloading = true;
-				downloadTask = (DownloadFilesTask) retained;
-			} else if (retained instanceof ExtractFilesTask) {
-		        isExtracting = true;
-				extractTask = (ExtractFilesTask) retained;
-			} else {
-		        isLoadingResource = true;
-				loaderTask = (ResourceLoaderThread) retained;
-			}
-		}
+		
+		// restoring flags from saved state, to know what process has been executing
 		if(savedInstanceState != null) {
 			Log.d("onCreate", "savedInstanceState is not NULL");
 			isDownloading = savedInstanceState.getBoolean("isDownloading");
 			isExtracting = savedInstanceState.getBoolean("isExtracting");
 			isLoadingResource = savedInstanceState.getBoolean("isLoadingResource");
 			Log.d("onCreate - isDownloading || isExtracting || isLoadingResource", String.valueOf(isDownloading || isExtracting || isLoadingResource));
+		}
+		// check resources available and load it to memory, in case isLoadingResource == false
+		// if isLoadingResource == true, we will restore it from getLastNonConfigurationInstance()
+		// cause we don't want to have multiple loaderTask, running at the same time
+		loadResource();
+		// in case screen has been rotated, getLastNonConfigurationInstance() will not be NULL
+		// we will restore AsyncTask, and set created Activity, so it can update the process status
+		Object retained = getLastNonConfigurationInstance();
+		if(retained != null) {
+			Log.d("Statup onCreate", "Reclaiming previous background task.");
+			setProcessingState();
+			if (retained instanceof DownloadFilesTask) {
+				Log.d("Statup onCreate", "previous background task is DownloadFilesTask.");
+		        isDownloading = true;
+				downloadTask = (DownloadFilesTask) retained;
+			} else if (retained instanceof ExtractFilesTask) {
+				Log.d("Statup onCreate", "previous background task is ExtractFilesTask.");
+		        isExtracting = true;
+				extractTask = (ExtractFilesTask) retained;
+			} else {
+				Log.d("Statup onCreate", "previous background task is ResourceLoaderThread.");
+		        isLoadingResource = true;
+				loaderTask = (ResourceLoaderThread) retained;
+			}
+		}
+		if(savedInstanceState != null) {
 			if(isDownloading || isExtracting || isLoadingResource) {
 				setProcessingState();
 			}
 		}
+		
+		// update created Activity for AsyncTask, so it can update the process status
 		if(downloadTask != null) {
 			downloadTask.setActivity(this);
 			updateProgressStatus(context.getString(R.string.download_Resource_Message_Downloading));
@@ -112,6 +124,9 @@ public class StartupActivity extends BaseActivity {
 		}
 	}
 	
+	/**
+	 * Save flags to state, so we can restore it later, to know what process has been executing lately
+	 */
 	@Override
 	protected void onSaveInstanceState(Bundle state) {
 		state.putSerializable("isDownloading", isDownloading);
@@ -121,6 +136,9 @@ public class StartupActivity extends BaseActivity {
 		super.onSaveInstanceState(state);
 	}
 	
+	/**
+	 * Retrieve flags from state, to know what process has been executing lately
+	 */
 	@Override
 	protected void onRestoreInstanceState(Bundle state) {
 		Log.d("StartupActivity", "onRestoreInstanceState " + state.toString());
@@ -130,59 +148,70 @@ public class StartupActivity extends BaseActivity {
 		super.onRestoreInstanceState(state);
 	}
 	
-	@Override
-	public void onStart() {
-		Log.d("StartupActivity onStart", "onStart");
-		super.onStart();
-	}
+//	@Override
+//	public void onStart() {
+//		Log.d("StartupActivity onStart", "onStart");
+//		super.onStart();
+//	}
 	
 	@Override
 	public void onResume() {
-		Log.d("StartupActivity onResume - isDownloading || isExtracting || isLoadingResource", String.valueOf(isDownloading || isExtracting || isLoadingResource));
+		Log.d("StartupActivity onResume - isDownloading || isExtracting || isLoadingResource == ", String.valueOf(isDownloading || isExtracting || isLoadingResource));
 		if(isDownloading || isExtracting || isLoadingResource) {
 			setProcessingState();
 		}
 		super.onResume();
 	}
 	
-	@Override
-	public void onPause() {
-		Log.d("StartupActivity onPause", "onPause");
-		super.onPause();
-	}
+//	@Override
+//	public void onPause() {
+//		Log.d("StartupActivity onPause", "onPause");
+//		super.onPause();
+//	}
+//	
+//	@Override
+//	public void onStop() {
+//		Log.d("StartupActivity onStop", "onStop");
+//		super.onStop();
+//	}
+//	
+//	@Override
+//	public void onDestroy() {
+//		Log.d("StartupActivity onDestroy", "onDestroy");
+//		super.onDestroy();
+//	}
+//	
+//	@Override
+//	public void onRestart() {
+//		Log.d("StartupActivity onRestart", "onRestart");
+//		super.onRestart();
+//	}
 	
-	@Override
-	public void onStop() {
-		Log.d("StartupActivity onStop", "onStop");
-		super.onStop();
-	}
-	
-	@Override
-	public void onDestroy() {
-		Log.d("StartupActivity onDestroy", "onDestroy");
-		super.onDestroy();
-	}
-	
-	@Override
-	public void onRestart() {
-		Log.d("StartupActivity onRestart", "onRestart");
-		super.onRestart();
-	}
-	
+	/**
+	 * Update progress status as Text, for example: Downloading resource - 17%
+	 */
 	@Override
 	protected void updateProgressStatus(String status) {
 		progressStatus.setText(status);
 	}
 	
+	/**
+	 * Update progress percent
+	 */
 	@Override
 	protected void updateProgress(int progress) {
 		progressBar.setProgress(progress);
 	}
 	
+	/**
+	 * Check if resource has been downloaded, extracted and loaded or not.
+	 * If resource has not been downloaded, ask user to download it. Otherwise, load resources to memory, in case
+	 * we don't have any running resource loader
+	 */
 	private void loadResource() {
 		Log.d("Statup loadResource", "loadResource");
-		Log.d("context.getQuestions()", String.valueOf(context.getQuestions() == null));
-		Log.d("context.getLevels()", String.valueOf(context.getLevels() == null));
+		Log.d("context.getQuestions() == null ", String.valueOf(context.getQuestions() == null));
+		Log.d("context.getLevels() == null ", String.valueOf(context.getLevels() == null));
 		progressBar = (ProgressBar)findViewById(R.id.startup_progressBar);
 		progressStatus = (TextView)findViewById(R.id.startup_progressStatus);
 		progressContainer = (LinearLayout)findViewById(R.id.startup_resourceDownloadContainer);
@@ -195,6 +224,14 @@ public class StartupActivity extends BaseActivity {
 					super.handleMessage(msg);
 				}
 			};
+//			File dataFolder = new File(MyApplication.APPLICATION_SAVING_ZIP_FILE_PATH).getParentFile();
+//			// make sure the folder was empty first
+//			if (dataFolder.exists()) {
+//				for (File file : dataFolder.listFiles()) {
+//					file.delete();
+//				}
+//				dataFolder.delete();
+//			}
 			if (!isResourcesAvailable()) { // check if resource has been downloaded into data folder
 				progressContainer.setVisibility(View.VISIBLE);
 				buttonContainer.setVisibility(View.GONE);
@@ -214,9 +251,12 @@ public class StartupActivity extends BaseActivity {
 				});
 				
 			} else {
-				isLoadingResource = true;
-				loaderTask = new ResourceLoaderThread(this, context);
-				loaderTask.execute(new String[0]);
+				// start resource loader only in case we don't have any running resource loader
+				if(!isLoadingResource) {
+					isLoadingResource = true;
+					loaderTask = new ResourceLoaderThread(this, context);
+					loaderTask.execute(new String[0]);
+				}
 			}
 		} else {
 			showHomeActivity();
@@ -262,6 +302,7 @@ public class StartupActivity extends BaseActivity {
 	protected void onDownloadTaskCompleted(boolean completed, String errorMessage) {
 		Log.i("Startup Activity", "Activity " + this + " has been notified the task is complete.");
 		isDownloading = false;
+		downloadTask = null;
 		if(completed) {
 			// start extracting downloaded file
 			isExtracting = true;
@@ -281,8 +322,10 @@ public class StartupActivity extends BaseActivity {
 	protected void onExtractTaskCompleted(boolean completed, String errorMessage) {
 		Log.i("Startup Activity", "Activity " + this + " has been notified the task is complete.");
 		isExtracting = false;
+		extractTask = null;
 		if(completed) {
 			// start loading resource
+			isLoadingResource = true;
 			loaderTask = new ResourceLoaderThread(this, context);
 			loaderTask.execute(new String[0]);
 		} else {
@@ -299,6 +342,7 @@ public class StartupActivity extends BaseActivity {
 	protected void onLoadingTaskCompleted(boolean completed, String errorMessage) {
 		Log.i("Startup Activity", "Activity " + this + " has been notified the task is complete.");
 		isLoadingResource = false;
+		loaderTask = null;
 		if(completed) {
 			showHomeActivity();
 		} else {
@@ -506,7 +550,8 @@ public class StartupActivity extends BaseActivity {
 				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "330.png")
 				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "377.png")
 				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "398.png")
-				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.png");
+				&& isFileExist(MyApplication.APPLICATION_DATA_PATH + "405.png")
+				&& !isFileExist(MyApplication.APPLICATION_DATA_PATH + "Data.zip");
 	}
 
 	/**
