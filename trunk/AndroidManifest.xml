@@ -18,8 +18,8 @@
 -->
 
 <manifest package="com.tonnguyen.sathach"
-      android:versionCode="2"
-      android:versionName="1.02" xmlns:android="http://schemas.android.com/apk/res/android">
+      android:versionCode="3"
+      android:versionName="1.0.3" xmlns:android="http://schemas.android.com/apk/res/android">
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
